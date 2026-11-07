@@ -12,3 +12,9 @@ Dataset prepared before the event (simulated data, no code).
 - No code, executable tests, or agent implementation was copied from the rehearsal prototype. Application code is to be implemented fresh during the event.
 
 This declaration covers the dataset import. Record additional assets and open-source dependencies as they are introduced.
+
+## Planning reference
+
+- `docs/prd-telusur-en.html` is the unchanged pre-event PRD v7, copied at Galih's request for further review.
+- Its eight referenced design images are included under `docs/prd-assets/ui/`.
+- The PRD contains illustrative code and task briefs. These are planning reference material, not a day-of application implementation or permission to reuse pre-event code. The fresh-build boundary remains in effect.

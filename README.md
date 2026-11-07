@@ -16,4 +16,6 @@ Start with the [dataset guide](datasets/README.md). The pack-photo dataset inclu
 
 ## Background
 
+See the [PRD v7](docs/prd-telusur-en.html) for the detailed planning baseline. This is the original document, preserved for further adversarial review; review findings have not been applied. Its local design images are included under `docs/prd-assets/`.
+
 See [the hackathon proposal](docs/background.md) for the motivation, planned workflow, evaluation goals, and team background. It records the original proposal; regulatory statements and delivery targets should be verified before implementation.
