@@ -28,3 +28,13 @@ This declaration covers the dataset import. Record additional assets and open-so
 - Pinned direct dependencies are listed in [package.json](../package.json), with transitive versions in [package-lock.json](../package-lock.json). OpenAI provides live transcription, vision and action selection. The simulated data is local.
 - [Banana chip product photography](../public/assets/banana-chips.webp) was generated with OpenAI ImageGen for the redesigned UI. It illustrates the example recipe and is never used as ingredient or label evidence.
 - [Chili powder pouch photography](../public/assets/chili-powder.webp) was generated with OpenAI ImageGen as an explicitly labeled illustration for the simulated L-9 offer. It does not depict a verified listing or serve as evidence.
+
+## Cooked-dish evaluation assets — 7 November 2026
+
+- Added [datasets/dish-photos](../datasets/dish-photos/README.md) as a separate development evaluation; prepared fixtures and checksums remain unchanged, and held-out cases were not accessed.
+- `images/nasi-goreng.jpg`: Supardisahabu, [Nasi Goreng Kampung](https://commons.wikimedia.org/wiki/File:Nasi_Goreng_Kampung.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), original unmodified bytes.
+- `images/mie-goreng.jpg`: مانفی, [Mie goreng](https://commons.wikimedia.org/wiki/File:Mie_goreng.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), original unmodified bytes. Attribution and license also accompany the images in the gallery and manifest.
+- A uniform white 256 × 256 PNG was generated locally with PNG encoding and zlib as a synthetic negative (CC0). No photograph was edited.
+- The existing ImageGen banana-chip illustration is referenced as a synthetic perception test, not recipe/evidence truth. The existing L01 simulated label is referenced as a rejection case without modifying its prepared snapshot.
+- Codex drafted visible-ingredient annotations through visual inspection before running the baseline. These remain explicitly `draft` pending independent human evaluation. No source provides a verified complete recipe for the two photographed portions; recipe references remain null.
+- [Initial live-model baseline](../demo/dish-eval-baseline.json) preserves predictions and failures. This is measurement of the current implementation, not training data injected into the runtime prompt or a claim of broad food-recognition accuracy.

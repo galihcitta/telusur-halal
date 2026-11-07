@@ -1,0 +1,369 @@
+{
+  "version": "dish-photos-dev-v1",
+  "split": "development",
+  "cases": [
+    {
+      "id": "dish-001",
+      "image": "images/nasi-goreng.jpg",
+      "mime": "image/jpeg",
+      "sha256": "27a4d8b47815250b2c650537143fb857c64243ab141d736deef8c9729aa7b75e",
+      "provenance": {
+        "kind": "public_photo",
+        "source": "https://commons.wikimedia.org/wiki/File:Nasi_Goreng_Kampung.jpg",
+        "attribution": "Supardisahabu; original image, unmodified",
+        "license": "CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      "annotation": {
+        "status": "draft",
+        "reviewer": "Codex visual annotation; pending independent evaluator review",
+        "basis": "Rice, fried egg, sliced cucumber and crackers are clearly visible. Brown garnish is optional. Do not infer cracker species or hidden sauces from the dish name. Source description is not a verified recipe for this plate."
+      },
+      "expected": "dish",
+      "dish_aliases": [
+        "nasi goreng",
+        "nasi goreng kampung",
+        "nasi goreng telur"
+      ],
+      "required_visible": [
+        {
+          "key": "rice",
+          "aliases": [
+            "nasi",
+            "nasi putih",
+            "beras",
+            "nasi goreng"
+          ]
+        },
+        {
+          "key": "egg",
+          "aliases": [
+            "telur",
+            "telur goreng",
+            "telur ceplok",
+            "telur mata sapi"
+          ]
+        },
+        {
+          "key": "cucumber",
+          "aliases": [
+            "timun",
+            "mentimun",
+            "ketimun",
+            "irisan mentimun"
+          ]
+        },
+        {
+          "key": "cracker",
+          "aliases": [
+            "kerupuk"
+          ]
+        }
+      ],
+      "optional_visible": [
+        {
+          "key": "shallot",
+          "aliases": [
+            "bawang goreng",
+            "bawang merah goreng"
+          ]
+        }
+      ],
+      "must_not_infer": [
+        {
+          "key": "oil",
+          "aliases": [
+            "minyak",
+            "minyak goreng"
+          ]
+        },
+        {
+          "key": "salt",
+          "aliases": [
+            "garam"
+          ]
+        },
+        {
+          "key": "sugar",
+          "aliases": [
+            "gula",
+            "gula pasir"
+          ]
+        },
+        {
+          "key": "soy_sauce",
+          "aliases": [
+            "kecap",
+            "kecap manis",
+            "kecap asin"
+          ]
+        },
+        {
+          "key": "stock",
+          "aliases": [
+            "kaldu",
+            "kaldu ayam",
+            "penyedap rasa",
+            "msg"
+          ]
+        },
+        {
+          "key": "shrimp_paste",
+          "aliases": [
+            "terasi"
+          ]
+        }
+      ],
+      "recipe_reference": null
+    },
+    {
+      "id": "dish-002",
+      "image": "images/mie-goreng.jpg",
+      "mime": "image/jpeg",
+      "sha256": "7ec73059d6f29a2273ae9247eff9c5303c264104818ee2bc0c3a77aeb038a733",
+      "provenance": {
+        "kind": "public_photo",
+        "source": "https://commons.wikimedia.org/wiki/File:Mie_goreng.jpg",
+        "attribution": "مانفی; original image, unmodified",
+        "license": "CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      "annotation": {
+        "status": "draft",
+        "reviewer": "Codex visual annotation; pending independent evaluator review",
+        "basis": "Noodles and whole peeled shrimp are clearly visible. Green garnish is optional at generic level; its exact species is not independently established. No verified recipe accompanies this image."
+      },
+      "expected": "dish",
+      "dish_aliases": [
+        "mie goreng",
+        "mi goreng",
+        "mie goreng udang",
+        "mi goreng udang"
+      ],
+      "required_visible": [
+        {
+          "key": "noodle",
+          "aliases": [
+            "mie",
+            "mi",
+            "mie kuning",
+            "mi kuning",
+            "mie goreng",
+            "mi goreng"
+          ]
+        },
+        {
+          "key": "shrimp",
+          "aliases": [
+            "udang"
+          ]
+        }
+      ],
+      "optional_visible": [
+        {
+          "key": "greens",
+          "aliases": [
+            "sayuran hijau",
+            "sayur hijau",
+            "daun hijau",
+            "sayuran"
+          ]
+        }
+      ],
+      "must_not_infer": [
+        {
+          "key": "oil",
+          "aliases": [
+            "minyak",
+            "minyak goreng"
+          ]
+        },
+        {
+          "key": "salt",
+          "aliases": [
+            "garam"
+          ]
+        },
+        {
+          "key": "sugar",
+          "aliases": [
+            "gula",
+            "gula pasir"
+          ]
+        },
+        {
+          "key": "soy_sauce",
+          "aliases": [
+            "kecap",
+            "kecap manis",
+            "kecap asin"
+          ]
+        },
+        {
+          "key": "stock",
+          "aliases": [
+            "kaldu",
+            "kaldu ayam",
+            "penyedap rasa",
+            "msg"
+          ]
+        },
+        {
+          "key": "garlic",
+          "aliases": [
+            "bawang putih"
+          ]
+        },
+        {
+          "key": "chicken",
+          "aliases": [
+            "ayam",
+            "daging ayam"
+          ]
+        }
+      ],
+      "recipe_reference": null
+    },
+    {
+      "id": "dish-003",
+      "image": "../../public/assets/banana-chips.webp",
+      "mime": "image/webp",
+      "sha256": "c35b7ad0c899ef7961c7df6106d5c72edd4508e5cb1c25510fa064c69acb541d",
+      "provenance": {
+        "kind": "synthetic",
+        "source": "../../docs/declarations.md",
+        "attribution": "Existing team OpenAI ImageGen UI illustration",
+        "license": "Team-generated synthetic test asset"
+      },
+      "annotation": {
+        "status": "draft",
+        "reviewer": "Codex visual annotation; pending independent evaluator review",
+        "basis": "Synthetic banana-chip illustration. Whole chilies are visible props, not proof of the recipe; accepted only as optional visible objects. Powder identity, oil, salt and actual composition are unknown."
+      },
+      "expected": "dish",
+      "dish_aliases": [
+        "keripik pisang",
+        "keripik pisang pedas",
+        "keripik pisang balado"
+      ],
+      "required_visible": [
+        {
+          "key": "banana",
+          "aliases": [
+            "pisang",
+            "keripik pisang"
+          ]
+        }
+      ],
+      "optional_visible": [
+        {
+          "key": "chili",
+          "aliases": [
+            "cabai",
+            "cabe",
+            "cabai merah",
+            "cabe merah"
+          ]
+        }
+      ],
+      "must_not_infer": [
+        {
+          "key": "oil",
+          "aliases": [
+            "minyak",
+            "minyak goreng"
+          ]
+        },
+        {
+          "key": "salt",
+          "aliases": [
+            "garam"
+          ]
+        },
+        {
+          "key": "sugar",
+          "aliases": [
+            "gula",
+            "gula pasir"
+          ]
+        },
+        {
+          "key": "soy_sauce",
+          "aliases": [
+            "kecap",
+            "kecap manis",
+            "kecap asin"
+          ]
+        },
+        {
+          "key": "stock",
+          "aliases": [
+            "kaldu",
+            "kaldu ayam",
+            "penyedap rasa",
+            "msg"
+          ]
+        },
+        {
+          "key": "flour",
+          "aliases": [
+            "tepung",
+            "tepung terigu"
+          ]
+        },
+        {
+          "key": "seasoning",
+          "aliases": [
+            "bumbu balado",
+            "bumbu penyedap"
+          ]
+        }
+      ],
+      "recipe_reference": null
+    },
+    {
+      "id": "reject-001",
+      "image": "../pack-photos/repo/evals/intake/photos/L01_D01.sim.png",
+      "mime": "image/png",
+      "sha256": "c43a80ff9554ce3de17327df6485e615e5de9a374979c71f733c04b37ee6a7dc",
+      "provenance": {
+        "kind": "synthetic",
+        "source": "../pack-photos/README.md",
+        "attribution": "Prepared simulated product-label asset; referenced without modification",
+        "license": "Team prepared simulation"
+      },
+      "annotation": {
+        "status": "draft",
+        "reviewer": "Codex visual annotation; pending independent evaluator review",
+        "basis": "A product label is not a photo of one prepared dish. Text must not become a dish recipe."
+      },
+      "expected": "reject",
+      "dish_aliases": [],
+      "required_visible": [],
+      "optional_visible": [],
+      "must_not_infer": [],
+      "recipe_reference": null
+    },
+    {
+      "id": "reject-002",
+      "image": "images/blank.png",
+      "mime": "image/png",
+      "sha256": "35dbdd71438a2c8ade7be27e8469926582458dc29055585f2bcce59238b9b0e7",
+      "provenance": {
+        "kind": "synthetic",
+        "source": "README.md",
+        "attribution": "Locally generated uniform white 256 × 256 PNG",
+        "license": "CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "annotation": {
+        "status": "draft",
+        "reviewer": "Codex visual annotation; pending independent evaluator review",
+        "basis": "Uniform white pixels contain no food. Expected response is null, not a guessed dish."
+      },
+      "expected": "reject",
+      "dish_aliases": [],
+      "required_visible": [],
+      "optional_visible": [],
+      "must_not_infer": [],
+      "recipe_reference": null
+    }
+  ]
+}

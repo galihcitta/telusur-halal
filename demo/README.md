@@ -35,3 +35,7 @@ mkdir -p .run
 ffmpeg -i demo/d01-bahasa-synthetic.mp3 -ac 1 -ar 48000 .run/mic-d01.wav
 TELUSUR_MIC_WAV="$PWD/.run/mic-d01.wav" bash demo/browser-d01.sh
 ```
+
+## Cooked-dish photo evaluation
+
+Run `npm run eval:dishes -- --validate` to check assets without AI, then `npm run eval:dishes` for the live `readDish` path. See the [photo reference gallery and annotation guide](../datasets/dish-photos/README.md). [Initial baseline](dish-eval-baseline.json): 4/5 passed, with one false acceptance of a product-label image. All annotations are draft pending independent evaluator review; this small development set does not establish general accuracy. The runtime prompt was not tuned during this evaluation.

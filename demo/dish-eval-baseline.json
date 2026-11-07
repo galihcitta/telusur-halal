@@ -1,0 +1,147 @@
+{
+  "mode": "live_model",
+  "version": "dish-photos-dev-v1",
+  "split": "development",
+  "manifest_sha256": "7641d4d891770bb0f670db67a978ab9345e0097ecc17f941506ab11fc342e16e",
+  "model": "gpt-4.1-mini",
+  "timestamp": "2026-11-07T07:06:51.173Z",
+  "attempted": 5,
+  "annotations_pending_review": 5,
+  "recognition_correct": 4,
+  "recognition_rate": 0.8,
+  "completed": 5,
+  "technical_failures": 0,
+  "passed": 4,
+  "pass_rate": 0.8,
+  "by_provenance": {
+    "synthetic": {
+      "attempted": 3,
+      "passed": 2
+    },
+    "team_photo": {
+      "attempted": 0,
+      "passed": 0
+    },
+    "public_photo": {
+      "attempted": 2,
+      "passed": 2
+    }
+  },
+  "results": [
+    {
+      "id": "dish-001",
+      "provenance": "public_photo",
+      "prediction": {
+        "dish": "Nasi goreng",
+        "visible_ingredients": [
+          "nasi goreng",
+          "telur mata sapi",
+          "irisan mentimun",
+          "kerupuk"
+        ]
+      },
+      "passed": true,
+      "recognized": true,
+      "matched": [
+        "rice",
+        "egg",
+        "cucumber",
+        "cracker"
+      ],
+      "missing": [],
+      "unsupported": [],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": 1,
+      "recall": 1,
+      "duration_ms": 4701
+    },
+    {
+      "id": "dish-002",
+      "provenance": "public_photo",
+      "prediction": {
+        "dish": "mie goreng udang",
+        "visible_ingredients": [
+          "mie",
+          "udang",
+          "sayuran hijau"
+        ]
+      },
+      "passed": true,
+      "recognized": true,
+      "matched": [
+        "noodle",
+        "shrimp",
+        "greens"
+      ],
+      "missing": [],
+      "unsupported": [],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": 1,
+      "recall": 1,
+      "duration_ms": 5010
+    },
+    {
+      "id": "dish-003",
+      "provenance": "synthetic",
+      "prediction": {
+        "dish": "keripik pisang pedas",
+        "visible_ingredients": [
+          "pisang",
+          "cabe merah"
+        ]
+      },
+      "passed": true,
+      "recognized": true,
+      "matched": [
+        "banana",
+        "chili"
+      ],
+      "missing": [],
+      "unsupported": [],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": 1,
+      "recall": 1,
+      "duration_ms": 2275
+    },
+    {
+      "id": "reject-001",
+      "provenance": "synthetic",
+      "prediction": {
+        "dish": "keripik pisang",
+        "visible_ingredients": [
+          "pisang kepok"
+        ]
+      },
+      "passed": false,
+      "recognized": false,
+      "matched": [],
+      "missing": [],
+      "unsupported": [
+        "pisang kepok"
+      ],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": 0,
+      "recall": null,
+      "duration_ms": 1146
+    },
+    {
+      "id": "reject-002",
+      "provenance": "synthetic",
+      "prediction": null,
+      "passed": true,
+      "recognized": true,
+      "matched": [],
+      "missing": [],
+      "unsupported": [],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": null,
+      "recall": null,
+      "duration_ms": 791
+    }
+  ]
+}
