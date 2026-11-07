@@ -121,6 +121,7 @@ export interface CaseView {
   source_mode: SourceMode;
   product_name: string;
   scope: Confirmation['scope'];
+  intake_kind?: 'dish_photo';
   draft?: Draft;
   confirmed_ingredient_ids: string[];
   ingredients: Ingredient[];
@@ -132,6 +133,7 @@ export interface Media { bytes: Buffer; mime: string; name: string }
 export type AgentAction = 'request_pack' | 'search_catalogue' | 'refer';
 export interface Model {
   intake(audio: Media, label: Media): Promise<Draft>;
+  readDish(photo: Media): Promise<{ dish: string; visible_ingredients: string[] } | null>;
   readPack(images: Media[]): Promise<Observation>;
   choose(input: { ingredient: string; reason?: Reason; allowed: AgentAction[] }): Promise<AgentAction>;
 }

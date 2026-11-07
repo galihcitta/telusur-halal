@@ -165,6 +165,7 @@ async function run(scenario: Scenario, policy: 'model' | 'scripted') {
   const scope = supported.has(scenario.id) ? 'snack' : 'facilitator_review';
   const store = new CaseService({
     intake: async () => ({ product_name: scenario.product, scope, ingredients: recipe, notes: [], transcript: '' }),
+    readDish: async () => { throw new Error('Dish intake is outside this comparison.'); },
     readPack: async ([input]) => {
       const observed = reads.get(input?.bytes.toString() ?? '');
       if (!observed) throw new Error('No declared oracle observation for this input.');

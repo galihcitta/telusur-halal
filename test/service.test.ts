@@ -23,6 +23,7 @@ const media = (name: string): Media => ({ bytes: Buffer.from(name), mime: 'image
 async function setup(overrides: Partial<Model> = {}, scope: Draft['scope'] = 'snack', workflow?: WorkflowRunner) {
   const service = new CaseService({
     intake: async () => ({ ...draft, scope }),
+    readDish: async () => null,
     choose: async ({ allowed }) => allowed[0],
     readPack: async ([file]) => file.name === 'wrong' ? wrong : correct,
     ...overrides,
@@ -161,6 +162,7 @@ test('renaming a supported draft cannot carry its scope over to an unsupported p
 test('unreadable intake asks for replacement input instead of creating a paused case', async () => {
   const store = new CaseService({
     intake: async () => { throw new IntakeInputError('Ambil foto label yang lebih jelas.'); },
+    readDish: async () => null,
     choose: async ({ allowed }) => allowed[0],
     readPack: async () => correct,
   });
@@ -498,7 +500,7 @@ test('material process edits refer the same banana product and cannot restore st
 });
 
 test('material product edits before first confirmation do not inherit the intake assessment', async () => {
-  const service = new CaseService({ intake: async () => draft, choose: async ({ allowed }) => allowed[0], readPack: async () => correct });
+  const service = new CaseService({ intake: async () => draft, readDish: async () => null, choose: async ({ allowed }) => allowed[0], readPack: async () => correct });
   const created = await service.create(media('audio'), media('label'));
   await service.mutate(created.case.case_id, created.session, 1, entry => service.confirm(entry, {
     product_name: 'Keripik Pisang fermentasi dan diasap', scope: 'snack', ingredients: draft.ingredients, reviewed: true,
@@ -621,4 +623,90 @@ test('package photos require the seller session and embed in the HTML report', a
   const html = packetHtml(packet, new Map([[source, photo]]));
   assert.ok(html.includes('data:image/png;base64,' + photo.bytes.toString('base64')));
   assert.match(html, /<summary>Sumber rujukan<\/summary>/);
+});
+
+test('dish suggestions require seller confirmation and never supply pack evidence', async () => {
+  const photo = media('dish');
+  let packReads = 0;
+  const service = new CaseService({
+    intake: async () => { assert.fail('Dish intake must not read audio or a label'); },
+    readDish: async input => {
+      assert.deepEqual(input, photo);
+      return { dish: 'Nasi Goreng', visible_ingredients: ['nasi', 'telur'] };
+    },
+    choose: async ({ allowed }) => allowed[0],
+    readPack: async () => { packReads++; return correct; },
+  }, 'fixture');
+  const { case: initial, session } = await service.createFromDish(photo);
+  const id = initial.case_id;
+  const read = () => service.read(id);
+  assert.equal(initial.phase, 'intake_review');
+  assert.equal(initial.intake_kind, 'dish_photo');
+  assert.equal(initial.product_name, '');
+  assert.deepEqual(initial.draft?.ingredients.map(({ ingredient_id: _, ...row }) => row), [
+    { declared_name: 'nasi', form: 'unknown', pack_condition: 'unknown' },
+    { declared_name: 'telur', form: 'unknown', pack_condition: 'unknown' },
+  ]);
+  assert.deepEqual(initial.confirmed_ingredient_ids, []);
+  assert.deepEqual(initial.ingredients, []);
+  assert.deepEqual(initial.proposals, []);
+  assert.deepEqual(initial.events.map(event => event.type), ['intake_parsed']);
+
+  const seasoning = { ...draft.ingredients[1], ingredient_id: initial.draft?.ingredients[0].ingredient_id };
+  const looseChili = draft.ingredients[2];
+  const input = {
+    product_name: 'Nasi Goreng Bu Sari', reviewed: true as const, scope: 'snack' as const,
+    ingredients: [seasoning, looseChili],
+  };
+  await assert.rejects(service.mutate(id, '', 1, entry => service.confirm(entry, input)), { status: 403 });
+  await service.mutate(id, session, 1, entry => service.confirm(entry, input));
+  assert.equal(read().scope, 'facilitator_review');
+  assert.equal(read().product_name, input.product_name);
+  assert.ok(read().ingredients.every(row => row.evidence.length === 0 && row.status !== 'verified'));
+  assert.deepEqual(read().proposals, []);
+  const request = read().ingredients[0].pending_request!;
+  const answer = (image: Media) => service.mutate(id, session, 1, entry => service.pack(entry, {
+    request_id: request.request_id, condition: 'sealed', mode: 'photo', confirmed_current: true, images: [image],
+  }));
+  await assert.rejects(answer(photo), { status: 422 });
+  assert.equal(packReads, 0);
+  assert.deepEqual(read().ingredients[0].pending_request, request);
+  await answer(media('original-package'));
+  assert.equal(packReads, 1);
+  assert.equal(read().ingredients[0].status, 'verified');
+  const packet = buildPacket(read());
+  const [dishRef] = initial.events[0].data.source_refs as string[];
+  assert.ok(!(packet.current_ingredients[0].source_refs as string[]).includes(dishRef));
+  assert.ok((packet.current_ingredients[0].source_refs as string[]).some(ref => ref.endsWith('#R-202')));
+  assert.equal(packet.evidence_complete, false);
+  assert.deepEqual(packet.conditional_proposals, []);
+  const [offer] = read().proposals;
+  assert.equal(offer.status, 'pending');
+  await assert.rejects(service.mutate(id, '', 1, entry => service.decide(entry, offer.proposal_id, 'approve')), { status: 403 });
+  await service.mutate(id, session, 1, entry => service.decide(entry, offer.proposal_id, 'approve'));
+  assert.equal(buildPacket(read()).conditional_proposals[0].adoption, 'pending');
+  assert.equal(read().ingredients[1].status, 'unresolved');
+});
+
+test('unrecognized dish leaves an empty draft that the seller can fill', async () => {
+  const service = new CaseService({
+    intake: async () => draft,
+    readDish: async () => null,
+    choose: async ({ allowed }) => allowed[0],
+    readPack: async () => correct,
+  }, 'fixture');
+  const { case: initial, session } = await service.createFromDish(media('unrelated'));
+  assert.equal(initial.phase, 'intake_review');
+  assert.equal(initial.draft?.product_name, '');
+  assert.deepEqual(initial.draft?.ingredients, []);
+  assert.equal(initial.events.length, 1);
+  await service.mutate(initial.case_id, session, 1, entry => service.confirm(entry, {
+    product_name: 'Sup sayur', reviewed: true, scope: 'facilitator_review',
+    ingredients: [{ declared_name: 'kaldu', form: 'processed', pack_condition: 'unknown' }],
+  }));
+  const confirmed = service.read(initial.case_id);
+  assert.equal(confirmed.product_name, 'Sup sayur');
+  assert.equal(confirmed.ingredients[0].declared_name, 'kaldu');
+  assert.ok(confirmed.ingredients[0].pending_request);
+  assert.equal(confirmed.ingredients[0].status, 'open');
 });

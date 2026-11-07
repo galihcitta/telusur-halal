@@ -29,8 +29,21 @@ app.use('/api', (_req, res, next) => { res.set('Cache-Control', 'no-store'); nex
 app.use(express.json({ limit: '64kb' }));
 app.use(express.static('public'));
 
-app.post('/api/cases', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'label', maxCount: 1 }]), async (req, res) => {
-  const result = await store.create(media(readFiles(req, 'audio')[0], 'audio'), media(readFiles(req, 'label')[0], 'image'));
+app.post('/api/cases', upload.fields([
+  { name: 'audio', maxCount: 1 }, { name: 'label', maxCount: 1 }, { name: 'dish', maxCount: 1 },
+]), async (req, res) => {
+  const dish = readFiles(req, 'dish')[0];
+  const audio = readFiles(req, 'audio')[0];
+  const label = readFiles(req, 'label')[0];
+  if (dish && (audio || label)) {
+    throw new RequestError(400, 'Pilih foto masakan saja, atau kirim rekaman suara bersama foto label.');
+  }
+  if (dish && (!dish.size || !isSupportedMedia(dish.mimetype, 'image'))) {
+    throw new RequestError(400, 'Pilih foto masakan berformat PNG, JPEG, atau WebP.');
+  }
+  const result = dish
+    ? await store.createFromDish(media(dish, 'image'))
+    : await store.create(media(audio, 'audio'), media(label, 'image'));
   res.status(201).json(result);
 });
 app.get('/api/cases/:id', (req, res) => {
@@ -82,7 +95,7 @@ app.post('/api/cases/:id/export', async (req, res) => {
 const handleError: express.ErrorRequestHandler = (error, _req, res, _next) => {
   if (error instanceof RequestError) { res.status(error.status).json({ error: error.message }); return; }
   if (error instanceof z.ZodError || error instanceof SyntaxError || error instanceof multer.MulterError) {
-    res.status(400).json({ error: 'Check the submitted fields and file sizes.' }); return;
+    res.status(400).json({ error: 'Periksa isian dan ukuran file, lalu coba lagi.' }); return;
   }
   res.status(500).json({ error: 'The local service could not finish this request.' });
 };
