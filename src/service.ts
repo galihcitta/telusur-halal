@@ -1,5 +1,6 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { eventSchema, IntakeInputError, PackInputError, type AgentAction, type CaseView, type Confirmation, type EventType, type Ingredient, type Media, type Model, type Observation, type SourceMode } from './contracts.js';
+import type { WorkflowRunner } from './orchestration.js';
 import { checkEvidence, exemption, ingredientIdentity, searchCatalogue } from './rules.js';
 
 export class RequestError extends Error {
@@ -60,7 +61,11 @@ function recipeKey(input: Pick<Confirmation, 'product_name' | 'scope' | 'ingredi
 
 export class CaseService {
   private cases = new Map<string, Entry>();
-  constructor(private model: Model, private source: SourceMode = 'actual_media') {}
+  constructor(
+    private model: Model,
+    private source: SourceMode = 'actual_media',
+    private workflowRunner?: WorkflowRunner,
+  ) {}
 
   read(id: string) {
     const entry = this.cases.get(id);
@@ -207,8 +212,12 @@ export class CaseService {
   private async action(view: CaseView, row: Ingredient, allowed: AgentAction[]) {
     const choice = await this.model.choose({ ingredient: row.declared_name, reason: row.reason, allowed });
     if (!allowed.includes(choice)) throw new Error('Agent action violated the guard.');
-    append(view, 'agent_action', `Agent selected ${choice.replaceAll('_', ' ')}.`, { ingredient_id: row.ingredient_id, action: choice, previous_reason: row.reason, allowed });
+    this.recordAction(view, row, choice, allowed);
     return choice;
+  }
+
+  private recordAction(view: CaseView, row: Ingredient, choice: AgentAction, allowed: AgentAction[]) {
+    append(view, 'agent_action', `Agent selected ${choice.replaceAll('_', ' ')}.`, { ingredient_id: row.ingredient_id, action: choice, previous_reason: row.reason, allowed });
   }
 
   private historyFor(entry: Entry, row: Pick<Ingredient, 'declared_name' | 'variant' | 'brand'>) {
@@ -240,6 +249,7 @@ export class CaseService {
   private async advance(entry: Entry) {
     const view = entry.view;
     view.phase = 'checking';
+    const packs: Ingredient[] = [];
     for (const row of view.ingredients) {
       if (row.status !== 'open' || row.pending_request) continue;
       if (view.scope !== 'snack') {
@@ -266,24 +276,24 @@ export class CaseService {
           source_refs: row.source_refs });
         continue;
       }
-      const action = await this.action(view, row, row.requests === 0 ? ['request_pack'] : ['request_pack', 'refer']);
-      if (action === 'refer') {
-        row.status = 'unresolved';
-        continue;
+      if (this.workflowRunner) {
+        packs.push(row);
+      } else {
+        const action = await this.action(view, row, this.packActions(row));
+        this.applyPackAction(entry, row, action);
       }
-      row.pending_request = { request_id: randomUUID(), attempt: ++history.requests };
-      row.requests = history.requests;
-      append(view, 'pack_requested', row.requests === 1 ? 'Request front and maker/certificate area of the actual pack.' : 'Request one corrected or clearer pack photo.', {
-        ingredient_id: row.ingredient_id, ...row.pending_request,
-      });
+    }
+
+    if (this.workflowRunner) {
+      await this.advanceWithAgent(entry, packs, this.workflowRunner);
+    } else {
+      for (const row of this.catalogueRows(entry)) {
+        const action = await this.action(view, row, ['search_catalogue', 'refer']);
+        this.applyCatalogueAction(entry, row, action);
+      }
     }
 
     const waitingForPack = view.ingredients.some(row => row.pending_request);
-    if (!waitingForPack && view.scope === 'snack') {
-      for (const row of view.ingredients) {
-        if (row.status === 'unresolved' && row.reason !== 'EXEMPT_UNKNOWN' && row.reason !== 'SCOPE_REVIEW') await this.recommend(entry, row);
-      }
-    }
     view.phase = waitingForPack || view.proposals.some(proposal => proposal.status === 'pending') ? 'awaiting_seller' : 'review_packet';
   }
 
@@ -348,23 +358,75 @@ export class CaseService {
     await this.run(entry, resume);
   }
 
-  private async recommend(entry: Entry, row: Ingredient) {
+  private packActions(row: Ingredient): AgentAction[] {
+    return row.requests === 0 ? ['request_pack'] : ['request_pack', 'refer'];
+  }
+
+  private applyPackAction(entry: Entry, row: Ingredient, action: AgentAction) {
+    if (action === 'refer') {
+      row.status = 'unresolved';
+      return;
+    }
+    const history = this.historyFor(entry, row);
+    row.pending_request = { request_id: randomUUID(), attempt: ++history.requests };
+    row.requests = history.requests;
+    append(entry.view, 'pack_requested', row.requests === 1 ? 'Request front and maker/certificate area of the actual pack.' : 'Request one corrected or clearer pack photo.', {
+      ingredient_id: row.ingredient_id, ...row.pending_request,
+    });
+  }
+
+  private catalogueRows(entry: Entry) {
+    const view = entry.view;
+    if (view.scope !== 'snack' || view.ingredients.some(row => row.pending_request || row.status === 'open')) return [];
+    return view.ingredients.filter(row => {
+      if (row.status !== 'unresolved' || row.reason === 'EXEMPT_UNKNOWN' || row.reason === 'SCOPE_REVIEW') return false;
+      const history = this.historyFor(entry, row);
+      const previous = view.proposals.filter(item => item.ingredient_id === row.ingredient_id);
+      return history.offered.length < 2 && previous.every(item => item.status === 'declined') &&
+        !view.events.some(event => event.revision === view.revision && event.type === 'catalogue_searched' &&
+          event.data.ingredient_id === row.ingredient_id && event.data.offer_index === previous.length);
+    });
+  }
+
+  private async advanceWithAgent(entry: Entry, packs: Ingredient[], run: WorkflowRunner) {
+    const choices = () => [
+      ...packs.filter(row => row.status === 'open' && !row.pending_request)
+        .map(row => ({ row, allowed: this.packActions(row), stage: 'pack' })),
+      ...this.catalogueRows(entry)
+        .map(row => ({ row, allowed: ['search_catalogue', 'refer'] as AgentAction[], stage: 'catalogue' })),
+    ];
+    const actions = () => choices().flatMap(({ row, allowed }) => allowed.map(action => ({
+      ingredient_id: row.ingredient_id, ingredient: row.declared_name, reason: row.reason, action,
+    })));
+    if (!actions().length) return;
+
+    await run({
+      actions,
+      execute: (ingredientId, action) => {
+        const choice = choices().find(item => item.row.ingredient_id === ingredientId && item.allowed.includes(action));
+        if (!choice) return false;
+        const { row, allowed, stage } = choice;
+        this.recordAction(entry.view, row, action, allowed);
+        if (stage === 'pack') this.applyPackAction(entry, row, action);
+        else this.applyCatalogueAction(entry, row, action);
+        return true;
+      },
+      maxTurns: entry.view.ingredients.length * 2 + 2,
+    });
+    if (actions().length) throw new Error('Agent stopped before completing the available case actions.');
+  }
+
+  private applyCatalogueAction(entry: Entry, row: Ingredient, choice: AgentAction) {
     const view = entry.view;
     const history = this.historyFor(entry, row);
     const previous = view.proposals.filter(item => item.ingredient_id === row.ingredient_id);
-    if (history.offered.length >= 2 || previous.some(item => item.status !== 'declined')) return;
-    const completed = view.events.some(event => event.revision === view.revision && event.type === 'catalogue_searched' &&
-      event.data.ingredient_id === row.ingredient_id && event.data.offer_index === previous.length);
-    if (completed) return;
-    const options = searchCatalogue(row);
-    const choice = await this.action(view, row, ['search_catalogue', 'refer']);
     if (choice === 'refer') {
       append(view, 'catalogue_searched', 'Agent referred the gap for facilitator review.', {
         ingredient_id: row.ingredient_id, offer_index: previous.length, searched: false,
       });
       return;
     }
-    const results = options;
+    const results = searchCatalogue(row);
     const candidate = results.eligible.find(item => !history.offered.includes(item.listing.listing_id));
     append(view, 'catalogue_searched', candidate ? 'Searched simulated Shopee and found an eligible candidate.' : 'No different eligible simulated listing found.', {
       ingredient_id: row.ingredient_id, offer_index: previous.length, searched: true,
