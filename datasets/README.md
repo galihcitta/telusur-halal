@@ -1,5 +1,7 @@
 # Shared Telusur dataset
 
+For cooked-dish photo recognition, see [dish-photo evaluations](dish-photos/README.md): a separate development set with public-photo attribution, synthetic negatives, visible-ingredient annotations, checksums, and a live-model runner. The prepared pack-photo snapshot below is unchanged.
+
 For a separate real-data demo sample, see [BPJPH public-search sample](bpjph-demo/README.md):
 1,504 product records associated with 568 certificate numbers, collected from
 154 public search pages on 7 November 2026.
