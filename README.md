@@ -4,6 +4,10 @@ Telusur Halal helps Indonesian micro and small food sellers start with a cooked-
 
 **Review the MVP** · [Run locally](#run-the-mvp) · [D01 demo inputs](demo/README.md) · [Verification results](docs/mvp-verification.md)
 
+![Telusur Halal evidence map showing a Palmia package match and five unresolved ingredients](docs/screenshots/palmia-evidence.jpg)
+
+The **Bukti** screen shows a real Palmia package match against the saved BPJPH sample alongside ingredients that still need evidence. [Browser retest](docs/mvp-verification.md#seller-recovery-and-palmia-photo-retest)
+
 ## Architecture
 
 The model reads seller inputs, then the Agents SDK runs a case-level tool loop. The agent can request packs, search the simulated catalogue, or refer a gap. The server checks each action against the current case and applies the evidence rules. When the case needs seller input, the run ends and the next seller response starts a new run from the updated case. The seller confirms the recipe and decides whether to approve a proposed substitute.
