@@ -29,6 +29,7 @@ export async function observeModel<T>(
   configuredModel: string,
   call: () => Promise<T>,
   metrics: (result: T) => { model?: string; usage: Usage | null },
+  failedUsage?: (error: unknown) => Usage | null,
 ): Promise<T> {
   const start = performance.now();
   let model = configuredModel;
@@ -41,6 +42,9 @@ export async function observeModel<T>(
     model = reported.model ?? configuredModel;
     usage = reported.usage;
     return result;
+  } catch (error) {
+    usage = failedUsage?.(error) ?? null;
+    throw error;
   } finally {
     console.info(JSON.stringify({
       event: 'model_telemetry', operation, model, outcome,

@@ -1,4 +1,4 @@
-import { Agent, Runner, tool } from '@openai/agents';
+import { Agent, AgentsError, Runner, tool, type Usage } from '@openai/agents';
 import { z } from 'zod';
 import { observeModel } from './telemetry.js';
 import type { AgentAction, Ingredient } from './contracts.js';
@@ -30,6 +30,18 @@ const toolDescriptions = {
   search_catalogue: 'Search the simulated catalogue and propose an eligible substitute for seller review.',
   refer: 'Refer this evidence gap to the facilitator.',
 } satisfies Record<AgentAction, string>;
+
+function runUsage(usage: Usage | undefined) {
+  if (!usage?.requests) return null;
+  return {
+    requests: usage.requests,
+    input_tokens: usage.inputTokens,
+    output_tokens: usage.outputTokens,
+    total_tokens: usage.totalTokens,
+    cached_input_tokens: usage.inputTokensDetails.reduce((sum, details) =>
+      sum + (typeof details.cached_tokens === 'number' ? details.cached_tokens : 0), 0),
+  };
+}
 
 export function createWorkflowRunner(): WorkflowRunner {
   const runner = new Runner({ tracingDisabled: true, traceIncludeSensitiveData: false });
@@ -67,12 +79,6 @@ export function createWorkflowRunner(): WorkflowRunner {
     await observeModel('agent_run', model, () => runner.run(agent, JSON.stringify({ available_actions: actions() }), {
       maxTurns,
       signal: AbortSignal.timeout(60_000),
-    }), ({ state: { usage } }) => ({ usage: usage.requests ? {
-      requests: usage.requests,
-      input_tokens: usage.inputTokens,
-      output_tokens: usage.outputTokens,
-      total_tokens: usage.totalTokens,
-      cached_input_tokens: usage.inputTokensDetails.reduce((sum, details) => sum + (typeof details.cached_tokens === 'number' ? details.cached_tokens : 0), 0),
-    } : null }));
+    }), ({ state: { usage } }) => ({ usage: runUsage(usage) }), error => error instanceof AgentsError ? runUsage(error.state?.usage) : null);
   };
 }
