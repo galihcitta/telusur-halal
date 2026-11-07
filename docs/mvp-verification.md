@@ -122,3 +122,9 @@ Both the model and scripted comparator passed 30 of 30 structured scenarios at k
 The unit tests separately exercise wrong identity, borrowed certificates, source switching, known repacks, missing exemption conditions, duplicate or stale decisions, decline and alternative selection, and technical retry. The prepared dataset manifest remained intact.
 
 The results apply to the tested media and simulations. The D01 recording used synthesized speech, so the run does not establish performance on a human seller recording. The full transcript corpus and private held-out archive were outside this run.
+
+## Agents SDK with the merged frontend
+
+D01 passed end to end with the default Agents SDK workflow and the frontend from PR #8. The live model processed synthetic Bahasa Indonesia audio and simulated label and pack photos. The server rejected Pedas for Original, verified the corrected pack, and recorded the seller's approval of the simulated substitute. HTML, JSON, and trace downloads succeeded, and the independent D01 grader reported zero failures. The export left the current chili unresolved and the proposed substitute pending adoption. Approval requests with missing or foreign seller credentials returned HTTP 403.
+
+Typecheck and all 48 tests passed. The referral regression test confirms that a repeated pack referral cannot consume a catalogue decision. The policy comparison measures the legacy single-action Responses workflow against the scripted baseline.
