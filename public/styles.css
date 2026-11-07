@@ -536,6 +536,15 @@ button.badge:hover { border-color: currentColor; }
 .recipe-columns h2 { font-size: clamp(1.16rem, 1.65vw, 1.5rem); }
 .recipe-columns ul { display: grid; gap: .35rem; list-style: none; padding: 0; margin: .75rem 0 0; }
 .recipe-columns li, .recipe-columns .badge span { overflow-wrap: anywhere; }
+.report-ingredients > li {
+  display: grid;
+  justify-items: start;
+  gap: .4rem;
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.report-ingredients > li > p { margin: 0; }
+.report-ingredients > li > details { max-width: 100%; }
 .handoff-panel .primary { width: 100%; }
 .checklist { list-style: none; margin: .75rem 0 1rem; padding: 0; }
 .checklist li {

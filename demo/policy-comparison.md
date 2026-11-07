@@ -7,7 +7,7 @@ mkdir -p .run
 node --env-file-if-exists=.env --import tsx demo/compare-policy.ts > .run/compare-policy.json
 ```
 
-The comparison loads all 21 development and 9 adversarial inputs from the preserved snapshot. Both policies run through the same case service, evidence rules, seller responses and budgets, once per case. The model controls only the action selector. The comparator uses a scripted preference for available pack requests, searches for no-pack gaps and otherwise refers where available.
+The current runner validates the preserved snapshot and executes D01, D02 and D20, the three cases with explicit workflow expectations. The 30-case results below are historical and predate independent ingredient checks for referred recipes. Both policies run through the same case service, evidence rules, seller responses and budgets, once per case. The model controls only the action selector. The comparator uses a scripted preference for available pack requests, searches for no-pack gaps and otherwise refers where available.
 
 D01, D02 and D20 are the three in-scope banana-chip cases. D01 supplies a day-of oracle observation for the simulated oil and uses both prepared seasoning observations. D20 uses its prepared dark chocolate observation. D02 and D20 brand-only ingredients without a supplied pack receive a fixture no-pack answer and remain unresolved. Each in-scope banana has affirmative fixture confirmation of fresh form and no additives. The 27 other recipes exercise the facilitator-scope guard, so no model action or pack evidence is evaluated on those rows. D11 tempe remains domain-unvalidated. The runner ignores historical readiness, submission, expected asks and final verdict labels.
 

@@ -182,3 +182,13 @@ Typecheck and all 45 tests passed. Fixture tests independently enforce that a mi
 On the combined main and PR #6 build, typecheck and all 48 tests passed. Live D01 with synthetic demo media passed the browser export grader. The wrong Pedas pack was rejected, the corrected Original pack verified, and the seller approved a substitute that remained pending adoption. Requests with missing or foreign seller credentials returned HTTP 403.
 
 Three separate cases submitted the original Palmia marketplace photo through the live pack endpoint. All three reads included the printed product type. One case verified and exported the number from the saved BPJPH snapshot. Two reads stayed open for more evidence, one after a manufacturer punctuation mismatch and one after the reader marked certificate evidence unreadable.
+
+## Recipes supplied by judges
+
+The confirmation flow accepts names beyond the banana-chip scenarios. A recipe-level referral still appears in the packet. Ingredient checks continue independently, and plain rum goes to facilitator review without a substitute search for that ingredient.
+
+Live D01 passed in the browser through seller approval and HTML, JSON, and trace export. The independent grader passed. A separate live Pisang goreng Medan case used synthesized Bahasa Indonesia audio and simulated label and pack images. Intake identified four ingredients. A generic flour declaration was refused, then exact seller-confirmed product names verified the flour and sugar against the simulated registry. Fresh bananas met the fixture exemption conditions, and rum remained unresolved for facilitator review. The exported packet showed three of four ingredients with evidence and incomplete overall evidence. The result was checked in the browser's Berkas view.
+
+The current structured policy comparator ran D01, D02 and D20 with fixture observations. Both policies passed all three cases. The historical 27 whole-recipe scope guards are outside that comparator after this change.
+
+The live D01 browser rerun opened the detailed Berkas view before downloading the report. The view and downloaded HTML matched the JSON packet for all four ingredient names, decision reasons, source references, and observed package identity fields. The HTML includes both the rejected Pedas reading and the corrected Original reading. The approved substitute remained pending adoption.

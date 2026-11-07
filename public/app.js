@@ -378,7 +378,7 @@ function showEditor() {
     <form id="confirm-form">
       <details class="recipe-settings"><summary>Detail produk</summary><div class="grid">
         ${input('product_name', 'Nama produk', source?.product_name, true)}
-        ${select('scope', 'Jenis produk', { snack: 'Camilan yang dicakup demo', facilitator_review: 'Produk atau proses yang perlu peninjauan' }, source?.scope)}
+        ${select('scope', 'Jenis produk', { snack: 'Pemeriksaan bahan', facilitator_review: 'Produk atau proses yang perlu peninjauan' }, source?.scope)}
       </div></details>
       <div id="ingredients">${ingredients.map(ingredientEditor).join('')}</div>
       <button class="quiet" id="add" type="button">Tambah bahan</button>
@@ -720,7 +720,7 @@ function caseInfo() {
   return `<div class="case-info">
     ${replay ? '<p class="note"><strong>Replay · Putar ulang rekaman.</strong> Tampilan baca saja.</p>' :
       observer ? '<p class="note">Tampilan baca saja.</p>' : ''}
-    ${view.scope === 'facilitator_review' && hasRecipe() ? '<p class="note">Produk atau proses ini perlu ditinjau oleh fasilitator.</p>' : ''}
+    ${view.scope === 'facilitator_review' && hasRecipe() ? '<p class="note">Produk atau proses ini perlu ditinjau oleh fasilitator. Bukti setiap bahan tetap diperiksa secara terpisah.</p>' : ''}
     ${view.phase === 'paused' ? '<p class="note">Pemeriksaan terjeda. Coba lagi untuk melanjutkan kasus ini.</p>' : ''}
     <p class="case-source muted">${replay ? sourceModes.replay : sourceModes[view.source_mode] || 'Sumber kasus'} · Revisi ${view.revision}</p>
   </div>`;
@@ -728,20 +728,38 @@ function caseInfo() {
 
 function packetView() {
   const approved = view.proposals.filter(proposal => proposal.status === 'approved');
+  const currentEvents = view.events.filter(event => event.revision === view.revision);
+  const searched = view.events.some(event => event.revision === view.revision &&
+    event.type === 'catalogue_searched' && event.data.searched === true);
+  const noProposals = view.proposals.some(proposal => proposal.status === 'pending')
+    ? 'Tinjau usulan yang menunggu keputusan di tab Bukti.'
+    : view.proposals.length ? 'Belum ada usulan yang disetujui.'
+    : searched ? 'Pencarian tidak menemukan pengganti yang sesuai.'
+    : 'Pencarian pengganti belum dilakukan. Lihat status tiap bahan di tab Bukti.';
   return `<div class="packet-layout">
     <section class="sheet packet-summary">
       <h1 id="page-title" tabindex="-1">Berkas bukti bahan</h1>
       <div class="recipe-columns">
         <section><h2>Resep saat ini</h2><p class="evidence-count">${evidenceSummary()}</p>
-        <ul>${view.ingredients.map(row => {
+        <ul class="report-ingredients">${view.ingredients.map(row => {
           const supported = row.status === 'verified' || row.status === 'exempt';
-          return `<li class="badge ${supported ? 'confirmed' : 'gap'}">${icon(supported ? 'check' : 'alert')} <span>${escape(ingredientTitle(row))}${supported ? '' : ' · belum terverifikasi'}</span></li>`;
+          const verdict = currentEvents.findLast(event => event.type === 'evidence_checked' &&
+            event.data.ingredient_id === row.ingredient_id);
+          const sources = Array.isArray(verdict?.data.source_refs) ? verdict.data.source_refs : row.source_refs;
+          const evidence = row.evidence.filter(item => item.revision === view.revision);
+          return `<li>
+            <strong>${escape(ingredientTitle(row))}</strong>
+            <span class="badge ${supported ? 'confirmed' : 'gap'}">${icon(supported ? 'check' : 'alert')} <span>${escape(mapStatus(row))}</span></span>
+            ${row.basis ? `<p>${escape(row.basis)}</p>` : ''}
+            ${sources?.length ? `<details><summary>Sumber rujukan</summary><ul>${sources.map(source => `<li>${escape(source)}</li>`).join('')}</ul></details>` : ''}
+            ${evidenceLog(evidence)}
+          </li>`;
         }).join('')}</ul></section>
         <section><h2>Usulan pengganti</h2>
         ${approved.length ? `<ul>${approved.map(({ listing, registry }) => `<li><strong>${[listing.product, listing.variant, listing.pack_size].filter(Boolean).map(escape).join(' · ')}</strong>
         <p class="muted">${escape(registry.certificate_number)} · Registri simulasi</p>
         <span class="badge gap">${icon('alert')} Disetujui, belum dipakai</span></li>`).join('')}</ul>`
-        : '<p class="muted">Belum ada usulan yang disetujui.</p>'}</section>
+        : `<p class="muted">${noProposals}</p>`}</section>
       </div>
     </section>
     <aside class="sheet handoff-panel">

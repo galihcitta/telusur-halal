@@ -49,6 +49,11 @@ function mediaSetRef(images: Media[]) {
 
 const normalize = (value: string | undefined) => value?.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ') || undefined;
 
+function requiresIngredientReview(name: string) {
+  const ingredient = normalize(name);
+  return ingredient === 'rum' || ingredient === 'minuman rum' || ingredient === 'rum alkohol';
+}
+
 function recipeKey(input: Pick<Confirmation, 'product_name' | 'scope' | 'ingredients'>) {
   return JSON.stringify({
     product: normalize(input.product_name), scope: input.scope,
@@ -175,11 +180,10 @@ export class CaseService {
     const refs = parsedEvent?.data.source_refs as string[] ?? [];
     view.product_name = input.product_name;
     const product = normalize(input.product_name)!;
-    const bananaSnack = /^(keripik pisang|pisang coklat)(?:\s|$)/iu.test(product);
     // The intake assessment covers its original product, not new process claims.
     // Without a fresh assessment, material name edits and prior referrals stay referred.
     view.scope = view.scope === 'snack' && view.draft.scope === 'snack' && input.scope === 'snack' &&
-      product === normalize(view.draft.product_name) && bananaSnack ? 'snack' : 'facilitator_review';
+      product === normalize(view.draft.product_name) && !input.ingredients.some(row => requiresIngredientReview(row.declared_name)) ? 'snack' : 'facilitator_review';
     view.ingredients = input.ingredients.map(row => {
       const ingredient_id = row.ingredient_id ?? randomUUID();
       entry.knownIds.add(ingredient_id);
@@ -252,8 +256,8 @@ export class CaseService {
     const packs: Ingredient[] = [];
     for (const row of view.ingredients) {
       if (row.status !== 'open' || row.pending_request) continue;
-      if (view.scope !== 'snack') {
-        this.verdict(view, row, { status: 'unresolved', reason: 'SCOPE_REVIEW', basis: 'Facilitator to review product scope and production process.', source_refs: row.source_refs });
+      if (requiresIngredientReview(row.declared_name)) {
+        this.verdict(view, row, { status: 'unresolved', reason: 'SCOPE_REVIEW', basis: 'Fasilitator perlu meninjau penggunaan rum. Esens rum adalah bahan yang berbeda.', source_refs: row.source_refs });
         continue;
       }
       const waived = exemption(row);
@@ -377,7 +381,7 @@ export class CaseService {
 
   private catalogueRows(entry: Entry) {
     const view = entry.view;
-    if (view.scope !== 'snack' || view.ingredients.some(row => row.pending_request || row.status === 'open')) return [];
+    if (view.ingredients.some(row => row.pending_request || row.status === 'open')) return [];
     return view.ingredients.filter(row => {
       if (row.status !== 'unresolved' || row.reason === 'EXEMPT_UNKNOWN' || row.reason === 'SCOPE_REVIEW') return false;
       const history = this.historyFor(entry, row);

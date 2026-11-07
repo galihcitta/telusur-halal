@@ -43,7 +43,16 @@ export function packetHtml(packet: ReturnType<typeof buildPacket>) {
   const rows = packet.current_ingredients.map(row => `<tr>${cells([
     [row.ingredient, row.brand, row.variant].filter(Boolean).join(' · '), row.status, row.basis,
     Array.isArray(row.source_refs) ? row.source_refs.join('\n') : '', row.next_action,
-  ])}</tr>`).join('');
+  ])}<td>${row.evidence.length ? `<ul>${row.evidence.map(({ observed, source_type, source_refs, conflicts }) => `
+    <li><strong>${source_type === 'photo' ? 'Package photo' : 'Seller transcription'}</strong>
+    <p>${[
+      observed.product || 'Product unreadable',
+      observed.manufacturer || 'Manufacturer unreadable',
+      observed.variant_known ? observed.variant || 'No variant' : 'Variant unknown',
+      observed.certificate_number || (observed.certificate_state === 'absent' ? 'Number not printed' : 'Number unreadable'),
+    ].map(escape).join(' · ')}</p>
+    ${conflicts.length ? `<p>${conflicts.map(escape).join(', ')}</p>` : ''}
+    <small>${source_refs.map(escape).join(', ')}</small></li>`).join('')}</ul>` : ''}</td></tr>`).join('');
   const proposals = packet.conditional_proposals.map(({ listing, registry, next_action }) =>
     `<li><strong>${escape([listing.product, listing.variant, listing.pack_size].filter(Boolean).join(' · '))}</strong>
     <p>${escape(listing.manufacturer)} · ${escape(listing.shop)} · Rp${listing.price_idr.toLocaleString('id-ID')}</p>
@@ -54,7 +63,7 @@ export function packetHtml(packet: ReturnType<typeof buildPacket>) {
   <h1>${escape(packet.product_name)} · Evidence packet</h1>
   <p>${escape(packet.simulation_notice)}</p><p>Revision ${packet.revision} · ${escape(packet.source_mode)} · ${escape(packet.dataset_version)} · ${escape(packet.bpjph_dataset_version)}</p>
   <h2>Current ingredients</h2><p>${packet.evidence_complete ? 'Ingredient evidence complete for this revision.' : 'Open evidence gaps remain.'}</p>
-  <table><thead><tr><th>Ingredient</th><th>Status</th><th>Basis</th><th>Sources</th><th>Next action</th></tr></thead><tbody>${rows}</tbody></table>
+  <table><thead><tr><th>Ingredient</th><th>Status</th><th>Basis</th><th>Sources</th><th>Next action</th><th>Package evidence</th></tr></thead><tbody>${rows}</tbody></table>
   <h2>Approved replacements pending adoption</h2>${proposals ? `<ul>${proposals}</ul>` : '<p>None.</p>'}
   <h2>Seller and facilitator checklist</h2><ul>${checklist.map(task => `<li>${escape(task)}</li>`).join('')}</ul></html>`;
 }
