@@ -14,6 +14,8 @@ let intakeFiles;
 const packPhotos = new Map();
 const previews = new WeakMap();
 const observerId = new URLSearchParams(location.search).get('case');
+const sellerStorageKey = 'telusur-seller-case';
+let savedSeller = observerId ? undefined : readSavedSeller();
 
 const escape = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -62,24 +64,62 @@ function message(text, error = false) {
   notice.classList.toggle('error', error);
 }
 
+function readSavedSeller() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(sellerStorageKey));
+    if (typeof saved?.caseId === 'string' && /^[a-f0-9]{64}$/.test(saved.session)) return saved;
+  } catch { /* Storage may be unavailable. */ }
+}
+
+function saveSeller(saved) {
+  savedSeller = saved;
+  session = saved?.session;
+  try {
+    if (saved) sessionStorage.setItem(sellerStorageKey, JSON.stringify(saved));
+    else sessionStorage.removeItem(sellerStorageKey);
+  } catch { /* The current page still has the seller session. */ }
+}
+
+class RequestError extends Error {
+  constructor(message, status = 0) {
+    super(message);
+    this.status = status;
+  }
+}
+
 async function request(path, data) {
   const headers = {};
   if (session) headers.Authorization = 'Bearer ' + session;
   if (data && !(data instanceof FormData)) headers['Content-Type'] = 'application/json';
-  const response = await fetch(path, {
-    method: data ? 'POST' : 'GET',
-    headers,
-    body: data instanceof FormData ? data : data ? JSON.stringify(data) : undefined,
-  });
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok && !result.case) {
-    throw new Error(typeof result.error === 'string' ? result.error : 'Permintaan gagal. Coba lagi.');
+  let response;
+  try {
+    response = await fetch(path, {
+      method: data ? 'POST' : 'GET',
+      headers,
+      body: data instanceof FormData ? data : data ? JSON.stringify(data) : undefined,
+    });
+  } catch {
+    throw new RequestError('Koneksi terputus. Periksa koneksi, lalu coba lagi.');
+  }
+  const result = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new RequestError(typeof result?.error === 'string' ? result.error : 'Permintaan gagal. Coba lagi.', response.status);
+  }
+  if (!result || (data && !result.case)) {
+    throw new RequestError('Tanggapan server tidak dapat dibaca. Coba lagi.');
   }
   return result;
 }
 
-function path(action) {
-  return '/api/cases/' + encodeURIComponent(view.case_id) + '/' + action;
+function path(action, caseId = view.case_id) {
+  return '/api/cases/' + encodeURIComponent(caseId) + '/' + action;
+}
+
+function showCase(current) {
+  const focusWasInWorkspace = workspace.contains(document.activeElement);
+  view = current;
+  render();
+  if (focusWasInWorkspace) focusHeading();
 }
 
 async function run(task, pending = 'Sedang memproses…') {
@@ -89,21 +129,70 @@ async function run(task, pending = 'Sedang memproses…') {
   workspace.setAttribute('aria-busy', 'true');
   try {
     const result = await task();
-    if (result?.case) {
-      const focusWasInWorkspace = workspace.contains(document.activeElement);
-      view = result.case;
-      render();
-      if (focusWasInWorkspace) focusHeading();
-    }
+    if (result?.case) showCase(result.case);
     message(view?.error || '', Boolean(view?.error));
     return result;
   } catch (error) {
+    if (view && session && !observer && error instanceof RequestError &&
+        (error.status === 0 || error.status === 409 || error.status >= 500)) {
+      const latest = await request(path('seller')).catch(() => undefined);
+      if (!latest?.case) {
+        message('Hasil belum dapat dipastikan. Setelah koneksi kembali, muat ulang halaman untuk melanjutkan kasus.', true);
+        return;
+      }
+      if (JSON.stringify(latest.case) !== JSON.stringify(view)) {
+        editing = false;
+        screen = undefined;
+        activePanel = undefined;
+        showCase(latest.case);
+        message(view.error || 'Status kasus diperbarui. Periksa hasil terbaru sebelum mencoba lagi.', Boolean(view.error));
+        return;
+      }
+    }
     message(error.message, true);
   } finally {
     workspace.removeAttribute('aria-busy');
     busy = false;
   }
 }
+
+function resumeSeller() {
+  if (busy || !savedSeller) return;
+  session = savedSeller.session;
+  run(async () => {
+    try {
+      return await request(path('seller', savedSeller.caseId));
+    } catch (error) {
+      session = undefined;
+      if (error.status === 403 || error.status === 404) {
+        saveSeller(undefined);
+        render();
+        throw new Error('Kasus sebelumnya sudah tidak tersedia. Mulai kasus baru.');
+      }
+      render();
+      throw new Error('Kasus belum dapat dimuat. Pilih Lanjutkan kasus sebelumnya untuk mencoba lagi.');
+    }
+  }, 'Memuat kembali kasus…');
+}
+
+function startOver() {
+  if (busy) return;
+  if (intakeFiles?.audio) URL.revokeObjectURL(intakeFiles.audio);
+  intakeFiles = undefined;
+  view = undefined;
+  session = undefined;
+  editing = false;
+  screen = undefined;
+  activePanel = undefined;
+  packPhotos.clear();
+  message('');
+  render();
+  focusHeading();
+}
+
+workspace.addEventListener('click', (event) => {
+  if (event.target.closest('[data-start-over]')) startOver();
+});
 
 function select(name, label, options, selected) {
   return `<label class="field">${label}<select name="${name}">${Object.entries(options).map(([key, text]) =>
@@ -143,6 +232,11 @@ function readReplay(saved) {
 
 function showStart() {
   workspace.replaceChildren(document.querySelector('#start-template').content.cloneNode(true));
+  if (savedSeller) {
+    workspace.querySelector('#page-title').insertAdjacentHTML('afterend',
+      '<button type="button" class="quiet" id="resume-case">Lanjutkan kasus sebelumnya</button>');
+    workspace.querySelector('#resume-case').onclick = resumeSeller;
+  }
   const form = workspace.querySelector('#start-form');
   const record = workspace.querySelector('#record');
   const status = workspace.querySelector('#record-status');
@@ -273,7 +367,7 @@ function showStart() {
     }
     run(async () => {
       const result = await request('/api/cases', data);
-      session = result.session;
+      saveSeller({ caseId: result.case.case_id, session: result.session });
       if (result.case?.draft) {
         intakeFiles = { audio: URL.createObjectURL(data.get('audio')), label: data.get('label') };
       }
@@ -294,7 +388,7 @@ function showStart() {
     const data = new FormData(dishForm);
     run(async () => {
       const result = await request('/api/cases', data);
-      session = result.session;
+      saveSeller({ caseId: result.case.case_id, session: result.session });
       intakeFiles = { dish: data.get('dish') };
       resetPreview();
       return result;
@@ -391,7 +485,7 @@ function showEditor() {
         ? 'Nama masakan dan bahan yang terlihat masih berupa saran. Ubah atau hapus yang tidak sesuai dengan resep Anda.'
         : 'Coba foto yang lebih jelas atau isi sendiri nama masakan dan bahan yang Anda pakai.'}</p>
       <p>Tambahkan bahan yang tidak terlihat, seperti minyak goreng, saus, bumbu, atau kaldu, jika dipakai. Foto masakan tidak membuktikan bahan atau status halal dan tidak bisa dipakai sebagai bukti kemasan.</p>
-      <a href="/">Pilih foto lain</a>
+      <button type="button" class="subtle-link" data-start-over>Pilih foto lain</button>
     </section>`;
   workspace.innerHTML = `<div class="review-heading">
     <h1 id="page-title" tabindex="-1">${fromDraft ? 'Cek daftar bahan' : 'Perbarui resep'}</h1>
@@ -649,7 +743,10 @@ function offerCard(proposal) {
 
 const evidenceCount = () => view.ingredients.filter(row => row.status === 'exempt' || row.status === 'verified').length;
 const evidenceSummary = () => `${evidenceCount()} dari ${view.ingredients.length} bahan punya bukti`;
-const ingredientTitle = (ingredient) => [ingredient.declared_name, ingredient.variant,
+const normalizedLabel = (value) => value?.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ');
+const includesLabel = (name, label) => (' ' + normalizedLabel(name) + ' ').includes(' ' + normalizedLabel(label) + ' ');
+const ingredientTitle = (ingredient) => [ingredient.declared_name,
+  ingredient.variant && !includesLabel(ingredient.declared_name, ingredient.variant) ? ingredient.variant : '',
   ingredient.pack_condition === 'loose' && !/\bcurah\b/i.test(ingredient.declared_name) ? 'curah' : ''].filter(Boolean).join(' ');
 
 function variantConflict(ingredient) {
@@ -657,8 +754,8 @@ function variantConflict(ingredient) {
   const observed = latest?.observed;
   if (ingredient.reason !== 'IDENTITY_MISMATCH' || latest?.revision !== view.revision ||
       !observed?.variant_known || !ingredient.variant) return undefined;
-  const normal = (value) => value?.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ');
-  if (normal(ingredient.variant) !== normal(observed.variant)) return latest;
+  if (!observed.variant && includesLabel(observed.product, ingredient.variant)) return undefined;
+  if (normalizedLabel(ingredient.variant) !== normalizedLabel(observed.variant)) return latest;
 }
 
 function mapStatus(ingredient) {
@@ -720,7 +817,8 @@ function packPanel(ingredient) {
       <dl><div><dt>Resep Anda</dt><dd>${escape(ingredient.variant)}</dd></div>
       <div><dt>Foto atau tulisan pada kemasan</dt><dd>${escape(mismatch.observed.variant || 'Tanpa varian')}</dd></div></dl>
     </div><p class="note">${icon('alert')} Bukti belum cocok. Gunakan kemasan dengan varian yang tercantum pada resep.</p>`
-      : '<p>Pastikan nama produk, produsen, varian, dan nomor sertifikat terbaca. Satu foto cukup jika semuanya terlihat.</p>'}
+      : `${ingredient.reason === 'IDENTITY_MISMATCH' ? `<p class="note">${icon('alert')} ${escape(ingredient.basis)}</p>` : ''}
+        <p>Pastikan nama produk, produsen, varian, dan nomor sertifikat terbaca. Satu foto cukup jika semuanya terlihat.</p>`}
     ${packRequest(ingredient)}`;
 }
 
@@ -801,7 +899,8 @@ function packetView() {
             event.data.ingredient_id === row.ingredient_id);
           const sources = Array.isArray(verdict?.data.source_refs) ? verdict.data.source_refs
             : Array.isArray(row.source_refs) ? row.source_refs : [];
-          const evidence = row.evidence.filter(item => item.revision === view.revision);
+          const carriedIds = Array.isArray(verdict?.data.evidence_ids) ? verdict.data.evidence_ids : [];
+          const evidence = row.evidence.filter(item => item.revision === view.revision || carriedIds.includes(item.evidence_id));
           return `<li>
             <strong>${escape(ingredientTitle(row))}</strong>
             <span class="badge ${supported ? 'confirmed' : 'gap'}">${icon(supported ? 'check' : 'alert')} <span>${escape(mapStatus(row))}</span></span>
@@ -866,8 +965,9 @@ function showChecks(stage) {
     </div>`}
     ${!observer ? `<div class="case-actions">
       ${paused ? '<button type="button" class="primary" id="retry">Coba lagi</button>' : ''}
-      ${paused && !hasRecipe() ? `<a href="/">${view.intake_kind === 'dish_photo' ? 'Pilih foto lain' : 'Mulai dengan rekaman atau label lain'}</a>` : ''}
+      ${paused && !hasRecipe() ? `<button type="button" class="subtle-link" data-start-over>${view.intake_kind === 'dish_photo' ? 'Pilih foto lain' : 'Mulai dengan rekaman atau label lain'}</button>` : ''}
       ${hasRecipe() && !packet ? '<button type="button" class="quiet" id="edit">Ubah resep</button>' : ''}
+      ${hasRecipe() ? '<button type="button" class="quiet" data-start-over>Mulai kasus baru</button>' : ''}
     </div>` : ''}`;
 
   workspace.querySelectorAll('[data-kind]').forEach(button => {
@@ -976,6 +1076,8 @@ if (observerId) {
     const result = await request('/api/cases/' + encodeURIComponent(observerId));
     return { case: result.case || result };
   });
+} else if (savedSeller) {
+  resumeSeller();
 } else {
   render();
 }

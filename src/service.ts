@@ -55,13 +55,17 @@ function requiresIngredientReview(name: string) {
   return ingredient === 'rum' || ingredient === 'minuman rum' || ingredient === 'rum alkohol';
 }
 
+function declarationKey(row: Confirmation['ingredients'][number]) {
+  return JSON.stringify({
+    name: normalize(row.declared_name), brand: normalize(row.brand), variant: row.variant === null ? null : normalize(row.variant),
+    form: row.form, condition: row.pack_condition, location: normalize(row.purchase_location), no_additives: row.no_additives,
+  });
+}
+
 function recipeKey(input: Pick<Confirmation, 'product_name' | 'scope' | 'ingredients'>) {
   return JSON.stringify({
     product: normalize(input.product_name), scope: input.scope,
-    ingredients: input.ingredients.map(row => JSON.stringify({
-      name: normalize(row.declared_name), brand: normalize(row.brand), variant: row.variant === null ? null : normalize(row.variant),
-      form: row.form, condition: row.pack_condition, location: normalize(row.purchase_location), no_additives: row.no_additives,
-    })).sort(),
+    ingredients: input.ingredients.map(declarationKey).sort(),
   });
 }
 
@@ -142,6 +146,12 @@ export class CaseService {
     return entry;
   }
 
+  readSeller(id: string, session: string) {
+    const entry = this.sellerEntry(id, session);
+    if (entry.busy) throw new RequestError(409, 'Case is busy. Try again.');
+    return structuredClone(entry.view);
+  }
+
   readPhoto(id: string, session: string, source: string) {
     const photo = this.sellerEntry(id, session).photos.get(source);
     if (!photo) throw new RequestError(404, 'Photo not found.');
@@ -206,6 +216,8 @@ export class CaseService {
     }
     // Snapshot safety facts before removing any rows. The history belongs to
     // the ingredient, not its current display row or recipe revision.
+    const previousRevision = view.revision;
+    const previousRows = new Map(view.ingredients.map(row => [row.ingredient_id, row]));
     for (const row of view.ingredients) {
       const history = entry.history.get(JSON.stringify(ingredientIdentity(row))) ?? this.historyFor(entry, row);
       history.repacked ||= row.pack_condition === 'repacked' || row.evidence.some(item => item.observed.repacked);
@@ -229,10 +241,13 @@ export class CaseService {
       entry.knownIds.add(ingredient_id);
       const history = this.historyFor(entry, row);
       history.repacked ||= row.pack_condition === 'repacked';
+      const prior = previousRows.get(ingredient_id);
+      const sameDeclaration = prior && declarationKey(prior) === declarationKey(row);
       return {
         ...row, ingredient_id, pack_condition: history.repacked ? 'repacked' : row.pack_condition,
         source_refs: [...new Set([...(row.ingredient_id ? refs : []), ...history.source_refs, `seller-confirmed:r${view.revision}`])],
-        status: 'open', pending_request: undefined, reason: undefined, basis: 'Waiting for evidence.', requests: history.requests, conflict: history.conflict,
+        status: 'open', pending_request: sameDeclaration ? prior.pending_request : undefined,
+        reason: undefined, basis: 'Waiting for evidence.', requests: history.requests, conflict: history.conflict,
         evidence: history.evidence,
       };
     });
@@ -241,12 +256,34 @@ export class CaseService {
     append(view, 'intake_confirmed', 'Seller confirmed the current ingredient list.', {
       ingredient_ids: view.confirmed_ingredient_ids, scope: view.scope,
     });
+    for (const row of view.ingredients) {
+      if (row.pending_request) {
+        append(view, 'pack_request_carried', 'Permintaan foto untuk bahan yang sama tetap berlaku.', {
+          ingredient_id: row.ingredient_id, ...row.pending_request,
+        });
+        continue;
+      }
+      const prior = previousRows.get(row.ingredient_id);
+      if (prior?.status !== 'verified' || row.conflict || row.pack_condition !== 'sealed' ||
+          declarationKey(prior) !== declarationKey(row)) continue;
+      const verdict = view.events.findLast(event => event.revision === previousRevision &&
+        event.type === 'evidence_checked' && event.data.ingredient_id === row.ingredient_id);
+      if (verdict?.data.reason !== 'EXACT_IDENTITY' || !Array.isArray(verdict.data.source_refs)) continue;
+      const previousEvidenceIds = Array.isArray(verdict.data.evidence_ids) ? verdict.data.evidence_ids : [];
+      const evidenceIds = row.evidence.filter(item => item.revision === previousRevision ||
+        previousEvidenceIds.includes(item.evidence_id)).map(item => item.evidence_id);
+      this.verdict(view, row, {
+        status: 'verified', reason: 'EXACT_IDENTITY', basis: prior.basis,
+        source_refs: verdict.data.source_refs as string[],
+      }, evidenceIds);
+    }
     await this.run(entry, () => this.advance(entry));
   }
 
-  private verdict(view: CaseView, row: Ingredient, verdict: { status: Ingredient['status']; reason: NonNullable<Ingredient['reason']>; basis: string; source_refs: string[] }) {
+  private verdict(view: CaseView, row: Ingredient, verdict: { status: Ingredient['status']; reason: NonNullable<Ingredient['reason']>; basis: string; source_refs: string[] }, evidenceIds?: string[]) {
     append(view, 'evidence_checked', verdict.basis, {
       ingredient_id: row.ingredient_id, status: verdict.status, reason: verdict.reason, source_refs: verdict.source_refs,
+      ...(evidenceIds ? { evidence_ids: evidenceIds } : {}),
     });
     row.status = verdict.status;
     row.reason = verdict.reason;

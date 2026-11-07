@@ -51,6 +51,9 @@ app.get('/api/cases/:id', (req, res) => {
   const { draft: _privateDraft, ...observer } = view;
   res.json(observer);
 });
+app.get('/api/cases/:id/seller', (req, res) => {
+  res.json({ case: store.readSeller(id.parse(req.params.id), auth(req)) });
+});
 app.get('/api/cases/:id/photos/:source', (req, res) => {
   const photo = store.readPhoto(id.parse(req.params.id), auth(req), req.params.source);
   res.set('X-Content-Type-Options', 'nosniff').type(photo.mime).send(photo.bytes);

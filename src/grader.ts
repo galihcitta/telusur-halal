@@ -130,7 +130,7 @@ export function gradeD01(trace: unknown, exported: unknown, mode: SourceMode = '
       confirmedIds = new Set(ids);
       require(ids.length > 0 && confirmedIds.size === ids.length, where + ' confirms no ingredients or duplicate IDs.');
     }
-    if (['pack_requested', 'pack_received', 'pack_read', 'evidence_checked', 'catalogue_searched',
+    if (['pack_requested', 'pack_request_carried', 'pack_received', 'pack_read', 'evidence_checked', 'catalogue_searched',
       'substitute_proposed', 'seller_decided', 'agent_action'].includes(event.type)) {
       require(activeConfirmation === event.revision && confirmedIds.has(payload.ingredient_id),
         where + ' has no confirmed ingredient context.');
@@ -142,6 +142,18 @@ export function gradeD01(trace: unknown, exported: unknown, mode: SourceMode = '
       require(typeof payload.request_id === 'string' && !pendingPacks.has(payload.request_id) &&
         !consumedPacks.has(payload.request_id), where + ' reuses a pack request.');
       pendingPacks.set(payload.request_id, { ingredient: payload.ingredient_id, revision: event.revision, received: false });
+    }
+    if (event.type === 'pack_request_carried') {
+      const request = pendingPacks.get(payload.request_id);
+      const count = packCounts.get((event.revision - 1) + ':' + payload.ingredient_id);
+      const valid = request && request.revision === event.revision - 1 &&
+        request.ingredient === payload.ingredient_id && !request.received &&
+        count !== undefined && payload.attempt === count && !packCounts.has(key);
+      require(Boolean(valid), where + ' carries a foreign or closed pack request.');
+      if (valid) {
+        request.revision = event.revision;
+        packCounts.set(key, count);
+      }
     }
     if (event.type === 'pack_received' || event.type === 'pack_read') {
       const request = pendingPacks.get(payload.request_id);
