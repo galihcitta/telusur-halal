@@ -8,7 +8,10 @@
     "typecheck": "tsc --noEmit",
     "test:images": "node --env-file-if-exists=.env --import tsx demo/check-images.ts",
     "grade:d01": "tsx demo/grade-d01.ts",
-    "compare:policy": "node --env-file-if-exists=.env --import tsx demo/compare-policy.ts"
+    "compare:policy": "node --env-file-if-exists=.env --import tsx demo/compare-policy.ts",
+    "eval:dishes": "node --env-file-if-exists=.env --import tsx demo/eval-dishes.ts",
+    "eval:dishes:field": "node --env-file-if-exists=.env --import tsx demo/eval-dishes.ts datasets/dish-photos/field-manifest.json",
+    "eval:corrections": "node --import tsx --test test/dish-corrections.test.ts"
   },
   "type": "module",
   "private": true,

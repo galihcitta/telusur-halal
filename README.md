@@ -91,3 +91,7 @@ Start with the [dataset guide](datasets/README.md). The pack-photo dataset inclu
 See the [PRD v8](docs/prd-telusur-en.html) for the current hackathon contracts and acceptance gates, and the [MVP plan](docs/mvp-plan.md) for the build order and demo. Version 8 applies the adversarial review and replaces the original v7, which remains in Git history. The local design images under `docs/prd-assets/` are visual references; their sample copy and states are superseded by v8.
 
 See [the hackathon proposal](docs/background.md) for the motivation, planned workflow, evaluation goals, and team background. It records the original proposal; regulatory statements and delivery targets should be verified before implementation.
+
+For dish-photo evaluation, use `npm run eval:dishes`. The [reference gallery and evaluator guide](datasets/dish-photos/README.md) explain annotations, provenance, scores, and how to add food photos with known recipes.
+
+For ambiguous real-photo cases, seller corrections, and independent-evaluation readiness, see the [eval coverage matrix](docs/eval-coverage.md).

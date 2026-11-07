@@ -90,6 +90,8 @@ deadline with a 16:00 team submission target. Confirm any organizer updates on-s
 
 ## Data and evaluation
 
+Cooked-dish entry now also has a separate [photo development evaluation](../datasets/dish-photos/README.md), run with `npm run eval:dishes`. Freeze dish aliases and visible ingredient annotations before model runs; keep full recipe references separate. Track recognition, visible precision/recall, unsupported additions, duplicates, negative-image false acceptances, and technical failures. Keep public/team photos and synthetic images separate in reports. Initial labels need independent evaluator review. This supplements the original pack/audio evaluation below without altering prepared or held-out data.
+
 - Use the pack-photo dataset, not the older supplier-message pack. Its manifest was checked across 127 files with no checksum mismatches.
 - Preserve that prepared snapshot. Implement and declare day-of adapters and revised expectations separately; old `submission_ready`/`submitted` outcomes, brand-only oil verification, and exact ask counts are legacy contracts, not v8 requirements. Add and declare a coherent simulated oil pack asset for the revised D01 story; never quietly substitute an oracle reading for a photo.
 - Available: 21 dev + 9 adversarial scenarios, registry/catalogue seeds, exemption reference, 19 pack photos, and 15 intake transcripts with gold lists.

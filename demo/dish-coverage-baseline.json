@@ -1,0 +1,174 @@
+{
+  "mode": "live_model",
+  "version": "dish-photos-dev-v1",
+  "split": "development",
+  "manifest_sha256": "7641d4d891770bb0f670db67a978ab9345e0097ecc17f941506ab11fc342e16e",
+  "model": "gpt-4.1-mini",
+  "timestamp": "2026-11-07T07:34:28.319Z",
+  "attempted": 5,
+  "annotations_pending_review": 5,
+  "recognition_correct": 4,
+  "recognition_rate": 0.8,
+  "completed": 5,
+  "technical_failures": 0,
+  "passed": 4,
+  "pass_rate": 0.8,
+  "acceptable_abstentions": 0,
+  "unnecessary_abstentions": 0,
+  "false_acceptances": 1,
+  "reviewed_cases": 0,
+  "reviewed_passed": 0,
+  "by_provenance": {
+    "synthetic": {
+      "attempted": 3,
+      "passed": 2
+    },
+    "team_photo": {
+      "attempted": 0,
+      "passed": 0
+    },
+    "public_photo": {
+      "attempted": 2,
+      "passed": 2
+    }
+  },
+  "results": [
+    {
+      "id": "dish-001",
+      "expected": "dish",
+      "annotation_status": "draft",
+      "provenance": "public_photo",
+      "prediction": {
+        "dish": "nasi goreng",
+        "visible_ingredients": [
+          "nasi",
+          "telur goreng",
+          "bawang goreng",
+          "kerupuk",
+          "timun"
+        ]
+      },
+      "passed": true,
+      "abstained": false,
+      "acceptable_abstention": false,
+      "recognized": true,
+      "matched": [
+        "rice",
+        "egg",
+        "shallot",
+        "cracker",
+        "cucumber"
+      ],
+      "missing": [],
+      "unsupported": [],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": 1,
+      "recall": 1,
+      "duration_ms": 4152
+    },
+    {
+      "id": "dish-002",
+      "expected": "dish",
+      "annotation_status": "draft",
+      "provenance": "public_photo",
+      "prediction": {
+        "dish": "mie goreng udang",
+        "visible_ingredients": [
+          "mie",
+          "udang",
+          "daun hijau"
+        ]
+      },
+      "passed": true,
+      "abstained": false,
+      "acceptable_abstention": false,
+      "recognized": true,
+      "matched": [
+        "noodle",
+        "shrimp",
+        "greens"
+      ],
+      "missing": [],
+      "unsupported": [],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": 1,
+      "recall": 1,
+      "duration_ms": 5519
+    },
+    {
+      "id": "dish-003",
+      "expected": "dish",
+      "annotation_status": "draft",
+      "provenance": "synthetic",
+      "prediction": {
+        "dish": "keripik pisang pedas",
+        "visible_ingredients": [
+          "pisang",
+          "cabai merah"
+        ]
+      },
+      "passed": true,
+      "abstained": false,
+      "acceptable_abstention": false,
+      "recognized": true,
+      "matched": [
+        "banana",
+        "chili"
+      ],
+      "missing": [],
+      "unsupported": [],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": 1,
+      "recall": 1,
+      "duration_ms": 1954
+    },
+    {
+      "id": "reject-001",
+      "expected": "reject",
+      "annotation_status": "draft",
+      "provenance": "synthetic",
+      "prediction": {
+        "dish": "keripik pisang",
+        "visible_ingredients": [
+          "pisang kepok"
+        ]
+      },
+      "passed": false,
+      "abstained": false,
+      "acceptable_abstention": false,
+      "recognized": false,
+      "matched": [],
+      "missing": [],
+      "unsupported": [
+        "pisang kepok"
+      ],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": 0,
+      "recall": null,
+      "duration_ms": 1432
+    },
+    {
+      "id": "reject-002",
+      "expected": "reject",
+      "annotation_status": "draft",
+      "provenance": "synthetic",
+      "prediction": null,
+      "passed": true,
+      "abstained": true,
+      "acceptable_abstention": false,
+      "recognized": true,
+      "matched": [],
+      "missing": [],
+      "unsupported": [],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": null,
+      "recall": null,
+      "duration_ms": 1024
+    }
+  ]
+}

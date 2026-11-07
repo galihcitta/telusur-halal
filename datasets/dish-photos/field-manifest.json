@@ -1,0 +1,78 @@
+{
+  "version": "dish-field-dev-v1",
+  "split": "development",
+  "cases": [
+    {
+      "id": "field-sale-001",
+      "image": "../../.run/dish-eval-inputs/sale-pisang.jpg",
+      "mime": "image/jpeg",
+      "sha256": "8d0f85d928bb94a9f16cc1cd671db0af3e78fae20d599523405de5bf37b7e3bf",
+      "provenance": {
+        "kind": "team_photo",
+        "source": "User-provided photo in evaluation conversation, 7 November 2026",
+        "attribution": "User supplied; photographer and redistribution rights not established",
+        "license": "Local evaluation only; do not publish or redistribute image"
+      },
+      "annotation": {
+        "status": "draft",
+        "reviewer": "Dish identity confirmed by user; ingredient and visual annotation review pending",
+        "basis": "User confirmed sale pisang; prior model predicted tempe mendoan. Plastic glare and coating obscure identity. Accept abstention or correct identity with only supported generic visible ingredients. Already discussed with model; this is development data, not held-out."
+      },
+      "expected": "ambiguous",
+      "dish_aliases": [
+        "sale pisang",
+        "pisang sale",
+        "sale pisang goreng"
+      ],
+      "required_visible": [],
+      "optional_visible": [
+        {
+          "key": "banana",
+          "aliases": [
+            "pisang",
+            "sale pisang"
+          ]
+        }
+      ],
+      "must_not_infer": [
+        {
+          "key": "soy",
+          "aliases": [
+            "kedelai",
+            "kacang kedelai"
+          ]
+        },
+        {
+          "key": "tempe",
+          "aliases": [
+            "tempe",
+            "tempe mendoan"
+          ]
+        },
+        {
+          "key": "flour",
+          "aliases": [
+            "tepung",
+            "tepung terigu",
+            "tepung beras"
+          ]
+        },
+        {
+          "key": "oil",
+          "aliases": [
+            "minyak",
+            "minyak goreng"
+          ]
+        },
+        {
+          "key": "sugar",
+          "aliases": [
+            "gula",
+            "gula pasir"
+          ]
+        }
+      ],
+      "recipe_reference": null
+    }
+  ]
+}
