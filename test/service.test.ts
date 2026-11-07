@@ -611,6 +611,47 @@ test('a repeated pack referral cannot consume the catalogue decision for that in
     event.data.ingredient_id === seasoning.ingredient_id && event.data.action === 'refer').length, 1);
 });
 
+test('the agent searches for tapioca and vegetable oil after exhausting pack evidence', async () => {
+  const workflow: WorkflowRunner = async ({ actions, execute }) => {
+    while (actions().length) {
+      const [next] = actions();
+      if (next.stage === 'catalogue') {
+        assert.equal(execute(next.ingredient_id, 'refer', next.stage), false);
+      }
+      assert.equal(execute(next.ingredient_id, next.action, next.stage), true);
+    }
+  };
+  const { service, id, session, read, decide } = await setup({
+    intake: async () => ({
+      ...draft,
+      ingredients: [draft.ingredients[0], ...['Tepung Tapioka', 'Minyak Nabati'].map(declared_name => ({
+        declared_name, form: 'processed' as const, pack_condition: 'sealed' as const,
+      }))],
+    }),
+  }, 'snack', workflow);
+  for (const index of [1, 2]) {
+    for (const attempt of [1, 2]) {
+      const request = read().ingredients[index].pending_request!;
+      assert.equal(request.attempt, attempt);
+      await service.mutate(id, session, read().revision, entry => service.pack(entry, {
+        request_id: request.request_id, condition: 'sealed', mode: 'photo',
+        confirmed_current: true, images: [media(`wrong-${index}-${attempt}`)],
+      }));
+    }
+  }
+  const pending = read().proposals;
+  assert.deepEqual(pending.map(item => [item.listing.listing_id, item.registry.record_id, item.status]), [
+    ['L-TAPIOCA-801', 'R-801', 'pending'],
+    ['L-OIL-101', 'R-101', 'pending'],
+  ]);
+  assert.equal(buildPacket(read()).conditional_proposals.length, 0);
+  await decide(pending[0].proposal_id, 'approve');
+  await decide(pending[1].proposal_id, 'decline');
+  const packet = buildPacket(read());
+  assert.deepEqual(packet.conditional_proposals.map(item => [item.listing.listing_id, item.adoption]), [['L-TAPIOCA-801', 'pending']]);
+  assert.deepEqual(packet.current_ingredients.map(row => row.status), ['exempt', 'unresolved', 'unresolved']);
+});
+
 test('the report keeps pending photos and recipe referrals distinct', async () => {
   const { read } = await setup();
   const pending = buildPacket(read());

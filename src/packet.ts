@@ -1,3 +1,4 @@
+import { renderSourceReferences } from '../public/source-references.js';
 import type { CaseView, Media } from './contracts.js';
 import { BPJPH_DATASET_VERSION } from './bpjph.js';
 import { DATASET_VERSION } from './rules.js';
@@ -41,11 +42,9 @@ function escape(value: unknown) {
 }
 export function packetHtml(packet: ReturnType<typeof buildPacket>, photos: ReadonlyMap<string, Media> = new Map()) {
   const cells = (values: unknown[]) => values.map(value => `<td>${escape(value)}</td>`).join('');
-  const references = (sources: unknown[]) => sources.length
-    ? `<details><summary>Sumber rujukan</summary><ul>${sources.map(source => `<li>${escape(source)}</li>`).join('')}</ul></details>` : '';
   const rows = packet.current_ingredients.map(row => `<tr>${cells([
     [row.ingredient, row.brand, row.variant].filter(Boolean).join(' · '), row.status, row.basis,
-  ])}<td>${references(Array.isArray(row.source_refs) ? row.source_refs : [])}</td>${cells([row.next_action])}
+  ])}<td>${renderSourceReferences(Array.isArray(row.source_refs) ? row.source_refs : [], escape)}</td>${cells([row.next_action])}
   <td>${row.evidence.length ? `<ul>${row.evidence.map(({ observed, source_type, source_refs, conflicts }) => `
     <li><strong>${source_type === 'photo' ? 'Package photo' : 'Seller transcription'}</strong>
     <p>${[
@@ -60,7 +59,7 @@ export function packetHtml(packet: ReturnType<typeof buildPacket>, photos: Reado
       if (!photo || !['image/png', 'image/jpeg', 'image/webp'].includes(photo.mime)) return '';
       return `<img alt="Uploaded package photo" src="data:${photo.mime};base64,${photo.bytes.toString('base64')}">`;
     }).join('') : ''}
-    ${references(source_refs)}</li>`).join('')}</ul>` : ''}</td></tr>`).join('');
+    ${renderSourceReferences(source_refs, escape, source_type)}</li>`).join('')}</ul>` : ''}</td></tr>`).join('');
   const proposals = packet.conditional_proposals.map(({ listing, registry, next_action }) =>
     `<li><strong>${escape([listing.product, listing.variant, listing.pack_size].filter(Boolean).join(' · '))}</strong>
     <p>${escape(listing.manufacturer)} · ${escape(listing.shop)} · Rp${listing.price_idr.toLocaleString('id-ID')}</p>

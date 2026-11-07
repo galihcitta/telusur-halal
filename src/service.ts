@@ -332,8 +332,8 @@ export class CaseService {
       await this.advanceWithAgent(entry, packs, this.workflowRunner);
     } else {
       for (const row of this.catalogueRows(entry)) {
-        const action = await this.action(view, row, ['search_catalogue', 'refer']);
-        this.applyCatalogueAction(entry, row, action);
+        this.recordAction(view, row, 'search_catalogue', ['search_catalogue']);
+        this.applyCatalogueAction(entry, row);
       }
     }
 
@@ -453,7 +453,7 @@ export class CaseService {
       ...this.catalogueRows(entry)
         .map(row => ({
           row,
-          allowed: (row.reason === 'NO_PACK' ? ['search_catalogue'] : ['search_catalogue', 'refer']) as AgentAction[],
+          allowed: ['search_catalogue'] as AgentAction[],
           stage: 'catalogue' as const,
         })),
     ];
@@ -478,7 +478,7 @@ export class CaseService {
         const { row, allowed, stage } = choice;
         this.recordAction(entry.view, row, action, allowed);
         if (stage === 'pack') this.applyPackAction(entry, row, action);
-        else this.applyCatalogueAction(entry, row, action);
+        else this.applyCatalogueAction(entry, row);
         return true;
       },
       maxTurns: entry.view.ingredients.length * 2 + 2,
@@ -486,16 +486,10 @@ export class CaseService {
     if (actions().length) throw new Error('Agent stopped before completing the available case actions.');
   }
 
-  private applyCatalogueAction(entry: Entry, row: Ingredient, choice: AgentAction) {
+  private applyCatalogueAction(entry: Entry, row: Ingredient) {
     const view = entry.view;
     const history = this.historyFor(entry, row);
     const previous = view.proposals.filter(item => item.ingredient_id === row.ingredient_id);
-    if (choice === 'refer') {
-      append(view, 'catalogue_searched', 'Agent referred the gap for facilitator review.', {
-        ingredient_id: row.ingredient_id, offer_index: previous.length, searched: false,
-      });
-      return;
-    }
     const results = searchCatalogue(row);
     const candidate = results.eligible.find(item => !history.offered.includes(item.listing.listing_id));
     append(view, 'catalogue_searched', candidate ? 'Searched simulated Shopee and found an eligible candidate.' : 'No different eligible simulated listing found.', {

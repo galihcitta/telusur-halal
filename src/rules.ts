@@ -248,7 +248,8 @@ export function searchCatalogue(ingredient: Ingredient): {
 } {
   const eligible: { listing: Listing; registry: RegistryRecord }[] = [];
   const excluded: { listing_id: string; reason: string }[] = [];
-  const use = ingredientUse(ingredient.declared_name);
+  const declaredUse = ingredientUse(ingredient.declared_name);
+  const use = declaredUse === 'minyak nabati' ? 'minyak goreng' : declaredUse;
   for (const listing of catalogue) {
     const record = registry.find((row) => row.record_id === listing.record_id);
     const compatibleVariant = ingredient.variant === undefined ?
