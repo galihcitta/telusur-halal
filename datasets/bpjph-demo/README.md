@@ -67,7 +67,10 @@ python3 scripts/validate_bpjph_demo.py
 (cd datasets/bpjph-demo && shasum -a 256 -c SHA256SUMS)
 ```
 
-The scraper resumes saved pages after checking their evidence hashes. Its default
+The scraper checks saved page hashes before resuming or refreshing exports.
+The manifest and raw pages form the checkpoint. Rerun the scraper to rebuild
+derived exports after an interrupted write. The validator accepts a previous
+failed attempt once the same URL has a successful capture. The scraper’s default
 target is 1,500 unique records, with at most 25 pages for each of eight queries
 (200 pages). Pages are visited across queries in turn to preserve category
 coverage. Each page has up to 10 rows, so a completed page may exceed the target
