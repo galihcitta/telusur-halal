@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173e35">
+  <title>Telusur Halal</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="top"><div class="wrap mast">
+    <a href="/" class="brand" aria-label="Telusur Halal, halaman awal"><span class="mark" aria-hidden="true">T</span>Telusur Halal</a>
+    <span class="simulation">Sampel BPJPH dan data simulasi</span>
+  </div></header>
+  <main class="wrap">
+    <div class="intro">
+      <div><p class="kicker">Pendamping bukti bahan</p><h1 id="page-title">Susun bukti bahan resep</h1></div>
+      <p>Mulai dari cerita dan label produk. Telusuri bukti setiap bahan untuk ditinjau bersama fasilitator.</p>
+    </div>
+    <ol class="steps" aria-label="Tahapan">
+      <li data-stage="intake" aria-current="step"><span>1</span> Catat resep</li>
+      <li data-stage="checks"><span>2</span> Periksa bahan</li>
+      <li data-stage="packet"><span>3</span> Paket bukti</li>
+    </ol>
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+    <section id="workspace" aria-label="Ruang kerja bukti bahan"></section>
+  </main>
+  <footer class="wrap">Telusur Halal · Bukti bahan untuk peninjauan fasilitator</footer>
+
+  <template id="start-template">
+    <div class="sheet start">
+      <div>
+        <h2>Ceritakan resep Anda</h2>
+        <p class="muted">Sebutkan nama produk, bahan, merek dan varian yang digunakan, serta bagaimana bahan dibeli.</p>
+        <form id="start-form">
+          <section class="voice-note" data-state="idle" aria-label="Catatan suara">
+            <div class="voice-top">
+              <strong>Catatan suara</strong>
+              <span id="record-time" aria-label="Durasi rekaman">00:00</span>
+            </div>
+            <div class="voice-dial">
+              <svg class="voice-wave" viewBox="0 0 90 44" aria-hidden="true">
+                <path d="M5 19v6 M18 13v18 M31 7v30 M44 2v40 M57 11v22 M70 16v12 M83 20v4"/>
+              </svg>
+              <button type="button" id="record" aria-labelledby="record-action">
+                <svg class="mic-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M6 10v1a6 6 0 0 0 12 0v-1m-6 7v4m-3 0h6"/>
+                </svg>
+                <svg class="stop-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+              </button>
+              <svg class="voice-wave voice-wave-end" viewBox="0 0 90 44" aria-hidden="true">
+                <path d="M5 19v6 M18 13v18 M31 7v30 M44 2v40 M57 11v22 M70 16v12 M83 20v4"/>
+              </svg>
+            </div>
+            <p id="record-action">Rekam suara</p>
+            <p id="record-status" role="status">Ketuk mikrofon dan ceritakan resep Anda.</p>
+            <audio id="record-preview" controls preload="metadata" aria-label="Dengarkan rekaman Anda" hidden></audio>
+          </section>
+          <details id="audio-fallback">
+            <summary>Pakai rekaman yang sudah ada</summary>
+            <label class="upload">File audio Bahasa Indonesia<input name="audio" type="file" accept="audio/*,.m4a,.mp4,.webm,.mp3,.wav"></label>
+          </details>
+          <label class="upload">Foto label produk<input name="label" type="file" accept="image/png,image/jpeg,image/webp" required></label>
+          <button class="primary" type="submit">Baca rekaman dan label</button>
+        </form>
+      </div>
+      <aside class="rail">
+        <h3>Sebelum mulai</h3>
+        <p>Gunakan contoh kemasan dan rekaman yang boleh dibagikan. Audio dan foto dikirim ke layanan AI yang dikonfigurasi untuk dibaca.</p>
+        <p>Telusur memakai hasil pencarian BPJPH tersimpan serta data simulasi untuk skenario demo dan penawaran Shopee. Paket ini membantu peninjauan bahan bersama fasilitator.</p>
+        <details>
+          <summary>Putar ulang jejak tersimpan</summary>
+          <p>Pilih file rekaman jejak Telusur. File dibaca di browser untuk dilihat saja.</p>
+          <form id="replay-form">
+            <label class="upload">File rekaman jejak<input type="file" name="replay" accept=".json,application/json" required></label>
+            <button type="submit" class="quiet">Buka putar ulang</button>
+          </form>
+        </details>
+      </aside>
+    </div>
+  </template>
+</body>
+</html>

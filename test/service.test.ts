@@ -1,0 +1,250 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { IntakeInputError, type Draft, type Media, type Model, type Observation } from '../src/contracts.js';
+import { buildPacket } from '../src/packet.js';
+import { CaseService, type PackAnswer } from '../src/service.js';
+
+const draft: Draft = {
+  product_name: 'Keripik Pisang Original', scope: 'snack', notes: [], transcript: 'Fixture',
+  ingredients: [
+    { declared_name: 'pisang kepok', form: 'fresh', pack_condition: 'loose', no_additives: true },
+    { declared_name: 'bumbu balado', form: 'processed', pack_condition: 'sealed', variant: 'Original' },
+    { declared_name: 'cabai bubuk', form: 'processed', pack_condition: 'loose' },
+  ],
+};
+const correct: Observation = {
+  product: 'Bumbu Balado Original', manufacturer: 'CV Rasa Nusantara', variant: 'Original', variant_known: true,
+  certificate_number: 'ID-SIM-0202', certificate_state: 'printed', repacked: false, unreadable_fields: [],
+};
+const wrong = { ...correct, product: 'Bumbu Balado Pedas', variant: 'Pedas', certificate_number: 'ID-SIM-0201' };
+const media = (name: string): Media => ({ bytes: Buffer.from(name), mime: 'image/png', name });
+
+async function setup(overrides: Partial<Model> = {}, scope: Draft['scope'] = 'snack') {
+  const service = new CaseService({
+    intake: async () => ({ ...draft, scope }),
+    choose: async ({ allowed }) => allowed[0],
+    readPack: async ([file]) => file.name === 'wrong' ? wrong : correct,
+    ...overrides,
+  }, 'fixture');
+  const created = await service.create(media('audio'), media('label'));
+  const id = created.case.case_id;
+  const session = created.session;
+  const read = () => service.read(id);
+  const confirm = () => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', ingredients: read().draft!.ingredients, reviewed: true,
+  }));
+  const answer = (name: string, options: Partial<PackAnswer> = {}) =>
+    service.mutate(id, session, read().revision, entry => service.pack(entry, {
+      request_id: read().ingredients[1].pending_request!.request_id,
+      condition: 'sealed', mode: 'photo', confirmed_current: true, images: [media(name)], ...options,
+    }));
+  const decide = (proposal_id: string, decision: 'approve' | 'decline', key = session, rev = read().revision) =>
+    service.mutate(id, key, rev, entry => service.decide(entry, proposal_id, decision));
+  await confirm();
+  return { service, id, session, read, confirm, answer, decide };
+}
+
+test('wrong pack, confirmed corrected photo, explicit seller approval and separate packet rows', async () => {
+  const { read, answer, decide } = await setup();
+  assert.equal(read().ingredients[0].status, 'exempt');
+  assert.equal(read().ingredients[2].status, 'unresolved');
+  assert.equal(read().events.filter(event => event.type === 'pack_requested').length, 1);
+  await answer('wrong');
+  assert.equal(read().ingredients[1].conflict, true);
+  assert.equal(read().ingredients[1].pending_request?.attempt, 2);
+  await answer('correct');
+  assert.equal(read().ingredients[1].status, 'verified');
+  assert.equal(read().ingredients[1].evidence.length, 2);
+  const id = read().proposals[0].proposal_id;
+  await assert.rejects(decide(id, 'approve', 'foreign'), /Seller session/);
+  await assert.rejects(decide(id, 'approve', undefined, 2), /Case changed/);
+  assert.equal(read().proposals[0].status, 'pending');
+  await decide(id, 'approve');
+  await assert.rejects(decide(id, 'approve'), /no longer pending/);
+  const packet = buildPacket(read());
+  assert.equal(packet.evidence_complete, false);
+  assert.equal(packet.current_ingredients[2].ingredient, 'cabai bubuk');
+  assert.equal(packet.current_ingredients[2].status, 'unresolved');
+  assert.equal(packet.conditional_proposals[0].adoption, 'pending');
+  assert.equal(packet.conditional_proposals[0].listing.listing_id, 'L-9');
+});
+
+test('a typed answer cannot clear the earlier wrong-photo conflict', async () => {
+  const { read, answer } = await setup();
+  await answer('wrong');
+  await answer('correct', { mode: 'typed', images: [], observed: correct });
+  assert.equal(read().ingredients[1].status, 'unresolved');
+  assert.equal(read().ingredients[1].conflict, true);
+  assert.deepEqual(read().ingredients[1].evidence.map(item => item.source_type), ['photo', 'seller-typed']);
+  assert.equal(read().ingredients[1].pending_request, undefined);
+});
+
+test('decline allows one different eligible proposal and no third offer', async () => {
+  const { read, answer, decide } = await setup();
+  await answer('correct');
+  await decide(read().proposals[0].proposal_id, 'decline');
+  assert.notEqual(read().proposals[0].listing.listing_id, read().proposals[1].listing.listing_id);
+  await decide(read().proposals[1].proposal_id, 'decline');
+  assert.equal(read().proposals.length, 2);
+  assert.equal(read().phase, 'review_packet');
+});
+
+test('retry after vision failure preserves the same request and does not duplicate receipt', async () => {
+  let attempts = 0;
+  const { read, answer, id, service, session } = await setup({
+    readPack: async () => { if (++attempts === 1) throw new Error('network'); return correct; },
+  });
+  const request = read().ingredients[1].pending_request;
+  await answer('correct');
+  assert.equal(read().phase, 'paused');
+  assert.deepEqual(read().ingredients[1].pending_request, request);
+  assert.equal(read().ingredients[1].status, 'open');
+  await service.mutate(id, session, read().revision, entry => service.retry(entry));
+  assert.equal(read().ingredients[1].status, 'verified');
+  assert.equal(read().events.filter(event => event.type === 'pack_received').length, 1);
+});
+
+test('scope review routes all current ingredients without catalogue or pack requests', async () => {
+  const { read } = await setup({}, 'facilitator_review');
+  assert.equal(read().phase, 'review_packet');
+  assert.ok(read().ingredients.every(row => row.reason === 'SCOPE_REVIEW'));
+  assert.ok(!read().events.some(event => event.type === 'pack_requested' || event.type === 'catalogue_searched'));
+});
+
+test('a revised recipe invalidates old verdicts and proposals', async () => {
+  const { read, answer, confirm, decide } = await setup();
+  await answer('correct');
+  const proposal = read().proposals[0];
+  await confirm();
+  assert.equal(read().revision, 2);
+  assert.equal(read().ingredients[1].status, 'open');
+  assert.equal(read().proposals.length, 0);
+  await assert.rejects(decide(proposal.proposal_id, 'approve', undefined, 1), /Case changed/);
+});
+
+test('renaming a supported draft cannot carry its scope over to an unsupported product', async () => {
+  const { read, service, id, session } = await setup();
+  await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: 'Sosis ayam asap', scope: 'snack', ingredients: read().draft!.ingredients, reviewed: true,
+  }));
+  assert.equal(read().scope, 'facilitator_review');
+  assert.ok(read().ingredients.every(row => row.reason === 'SCOPE_REVIEW' && !row.pending_request));
+});
+
+test('unreadable intake asks for replacement input instead of creating a paused case', async () => {
+  const store = new CaseService({
+    intake: async () => { throw new IntakeInputError('Ambil foto label yang lebih jelas.'); },
+    choose: async ({ allowed }) => allowed[0],
+    readPack: async () => correct,
+  });
+  await assert.rejects(store.create(media('audio'), media('label')), {
+    status: 422, message: 'Ambil foto label yang lebih jelas.',
+  });
+});
+
+test('removed repack survives whitespace and alias re-addition, but not a different ingredient', async () => {
+  const { service, id, session, read, answer } = await setup({ readPack: async () => ({ ...correct, repacked: true }) });
+  await answer('repacked');
+  const originalId = read().ingredients[1].ingredient_id;
+  const edit = (ingredients: typeof draft.ingredients) => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true, ingredients,
+  }));
+  const banana = read().ingredients[0];
+  await edit([banana]);
+  await edit([banana, { declared_name: ' BUMBU  BALADO ', variant: 'Original', form: 'processed', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'repacked');
+  assert.equal(read().ingredients[1].status, 'unresolved');
+  assert.equal(read().ingredients[1].pending_request, undefined);
+  assert.equal(buildPacket(read()).evidence_complete, false);
+  await assert.rejects(service.mutate(id, session, read().revision, entry => service.pack(entry, {
+    request_id: originalId, condition: 'sealed', mode: 'typed', confirmed_current: true, observed: correct, images: [],
+  })), /no longer pending/);
+  await edit([banana, { declared_name: 'minyak goreng', brand: 'Sentosa', variant: null, form: 'processed', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'sealed');
+  assert.equal(read().ingredients[1].evidence.length, 0);
+  assert.equal(read().ingredients[1].pending_request?.attempt, 1);
+  // Reusing a known draft ID for a genuinely different ingredient must also
+  // avoid inheriting the old ingredient's history.
+  await edit([banana, { ingredient_id: originalId, declared_name: 'tepung tapioka', variant: null, form: 'processed', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'sealed');
+  assert.equal(read().ingredients[1].evidence.length, 0);
+  await edit([banana]);
+  await edit([banana, { ingredient_id: originalId, declared_name: 'bumbu balado', variant: 'Original', form: 'processed', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'repacked');
+  assert.equal(buildPacket(read()).evidence_complete, false);
+});
+
+test('known oil repack survives one-edit alias replacement and subsequent re-addition', async () => {
+  const { service, id, session, read } = await setup();
+  const banana = read().ingredients[0];
+  const edit = (ingredients: typeof draft.ingredients) => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true, ingredients,
+  }));
+  await edit([banana, { declared_name: 'minyak goreng', brand: 'Sentosa', variant: null, form: 'processed', pack_condition: 'repacked' }]);
+  const original = read().ingredients[1];
+  await edit([banana, { declared_name: 'Minyak  Goreng Sentosa', variant: null, form: 'processed', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'repacked');
+  await edit([banana]);
+  // An ID no longer present outside the draft may be rejected; re-add without it
+  // must still retain the ingredient's known provenance.
+  await edit([banana, { ...original, ingredient_id: undefined, pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].status, 'unresolved');
+  assert.equal(buildPacket(read()).evidence_complete, false);
+});
+
+test('invalid pack bytes can be replaced on the same request without extra asks or decisions', async () => {
+  const { PackInputError } = await import('../src/contracts.js');
+  const { read, answer, decide } = await setup({
+    readPack: async ([file]) => { if (file.name === 'corrupt') throw new PackInputError('Pilih foto lain.'); return correct; },
+  });
+  const pending = read().ingredients[1].pending_request;
+  await answer('corrupt');
+  assert.equal(read().phase, 'awaiting_seller');
+  assert.equal(read().error, 'Pilih foto lain.');
+  assert.deepEqual(read().ingredients[1].pending_request, pending);
+  assert.equal(read().ingredients[1].evidence.length, 0);
+  await answer('valid');
+  assert.equal(read().error, undefined);
+  assert.equal(read().ingredients[1].status, 'verified');
+  assert.equal(read().ingredients[1].requests, 1);
+  assert.equal(read().events.filter(event => event.type === 'pack_requested').length, 1);
+  assert.equal(read().events.filter(event => event.type === 'pack_received').length, 1);
+  assert.equal(read().events.filter(event => event.type === 'pack_read').length, 1);
+  assert.equal(read().proposals.length, 1);
+  await decide(read().proposals[0].proposal_id, 'approve');
+  assert.equal(read().events.filter(event => event.type === 'seller_decided').length, 1);
+  assert.equal(read().phase, 'review_packet');
+  assert.equal(buildPacket(read()).evidence_complete, false);
+});
+
+test('Palmia saved BPJPH match records its full basis before reaching the exportable packet', async () => {
+  const { service, id, session, read } = await setup();
+  await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true,
+    ingredients: [read().ingredients[0], {
+      declared_name: 'Margarin Palmia Super Cake', brand: 'Palmia', variant: 'Super Cake',
+      form: 'processed', pack_condition: 'sealed',
+    }],
+  }));
+  const request = read().ingredients[1].pending_request!;
+  await service.mutate(id, session, read().revision, entry => service.pack(entry, {
+    request_id: request.request_id, mode: 'typed', images: [], condition: 'sealed', confirmed_current: true,
+    observed: {
+      product: 'Palmia Super Cake Margarin', manufacturer: 'PT Salim Ivomas Pratama Tbk',
+      variant: null, variant_known: true, certificate_number: null, certificate_state: 'absent',
+      repacked: false, unreadable_fields: [],
+    },
+  }));
+  assert.equal(read().phase, 'review_packet');
+  assert.equal(read().error, undefined);
+  const row = read().ingredients[1];
+  assert.equal(row.status, 'verified');
+  assert.ok(row.basis.length > 250);
+  const event = read().events.findLast(event => event.type === 'evidence_checked');
+  assert.equal(event?.data.summary, row.basis);
+  assert.equal(event?.data.ingredient_id, row.ingredient_id);
+  assert.equal(read().events.some(event => event.type === 'case_paused'), false);
+  const packet = buildPacket(read());
+  assert.equal(packet.evidence_complete, true);
+  assert.ok((packet.current_ingredients[1].source_refs as string[]).includes('https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=13'));
+});

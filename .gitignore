@@ -14,3 +14,6 @@ coverage/
 # Keep independent evaluation cases private.
 *heldout*
 *ALBA-ONLY*
+
+# Local media and verification output.
+.run/
