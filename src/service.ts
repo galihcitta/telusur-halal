@@ -46,8 +46,9 @@ function mediaSetRef(images: Media[]) {
   return 'image-set:' + createHash('sha256').update([...new Set(images.map(mediaRef))].sort().join('|')).digest('hex');
 }
 
+const normalize = (value: string | undefined) => value?.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ') || undefined;
+
 function recipeKey(input: Pick<Confirmation, 'product_name' | 'scope' | 'ingredients'>) {
-  const normalize = (value: string | undefined) => value?.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ') || undefined;
   return JSON.stringify({
     product: normalize(input.product_name), scope: input.scope,
     ingredients: input.ingredients.map(row => JSON.stringify({
@@ -168,8 +169,12 @@ export class CaseService {
     const parsedEvent = view.events.find(event => event.type === 'intake_parsed');
     const refs = parsedEvent?.data.source_refs as string[] ?? [];
     view.product_name = input.product_name;
-    const bananaSnack = /^(keripik pisang|pisang coklat)(?:\s|$)/iu.test(input.product_name);
-    view.scope = view.draft.scope === 'snack' && input.scope === 'snack' && bananaSnack ? 'snack' : 'facilitator_review';
+    const product = normalize(input.product_name)!;
+    const bananaSnack = /^(keripik pisang|pisang coklat)(?:\s|$)/iu.test(product);
+    // The intake assessment covers its original product, not new process claims.
+    // Without a fresh assessment, material name edits and prior referrals stay referred.
+    view.scope = view.scope === 'snack' && view.draft.scope === 'snack' && input.scope === 'snack' &&
+      product === normalize(view.draft.product_name) && bananaSnack ? 'snack' : 'facilitator_review';
     view.ingredients = input.ingredients.map(row => {
       const ingredient_id = row.ingredient_id ?? randomUUID();
       entry.knownIds.add(ingredient_id);

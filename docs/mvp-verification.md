@@ -1,3 +1,15 @@
+## Scope edit merge-blocker verification — 2026-11-07
+
+The original intake scope no longer authorizes a materially renamed product. Confirmation keeps snack scope only while the current and original scopes are supported and the product name matches the assessed draft after NFC, case and whitespace normalization. Material name changes route to facilitator review, including at first confirmation; restoring the original name or submitting the old snack selection cannot restore support without a new assessment. This is conservative referral, not a process-word denylist. Ordinary ingredient edits retain the existing history and request/proposal bounds.
+
+The visible-browser reproduction used synthetic D01 audio and simulated label media, removed all but fresh/no-additive pisang kepok, and confirmed `Keripik Pisang Original`. Its downloaded baseline packet was complete. Editing only the name to `Keripik Pisang fermentasi dan diasap`, leaving the default snack selection unchanged, produced revision 2 with `facilitator_review`, `SCOPE_REVIEW`, and `evidence_complete: false`. Downloaded trace inspection found zero pack requests, catalogue searches or substitute proposals. Proof: local `telusur-scope/edited-packet.json`, `edited-trace.json`, `scope-edit.jpg`, and `scope-referred.jpg`.
+
+Typecheck and all 45 tests pass, including exact process edit, safe display no-op, unchanged referral, restoration attempt, first-confirmation edit, and prior history/recovery/budget regressions. The final-code D01 live-model browser rerun also reached seller-approved L-9 and exported JSON, trace and HTML; the existing D01 grader passed. D01 media and Shopee records are synthetic/simulated, not physical-package verification. The prior Palmia check used synthetic seller transcription against the real saved BPJPH snapshot.
+
+Evidence index: `/Users/galihcitta/.codex/visualizations/2026/11/07/01a1b433-ac9f-7871-94f1-bdbce3fd2af4/telusur-scope/REPORT.md`.
+
+F6 is corrected on this scope-edit path. Remaining QA findings: F3 session recovery, F5 instruction-sticker perception, F7 transient-then-invalid intake retry, F8 localization/stale validation, corrupt intake-label classification, and real human/phone-media acceptance. The earlier historical sections below describe their respective checkpoints.
+
 # PRD v8 MVP verification
 
 ## PR #3 follow-up verification — 7 November 2026

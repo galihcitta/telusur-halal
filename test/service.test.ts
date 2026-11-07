@@ -116,7 +116,7 @@ test('a revised recipe invalidates old verdicts and proposals', async () => {
   await answer('correct');
   const proposal = read().proposals[0];
   await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
-    product_name: 'Keripik Pisang Baru', scope: 'snack', ingredients: read().draft!.ingredients, reviewed: true,
+    product_name: draft.product_name, scope: 'snack', ingredients: read().draft!.ingredients.map(row => ({ ...row, purchase_location: 'Toko baru' })), reviewed: true,
   }));
   assert.equal(read().revision, 2);
   assert.equal(read().ingredients[1].status, 'open');
@@ -318,10 +318,10 @@ test('full-name repack identity survives split variant but isolates distinct var
 test('real recipe edits retain lifetime request and proposal bounds and invalidate approvals', async () => {
   const { service, id, session, read, decide, answer } = await setup();
   const originalRequest = read().ingredients[1].pending_request!.request_id;
-  const edit = (product_name: string) => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
-    product_name, scope: 'snack', reviewed: true, ingredients: read().ingredients,
+  const edit = (purchase_location: string) => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true, ingredients: read().ingredients.map(row => ({ ...row, purchase_location })),
   }));
-  await edit('Keripik Pisang Kedua');
+  await edit('Toko kedua');
   assert.equal(read().revision, 2);
   assert.equal(read().ingredients[1].pending_request?.attempt, 2);
   await assert.rejects(service.mutate(id, session, read().revision, entry => service.pack(entry, {
@@ -329,9 +329,9 @@ test('real recipe edits retain lifetime request and proposal bounds and invalida
   })), /no longer pending/);
   await answer('correct');
   const originalProposal = read().proposals[0].proposal_id;
-  await edit('Keripik Pisang Ketiga');
+  await edit('Toko ketiga');
   await assert.rejects(decide(originalProposal, 'approve'), /no longer pending/);
-  await edit('Keripik Pisang Keempat');
+  await edit('Toko keempat');
   assert.equal(read().ingredients[1].pending_request, undefined);
   assert.equal(read().ingredients[1].requests, 2);
   assert.equal(read().events.filter(event => event.type === 'pack_requested').length, 2);
@@ -344,7 +344,7 @@ test('explicit no-pack remains terminal after a recipe edit', async () => {
   await answer('correct', { mode: 'no_pack', images: [] });
   const count = read().events.filter(event => event.type === 'pack_requested').length;
   await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
-    product_name: 'Keripik Pisang Baru', scope: 'snack', reviewed: true, ingredients: read().ingredients,
+    product_name: draft.product_name, scope: 'snack', reviewed: true, ingredients: read().ingredients.map(row => ({ ...row, purchase_location: 'Toko baru' })),
   }));
   assert.equal(read().ingredients[1].reason, 'NO_PACK');
   assert.equal(read().ingredients[1].pending_request, undefined);
@@ -447,4 +447,39 @@ test('duplicate aliases cannot multiply ingredient history or request budgets', 
     ingredients: [...read().ingredients, { declared_name: 'Bumbu Balado Original', brand: 'Rasa Nusantara', form: 'processed', pack_condition: 'sealed' }],
   })), /duplicate ingredient rows/);
   assert.deepEqual(read(), before);
+});
+
+test('material process edits refer the same banana product and cannot restore stale scope', async () => {
+  const { service, id, session, read } = await setup({ intake: async () => ({ ...draft, ingredients: [draft.ingredients[0]] }) });
+  assert.equal(buildPacket(read()).evidence_complete, true);
+  const edit = (product_name: string, scope: Draft['scope'] = 'snack') => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name, scope, reviewed: true, ingredients: read().ingredients,
+  }));
+  const before = read();
+  await edit('  KERIPIK  PISANG Original  ');
+  assert.deepEqual(read(), before, 'safe display edits remain a no-op');
+  await edit('Keripik Pisang fermentasi dan diasap');
+  assert.equal(read().revision, 2);
+  assert.equal(read().scope, 'facilitator_review');
+  assert.equal(read().ingredients[0].reason, 'SCOPE_REVIEW');
+  assert.equal(buildPacket(read()).evidence_complete, false);
+  const referred = read();
+  await edit('Keripik Pisang fermentasi dan diasap');
+  assert.deepEqual(read(), referred, 'unchanged submitted scope is also a no-op');
+  await edit(draft.product_name);
+  assert.equal(read().scope, 'facilitator_review');
+  assert.equal(buildPacket(read()).evidence_complete, false);
+  assert.ok(!read().events.some(event => ['pack_requested', 'catalogue_searched', 'substitute_proposed'].includes(event.type)));
+});
+
+test('material product edits before first confirmation do not inherit the intake assessment', async () => {
+  const service = new CaseService({ intake: async () => draft, choose: async ({ allowed }) => allowed[0], readPack: async () => correct });
+  const created = await service.create(media('audio'), media('label'));
+  await service.mutate(created.case.case_id, created.session, 1, entry => service.confirm(entry, {
+    product_name: 'Keripik Pisang fermentasi dan diasap', scope: 'snack', ingredients: draft.ingredients, reviewed: true,
+  }));
+  const view = service.read(created.case.case_id);
+  assert.equal(view.scope, 'facilitator_review');
+  assert.ok(view.ingredients.every(row => row.reason === 'SCOPE_REVIEW' && !row.pending_request));
+  assert.equal(buildPacket(view).evidence_complete, false);
 });
