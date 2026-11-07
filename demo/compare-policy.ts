@@ -255,14 +255,15 @@ const invalid = entries.flatMap(row => row.error ? [row.error] : []);
 const seen = new Set(scenarios.map(row => row.id));
 const missing = [...expectedIds].filter(id => !seen.has(id));
 const duplicateOrExtra = scenarios.length !== seen.size || [...seen].some(id => !expectedIds.has(id));
-const results = (await Promise.all(scenarios.map(async scenario =>
+const actionScenarios = scenarios.filter(scenario => supported.has(scenario.id));
+const results = (await Promise.all(actionScenarios.map(async scenario =>
   Promise.all([run(scenario, 'model'), run(scenario, 'scripted')])))).flat();
 const comparison = (['model', 'scripted'] as const).map(policy => {
   const rows = results.filter(result => result.policy === policy);
   const sum = (key: 'unsafeAcceptances' | 'unnecessaryPackRequests' | 'needlessSwaps' | 'approved' | 'eligibleGaps') =>
     rows.reduce((total, row) => total + row[key], 0);
   return {
-    policy, denominator: expectedIds.size, attempted: rows.length + invalid.length,
+    policy, denominator: supported.size, attempted: rows.length,
     passed: rows.filter(row => row.pass).length,
     technical_failures: rows.filter(row => row.technicalFailure).length + invalid.length,
     action_probes: rows.filter(row => row.case_type === 'action_probe').length,
@@ -277,7 +278,7 @@ const comparison = (['model', 'scripted'] as const).map(policy => {
 console.log(JSON.stringify({
   evaluation: 'v8 structured case fixtures, legacy single-action Responses workflow vs scripted baseline, k=1 per policy',
   model: process.env.OPENAI_AGENT_MODEL || 'gpt-4.1-mini',
-  scope: 'Three banana-chip action probes and 27 facilitator-scope guards per policy.',
+  scope: 'Three action probes with explicit expectations per policy. Historical whole-recipe scope guards are excluded.',
   media: 'Oracle observations; no transcription or image perception measured.',
   domain_unvalidated: ['D11 tempe'],
   invalid, missing, duplicateOrExtra, comparison, results,

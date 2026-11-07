@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { IntakeInputError, type Draft, type Media, type Model, type Observation } from '../src/contracts.js';
 import type { WorkflowRunner } from '../src/orchestration.js';
-import { buildPacket } from '../src/packet.js';
+import { buildPacket, packetHtml } from '../src/packet.js';
 import { CaseService, type PackAnswer } from '../src/service.js';
 
 const draft: Draft = {
@@ -105,11 +105,34 @@ test('retry after vision failure preserves the same request and does not duplica
   assert.equal(read().events.filter(event => event.type === 'pack_received').length, 1);
 });
 
-test('scope review routes all current ingredients without catalogue or pack requests', async () => {
-  const { read } = await setup({}, 'facilitator_review');
-  assert.equal(read().phase, 'review_packet');
-  assert.ok(read().ingredients.every(row => row.reason === 'SCOPE_REVIEW'));
-  assert.ok(!read().events.some(event => event.type === 'pack_requested' || event.type === 'catalogue_searched'));
+test('Pisang goreng Medan checks ingredients independently while referring rum', async () => {
+  const { service, id, session, read } = await setup();
+  const product_name = 'Pisang goreng Medan';
+  await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name, scope: 'snack', reviewed: true,
+    ingredients: [draft.ingredients[0], {
+      declared_name: 'tepung terigu', variant: null, form: 'processed', pack_condition: 'sealed',
+    }, { declared_name: 'rum', form: 'processed', pack_condition: 'sealed' }],
+  }));
+  const view = read();
+  assert.equal(view.scope, 'facilitator_review');
+  assert.equal(view.ingredients[0].status, 'exempt');
+  assert.ok(view.ingredients[1].pending_request);
+  assert.equal(view.ingredients[2].reason, 'SCOPE_REVIEW');
+  assert.equal(view.ingredients[2].pending_request, undefined);
+  assert.equal(buildPacket(view).evidence_complete, false);
+});
+
+test('an unfamiliar product name can retain its intake assessment', async () => {
+  const product_name = 'Kue Apem Pasar';
+  const { service, read } = await setup({ intake: async () => ({ ...draft, product_name }) });
+  // setup confirms the default fixture name, so test a fresh, unedited intake.
+  const created = await service.create(media('audio'), media('label'));
+  await service.mutate(created.case.case_id, created.session, created.case.revision, entry => service.confirm(entry, {
+    product_name, scope: 'snack', reviewed: true, ingredients: draft.ingredients,
+  }));
+  assert.equal(service.read(created.case.case_id).scope, 'snack');
+  assert.equal(read().scope, 'facilitator_review');
 });
 
 test('a revised recipe invalidates old verdicts and proposals', async () => {
@@ -131,7 +154,8 @@ test('renaming a supported draft cannot carry its scope over to an unsupported p
     product_name: 'Sosis ayam asap', scope: 'snack', ingredients: read().draft!.ingredients, reviewed: true,
   }));
   assert.equal(read().scope, 'facilitator_review');
-  assert.ok(read().ingredients.every(row => row.reason === 'SCOPE_REVIEW' && !row.pending_request));
+  assert.equal(read().ingredients[0].status, 'exempt');
+  assert.ok(read().ingredients[1].pending_request);
 });
 
 test('unreadable intake asks for replacement input instead of creating a paused case', async () => {
@@ -462,7 +486,7 @@ test('material process edits refer the same banana product and cannot restore st
   await edit('Keripik Pisang fermentasi dan diasap');
   assert.equal(read().revision, 2);
   assert.equal(read().scope, 'facilitator_review');
-  assert.equal(read().ingredients[0].reason, 'SCOPE_REVIEW');
+  assert.equal(read().ingredients[0].status, 'exempt');
   assert.equal(buildPacket(read()).evidence_complete, false);
   const referred = read();
   await edit('Keripik Pisang fermentasi dan diasap');
@@ -481,7 +505,8 @@ test('material product edits before first confirmation do not inherit the intake
   }));
   const view = service.read(created.case.case_id);
   assert.equal(view.scope, 'facilitator_review');
-  assert.ok(view.ingredients.every(row => row.reason === 'SCOPE_REVIEW' && !row.pending_request));
+  assert.equal(view.ingredients[0].status, 'exempt');
+  assert.ok(view.ingredients[1].pending_request);
   assert.equal(buildPacket(view).evidence_complete, false);
 });
 
@@ -571,4 +596,29 @@ test('a repeated pack referral cannot consume the catalogue decision for that in
     event.data.ingredient_id === seasoning.ingredient_id && event.data.searched === true));
   assert.equal(view.events.filter(event => event.type === 'agent_action' &&
     event.data.ingredient_id === seasoning.ingredient_id && event.data.action === 'refer').length, 1);
+});
+
+test('the report keeps pending photos and recipe referrals distinct', async () => {
+  const { read } = await setup();
+  const pending = buildPacket(read());
+  assert.equal(pending.current_ingredients[1].next_action, 'Seller to upload the requested package photo.');
+  const referred = await setup({ intake: async () => ({ ...draft, scope: 'facilitator_review', ingredients: [draft.ingredients[0]] }) });
+  const packet = buildPacket(referred.read());
+  assert.equal(packet.unresolved_items.length, 0);
+  const html = packetHtml(packet);
+  assert.match(html, /recipe or production process needs facilitator review/);
+  assert.match(html, /All current ingredients have evidence/);
+});
+
+test('package photos require the seller session and embed in the HTML report', async () => {
+  const { answer, read, service, id, session } = await setup();
+  await answer('correct');
+  const packet = buildPacket(read());
+  const source = packet.current_ingredients[1].evidence[0].source_refs[0];
+  assert.throws(() => service.readPhoto(id, 'foreign', source), /Seller session required/);
+  const photo = service.readPhoto(id, session, source);
+  assert.deepEqual(photo.bytes, media('correct').bytes);
+  const html = packetHtml(packet, new Map([[source, photo]]));
+  assert.ok(html.includes('data:image/png;base64,' + photo.bytes.toString('base64')));
+  assert.match(html, /<summary>Sumber rujukan<\/summary>/);
 });

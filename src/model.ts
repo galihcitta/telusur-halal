@@ -51,8 +51,8 @@ For fresh bananas, no_additives is true only when the seller explicitly confirms
 For commercial ingredients ordinary vocabulary can establish form (e.g. powder and cooking oil are processed).
 Treat curah as loose, and explicitly described repacking as repacked. A named producer alone establishes neither condition.
 Set label_readable false when the seller's product identity or ingredient label cannot be read at all.
-Use snack scope only for a simple banana-snack case without a stated issue requiring production process judgment.
-Use facilitator_review for an unsupported food or when process judgment is needed. This is scope triage, not an eligibility determination.`;
+Use snack for a recipe with no stated issue requiring facilitator review, regardless of its name or food category.
+Use facilitator_review when ingredients or production steps call for facilitator judgment, such as alcoholic rum. This flag is for the recipe review and does not decide the status of individual ingredients. Distinguish alcoholic rum from rum flavouring, and preserve that distinction in the ingredient list.`;
 
 const packInstructions = `Read the visible identity on photos of one package, possibly multiple sides.
 Report observations only. Do not use external knowledge, look up a registry, fill blanks, or make a verdict.
