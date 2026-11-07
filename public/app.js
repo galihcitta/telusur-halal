@@ -877,6 +877,7 @@ function caseInfo() {
 
 function packetView() {
   const approved = view.proposals.filter(proposal => proposal.status === 'approved');
+  const replacementByIngredient = new Map(approved.map(proposal => [proposal.ingredient_id, proposal.listing]));
   const currentEvents = view.events.filter(event => event.revision === view.revision);
   const searches = currentEvents.filter(event => event.type === 'catalogue_searched' && event.data.searched === true);
   const unmatched = view.ingredients.filter(row => {
@@ -901,18 +902,25 @@ function packetView() {
             : Array.isArray(row.source_refs) ? row.source_refs : [];
           const carriedIds = Array.isArray(verdict?.data.evidence_ids) ? verdict.data.evidence_ids : [];
           const evidence = row.evidence.filter(item => item.revision === view.revision || carriedIds.includes(item.evidence_id));
+          const replacement = replacementByIngredient.get(row.ingredient_id);
           return `<li>
             <strong>${escape(ingredientTitle(row))}</strong>
             <span class="badge ${supported ? 'confirmed' : 'gap'}">${icon(supported ? 'check' : 'alert')} <span>${escape(mapStatus(row))}</span></span>
+            ${replacement ? `<p>Pengganti disetujui: ${[replacement.product, replacement.variant].filter(Boolean).map(escape).join(' · ')}</p>` : ''}
             ${row.basis ? `<p>${escape(row.basis)}</p>` : ''}
             ${renderSourceReferences(sources, escape)}
             ${evidenceLog(evidence)}
           </li>`;
         }).join('')}</ul></section>
         <section><h2>Usulan pengganti</h2>
-        ${approved.length ? `<ul>${approved.map(({ listing, registry }) => `<li><strong>${[listing.product, listing.variant, listing.pack_size].filter(Boolean).map(escape).join(' · ')}</strong>
+        ${approved.length ? `<ul>${approved.map(({ ingredient_id, listing, registry }) => {
+          const original = view.ingredients.find(row => row.ingredient_id === ingredient_id);
+          const replacement = [listing.product, listing.variant, listing.pack_size].filter(Boolean).join(' · ');
+          return `<li><strong>${original ? escape(original.declared_name) + ' → ' : ''}${escape(replacement)}</strong>
         <p class="muted">${escape(registry.certificate_number)} · Registri simulasi</p>
-        <span class="badge gap">${icon('alert')} Disetujui, belum dipakai</span></li>`).join('')}</ul>`
+        <span class="badge gap">${icon('alert')} Disetujui, belum dipakai</span>
+        <p class="muted">Setelah mulai memakai produk ini, perbarui resep dan unggah foto kemasannya.</p></li>`;
+        }).join('')}</ul>`
         : !unmatched.length || view.proposals.length ? `<p class="muted">${noProposals}</p>` : ''}
         ${unmatched.length ? `<p class="muted">Katalog Shopee simulasi belum memiliki pengganti yang sesuai untuk bahan berikut. Bawa daftar ini ke fasilitator untuk meninjau pilihan lain.</p>
         <ul>${unmatched.map(row => `<li>${escape(row.declared_name)}</li>`).join('')}</ul>` : ''}</section>

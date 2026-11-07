@@ -61,11 +61,15 @@ export function packetHtml(packet: ReturnType<typeof buildPacket>, photos: Reado
       return `<img alt="Uploaded package photo" src="data:${photo.mime};base64,${photo.bytes.toString('base64')}">`;
     }).join('') : ''}
     ${renderSourceReferences(source_refs, escape, source_type)}</li>`).join('')}</ul>` : ''}</td></tr>`).join('');
-  const proposals = packet.conditional_proposals.map(({ listing, registry, next_action }) =>
-    `<li><strong>${escape([listing.product, listing.variant, listing.pack_size].filter(Boolean).join(' · '))}</strong>
+  const proposals = packet.conditional_proposals.map(({ ingredient_id, listing, registry, next_action }) => {
+    const original = packet.current_ingredients.find(row => row.ingredient_id === ingredient_id);
+    const replacement = [listing.product, listing.variant, listing.pack_size].filter(Boolean).join(' · ');
+    return `<li><strong>${original ? escape(original.ingredient) + ' → ' : ''}${escape(replacement)}</strong>
+    <p lang="id">Disetujui, belum dipakai</p>
     <p>${escape(listing.manufacturer)} · ${escape(listing.shop)} · Rp${listing.price_idr.toLocaleString('id-ID')}</p>
     <p>${escape(registry.record_id)} · ${escape(registry.certificate_number)} · ${escape(listing.source_ref)}</p>
-    <p>${escape(next_action)}</p></li>`).join('');
+    <p>${escape(next_action)}</p></li>`;
+  }).join('');
   return `<!doctype html><html lang="en"><meta charset="utf-8"><title>Telusur Halal evidence packet</title>
   <style>body{font:16px/1.55 system-ui;max-width:76rem;margin:3rem auto;padding:0 1.5rem;color:#16342d}table{border-collapse:collapse;width:100%}th,td{border:1px solid #b3c3bd;padding:.6rem;text-align:left;vertical-align:top;overflow-wrap:anywhere}td:nth-child(4){font-size:.8rem}td img{display:block;max-width:100%;max-height:18rem;margin:.5rem 0;object-fit:contain}h2{margin-top:2rem}@media print{body{margin:0;padding:0}}</style>
   <h1>${escape(packet.product_name)} · Evidence packet</h1>
