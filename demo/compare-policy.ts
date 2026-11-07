@@ -275,7 +275,7 @@ const comparison = (['model', 'scripted'] as const).map(policy => {
   };
 });
 console.log(JSON.stringify({
-  evaluation: 'v8 structured case fixtures, k=1 per policy',
+  evaluation: 'v8 structured case fixtures, legacy single-action Responses workflow vs scripted baseline, k=1 per policy',
   model: process.env.OPENAI_AGENT_MODEL || 'gpt-4.1-mini',
   scope: 'Three banana-chip action probes and 27 facilitator-scope guards per policy.',
   media: 'Oracle observations; no transcription or image perception measured.',

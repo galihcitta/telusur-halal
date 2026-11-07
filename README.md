@@ -69,6 +69,7 @@ For the full D01 flow, use the [demo input guide](demo/README.md). Confirm the d
 npm run typecheck
 npm test
 npm run test:images
+# Compare the legacy single-action Responses workflow with the scripted baseline
 npm run compare:policy
 # With the server running and agent-browser installed
 bash demo/browser-d01.sh

@@ -491,14 +491,14 @@ test('case agent uses live eligibility across a wrong pack, seller decline, and 
   const workflow: WorkflowRunner = async ({ actions, execute }) => {
     const run: string[] = [];
     runs.push(run);
-    assert.equal(execute('unknown-ingredient', 'request_pack'), false);
+    assert.equal(execute('unknown-ingredient', 'request_pack', 'pack'), false);
     while (actions().length) {
       const [next] = actions();
       if (next.action === 'request_pack') {
-        assert.equal(execute(next.ingredient_id, 'search_catalogue'), false);
+        assert.equal(execute(next.ingredient_id, 'search_catalogue', next.stage), false);
       }
-      assert.equal(execute(next.ingredient_id, next.action), true);
-      assert.equal(execute(next.ingredient_id, next.action), false);
+      assert.equal(execute(next.ingredient_id, next.action, next.stage), true);
+      assert.equal(execute(next.ingredient_id, next.action, next.stage), false);
       run.push(next.action);
     }
   };
@@ -527,7 +527,7 @@ test('case agent uses live eligibility across a wrong pack, seller decline, and 
 test('retry after a partial case-agent run preserves the existing pack request', async () => {
   const workflow: WorkflowRunner = async ({ actions, execute }) => {
     const [next] = actions();
-    assert.equal(execute(next.ingredient_id, next.action), true);
+    assert.equal(execute(next.ingredient_id, next.action, next.stage), true);
   };
   const { service, read, id, session } = await setup({
     intake: async () => ({
@@ -546,4 +546,29 @@ test('retry after a partial case-agent run preserves the existing pack request',
   assert.deepEqual(read().ingredients[1].pending_request, first);
   assert.equal(read().ingredients[3].pending_request?.attempt, 1);
   assert.equal(read().events.filter(event => event.type === 'pack_requested').length, 2);
+});
+
+test('a repeated pack referral cannot consume the catalogue decision for that ingredient', async () => {
+  const workflow: WorkflowRunner = async ({ actions, execute }) => {
+    const referral = actions().find(action => action.action === 'refer' && action.stage === 'pack');
+    if (referral) {
+      assert.equal(execute(referral.ingredient_id, 'refer', 'pack'), true);
+      assert.equal(execute(referral.ingredient_id, 'refer', 'pack'), false);
+      assert.ok(actions().some(action => action.ingredient_id === referral.ingredient_id &&
+        action.action === 'search_catalogue' && action.stage === 'catalogue'));
+    }
+    while (actions().length) {
+      const [next] = actions();
+      assert.equal(execute(next.ingredient_id, next.action, next.stage), true);
+    }
+  };
+  const { answer, read } = await setup({}, 'snack', workflow);
+  await answer('wrong');
+  const view = read();
+  const seasoning = view.ingredients[1];
+  assert.equal(view.phase, 'awaiting_seller');
+  assert.ok(view.events.some(event => event.type === 'catalogue_searched' &&
+    event.data.ingredient_id === seasoning.ingredient_id && event.data.searched === true));
+  assert.equal(view.events.filter(event => event.type === 'agent_action' &&
+    event.data.ingredient_id === seasoning.ingredient_id && event.data.action === 'refer').length, 1);
 });

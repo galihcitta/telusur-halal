@@ -1,4 +1,4 @@
-# Structured action comparison
+# Legacy single-action policy comparison
 
 Run from the repository root with the team key in the ignored `.env`:
 

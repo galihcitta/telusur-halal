@@ -1,6 +1,6 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { eventSchema, IntakeInputError, PackInputError, type AgentAction, type CaseView, type Confirmation, type EventType, type Ingredient, type Media, type Model, type Observation, type SourceMode } from './contracts.js';
-import type { WorkflowRunner } from './orchestration.js';
+import type { WorkflowAction, WorkflowRunner } from './orchestration.js';
 import { checkEvidence, exemption, ingredientIdentity, searchCatalogue } from './rules.js';
 
 export class RequestError extends Error {
@@ -391,19 +391,20 @@ export class CaseService {
   private async advanceWithAgent(entry: Entry, packs: Ingredient[], run: WorkflowRunner) {
     const choices = () => [
       ...packs.filter(row => row.status === 'open' && !row.pending_request)
-        .map(row => ({ row, allowed: this.packActions(row), stage: 'pack' })),
+        .map(row => ({ row, allowed: this.packActions(row), stage: 'pack' as const })),
       ...this.catalogueRows(entry)
-        .map(row => ({ row, allowed: ['search_catalogue', 'refer'] as AgentAction[], stage: 'catalogue' })),
+        .map(row => ({ row, allowed: ['search_catalogue', 'refer'] as AgentAction[], stage: 'catalogue' as const })),
     ];
-    const actions = () => choices().flatMap(({ row, allowed }) => allowed.map(action => ({
-      ingredient_id: row.ingredient_id, ingredient: row.declared_name, reason: row.reason, action,
+    const actions = (): WorkflowAction[] => choices().flatMap(({ row, allowed, stage }) => allowed.map(action => ({
+      ingredient_id: row.ingredient_id, ingredient: row.declared_name, reason: row.reason, action, stage,
     })));
     if (!actions().length) return;
 
     await run({
       actions,
-      execute: (ingredientId, action) => {
-        const choice = choices().find(item => item.row.ingredient_id === ingredientId && item.allowed.includes(action));
+      execute: (ingredientId, action, requestedStage) => {
+        const choice = choices().find(item =>
+          item.stage === requestedStage && item.row.ingredient_id === ingredientId && item.allowed.includes(action));
         if (!choice) return false;
         const { row, allowed, stage } = choice;
         this.recordAction(entry.view, row, action, allowed);
