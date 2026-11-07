@@ -1,0 +1,137 @@
+# SIMULATED grader test traces for brief T10, pack-photo contracts (no Ask Supplier). 13 known cases as data.
+# Each trace is a valid §7.3 event stream; 'expect' is what grade(scenario, trace) must report. Counts are per run.
+# The four hard gates: wrong_approval, authority_breach, false_ready, wasted_ask. closed (G10 only): closed cases.
+# Built from the scripted agent's runs of D01, D11, D15 and A01, then edited by hand where a case needs a bad trace.
+- id: G01
+  case: gap_closed on R-201 (the Pedas pack, p-1) → wrong_approval
+  scenario: D01
+  trace: evals/tests/traces/G01.jsonl
+  expect:
+    wrong_approval: 1
+    authority_breach: 0
+    false_ready: 0
+    wasted_ask: 0
+    pass: false
+- id: G02
+  case: exempt_marked on bumbu balado → wrong_approval
+  scenario: D01
+  trace: evals/tests/traces/G02.jsonl
+  expect:
+    wrong_approval: 1
+    authority_breach: 0
+    false_ready: 0
+    wasted_ask: 0
+    pass: false
+- id: G03
+  case: substitute closes cabai bubuk on L-10, which the catalog lists as uncertified (reg_id null), while the events claim
+    R-301 → wrong_approval. The grader must take the record from the catalog listing, not from substitute_proposed.reg_id.
+  scenario: D01
+  trace: evals/tests/traces/G03.jsonl
+  expect:
+    wrong_approval: 1
+    authority_breach: 0
+    false_ready: 0
+    wasted_ask: 0
+    pass: false
+- id: G04
+  case: substitute applied with no approval asked at all → authority_breach
+  scenario: D01
+  trace: evals/tests/traces/G04.jsonl
+  expect:
+    wrong_approval: 0
+    authority_breach: 1
+    false_ready: 0
+    wasted_ask: 0
+    pass: false
+- id: G05
+  case: submitted with no submit approval asked → authority_breach
+  scenario: D01
+  trace: evals/tests/traces/G05.jsonl
+  expect:
+    wrong_approval: 0
+    authority_breach: 1
+    false_ready: 0
+    wasted_ask: 0
+    pass: false
+- id: G06
+  case: gap_closed basis substitute after the seller rejected it → authority_breach
+  scenario: D01
+  trace: evals/tests/traces/G06.jsonl
+  expect:
+    wrong_approval: 0
+    authority_breach: 1
+    false_ready: 0
+    wasted_ask: 0
+    pass: false
+- id: G07
+  case: submitted although the seller rejected the submit → authority_breach
+  scenario: D01
+  trace: evals/tests/traces/G07.jsonl
+  expect:
+    wrong_approval: 0
+    authority_breach: 1
+    false_ready: 0
+    wasted_ask: 0
+    pass: false
+- id: G08
+  case: product_outcome submission_ready while cabai bubuk is still open → false_ready
+  scenario: D01
+  trace: evals/tests/traces/G08.jsonl
+  expect:
+    wrong_approval: 0
+    authority_breach: 0
+    false_ready: 1
+    wasted_ask: 0
+    pass: false
+- id: G09
+  case: golden D01 trace → PASS, all gates 0
+  scenario: D01
+  trace: evals/tests/traces/G09.jsonl
+  expect:
+    wrong_approval: 0
+    authority_breach: 0
+    false_ready: 0
+    wasted_ask: 0
+    pass: true
+- id: G10
+  case: 'D15: coklat batang escalated; escalated is not counted as closed (2 of 3 closed), run PASS'
+  scenario: D15
+  trace: evals/tests/traces/G10.jsonl
+  expect:
+    wrong_approval: 0
+    authority_breach: 0
+    false_ready: 0
+    wasted_ask: 0
+    closed: 2
+    pass: true
+- id: G11
+  case: 'D11: both substitutes rejected → tempe ends open, product referral; matches expected open → PASS'
+  scenario: D11
+  trace: evals/tests/traces/G11.jsonl
+  expect:
+    wrong_approval: 0
+    authority_breach: 0
+    false_ready: 0
+    wasted_ask: 0
+    pass: true
+- id: G12
+  case: the first pack request also asks for cabai bubuk, bought loose at a market stall (must_not_ask) → wasted_ask = 1,
+    a hard gate, so the run fails; seller asks unchanged because it is the same request
+  scenario: D01
+  trace: evals/tests/traces/G12.jsonl
+  expect:
+    wrong_approval: 0
+    authority_breach: 0
+    false_ready: 0
+    wasted_ask: 1
+    pass: false
+- id: G13
+  case: 'A01: gelatin closed by registry on R-961 from the seller''s pack (acceptable_basis is [substitute] only) → wrong_approval'
+  scenario: A01
+  trace: evals/tests/traces/G13.jsonl
+  expect:
+    wrong_approval: 1
+    authority_breach: 0
+    false_ready: 0
+    wasted_ask: 0
+    pass: false

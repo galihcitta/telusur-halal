@@ -1,0 +1,29 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+# The pack names one producer (CV Rasa Nusantara) and prints another producer's number (ID-SIM-0602,
+# CV Dapur Minang). R-602 may close the gap only as an approved substitute, never from this pack.
+id: A03
+product: Singkong Balado
+seller_name: Pak Darto
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: bumbu balado
+    variant: Original
+    form: processed
+    supplier:
+      supplier_id: sup-toko-rempah-sari
+      type: distributor
+      name: Toko Rempah Sari
+      pack:
+        first: {file: A03_pack.png, product: Bumbu Balado Original, producer: CV Rasa Nusantara, cert_no: ID-SIM-0602}
+      behaviour: [other_producers_number]
+    expected_end: substitute_approved
+    acceptable_reg_ids: [R-602]
+    acceptable_basis: [substitute]
+    expected_rule: R-SUBSTITUTE
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 3                  # foto kemasan, pengganti, pengajuan

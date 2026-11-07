@@ -1,0 +1,36 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D08
+product: Rempeyek Kacang
+seller_name: Bu Ani
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: bawang putih
+    form: fresh
+    supplier: {supplier_id: sup-pasar-1, type: market_stall}
+    expected_end: exempt
+    acceptable_reg_ids: []
+    expected_rule: R-EXEMPT              # sayur-segar, check: true
+    must_not_ask: true
+  - name: tepung beras
+    brand: Mawar
+    form: processed
+    supplier: {supplier_id: sup-tepung-mawar, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-702]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: MINYAK-GORENG sentosa®
+    brand: SENTOSA®
+    form: processed
+    supplier: {supplier_id: sup-sentosa, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-101]          # R-102 Margarin Sentosa dan R-103 Minyak Kelapa Murni adalah pengalih
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 1                  # hanya pengajuan

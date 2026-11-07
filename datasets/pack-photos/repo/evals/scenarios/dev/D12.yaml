@@ -1,0 +1,41 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D12
+product: Kue Nastar
+seller_name: Bu Lestari
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: telur ayam
+    form: fresh
+    supplier: {supplier_id: sup-pasar-telur, type: market_stall}
+    expected_end: exempt
+    acceptable_reg_ids: []
+    expected_rule: R-EXEMPT
+    must_not_ask: true
+  - name: tepung terigu
+    brand: Makmur
+    form: processed
+    supplier: {supplier_id: sup-makmur, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-701]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: selai nanas
+    form: processed
+    supplier:
+      supplier_id: sup-toko-kue-melati
+      type: distributor
+      name: Toko Bahan Kue Melati
+      pack:
+        first: {file: D12_pack.png, product: Selai Nanas, producer: CV Nanas Madu, cert_no: ID-SIM-0941}
+      behaviour: [right_pack]
+    expected_end: verified
+    acceptable_reg_ids: [R-941]          # R-942 PT Selai Sari adalah pengalih
+    expected_rule: R-PRODUCER-MATCH
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 2                  # foto kemasan, pengajuan

@@ -1,0 +1,58 @@
+# SIMULATED intake gold for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Made-up seller,
+# suppliers and brands; no real products or certificates. The top-level product / seller_name /
+# ingredients block is an IngredientList (PRD §7.2): IngredientList.parse() on this file drops the
+# extra keys (risky, accept, recording metadata). supplier_id is the scenario's id so
+# World.fromIntake can map suppliers; it is not scored. Scored: recall of risky ingredients,
+# exact variant, supplier type (evals.md §8); name/brand/form/precision are reported.
+recording_id: R12
+scenario_id: D12
+audio: evals/intake/audio/R12_D12.m4a
+label_photo: evals/intake/photos/L08_D12.jpg
+label_photo_fallback: evals/intake/photos/L08_D12.sim.png
+transcript_ref: evals/intake/transcripts/R12_D12.txt
+recorder: Ardiyan
+style: mentions tools and equipment
+variant_case: false
+product: Kue Nastar
+product_accept:
+- Kue Nastar
+- Kue Nastar Lebaran
+seller_name: Bu Lestari
+ingredients:
+- ing_id: ing-1
+  name: telur ayam
+  brand: null
+  variant: null
+  form: fresh
+  supplier:
+    supplier_id: sup-pasar-telur
+    type: market_stall
+    name: null
+  risky: false
+  accept:
+    form:
+    - fresh
+    - unknown
+- ing_id: ing-2
+  name: tepung terigu
+  brand: Makmur
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-makmur
+    type: certified_producer
+    name: null
+  risky: true
+- ing_id: ing-3
+  name: selai nanas
+  brand: null
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-toko-kue-melati
+    type: distributor
+    name: Toko Bahan Kue Melati
+  risky: true
+must_not_extract:
+- oven
+- loyang

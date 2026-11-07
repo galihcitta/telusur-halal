@@ -1,0 +1,42 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D05
+product: Makaroni Pedas
+seller_name: Pak Ujang
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: makaroni
+    brand: Nusa
+    form: processed
+    supplier: {supplier_id: sup-pasta-nusa, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-721]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: minyak goreng
+    brand: Sentosa
+    form: processed
+    supplier: {supplier_id: sup-sentosa, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-101]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: cabai bubuk
+    form: processed
+    supplier:
+      supplier_id: sup-toko-cabe-rawit
+      type: distributor
+      name: Toko Cabe Rawit
+      pack:
+        first: {file: D05_pack.png, product: Cabai Bubuk, producer: UD Cabe Rawit Jaya, cert_no: ID-SIM-0999}
+      behaviour: [not_in_registry]
+    expected_end: substitute_approved
+    acceptable_reg_ids: [R-301]          # L-9
+    expected_rule: R-SUBSTITUTE
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 3                  # foto kemasan, pengganti, pengajuan

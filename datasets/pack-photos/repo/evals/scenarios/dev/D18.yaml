@@ -1,0 +1,35 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D18
+product: Brownies Kering
+seller_name: Bu Maya
+seller_policy: {substitute: reject_first_approve_second, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: tepung terigu
+    brand: Makmur
+    form: processed
+    supplier: {supplier_id: sup-makmur, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-701]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: telur ayam
+    form: fresh
+    supplier: {supplier_id: sup-pasar-telur, type: market_stall}
+    expected_end: exempt
+    acceptable_reg_ids: []
+    expected_rule: R-EXEMPT
+    must_not_ask: true
+  - name: essence rum
+    form: processed
+    supplier: {supplier_id: sup-pasar-kue, type: market_stall, name: Lapak Bahan Kue Pasar Baru}
+    expected_end: substitute_approved
+    acceptable_reg_ids: [R-504, R-512]   # L-32, L-33; usulan pertama ditolak, kedua disetujui
+    expected_rule: R-SUBSTITUTE
+    must_not_ask: true
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 3                  # pengganti ditolak, pengganti disetujui, pengajuan

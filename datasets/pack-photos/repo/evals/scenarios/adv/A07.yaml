@@ -1,0 +1,27 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+# Review H5: a generic ingredient name from intake. "tepung" + brand "Makmur" fits Tepung Terigu
+# Makmur, but nothing says the seller's tepung is terigu.
+id: A07
+product: Bakwan
+seller_name: Pak Joko
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: tepung
+    brand: Makmur
+    form: processed
+    supplier:
+      supplier_id: sup-makmur
+      type: certified_producer
+      pack:
+        note: Bungkusnya sudah dibuang.
+      behaviour: [no_pack]
+    expected_end: escalated
+    acceptable_reg_ids: []
+    expected_rule: R-ESCALATE
+expected_product_outcome: escalated
+expected_submitted: false
+expected_seller_asks: 1                  # foto kemasan (tidak ada)

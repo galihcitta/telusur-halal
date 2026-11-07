@@ -1,0 +1,42 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D13
+product: Kue Nastar
+seller_name: Bu Lestari
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: telur ayam
+    form: fresh
+    supplier: {supplier_id: sup-pasar-telur, type: market_stall}
+    expected_end: exempt
+    acceptable_reg_ids: []
+    expected_rule: R-EXEMPT
+    must_not_ask: true
+  - name: margarin
+    brand: Sentosa
+    form: processed
+    supplier: {supplier_id: sup-sentosa, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-102]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: essence butter
+    form: processed
+    supplier:
+      supplier_id: sup-toko-kue-melati
+      type: distributor
+      name: Toko Bahan Kue Melati
+      pack:
+        first: {file: D13_pack.png, product: Essence Vanili, producer: PT Esens Wangi, cert_no: ID-SIM-0501}
+        note_on_reask: Yang butter bungkusnya sudah habis.
+      behaviour: [wrong_product]
+    expected_end: substitute_approved
+    acceptable_reg_ids: [R-511]          # L-31; R-501/R-502 (sertifikat di foto) bukan produk ini
+    expected_rule: R-SUBSTITUTE
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 4                  # foto kemasan, foto ulang, pengganti, pengajuan

@@ -1,0 +1,69 @@
+# SIMULATED intake gold for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Made-up seller,
+# suppliers and brands; no real products or certificates. The top-level product / seller_name /
+# ingredients block is an IngredientList (PRD §7.2): IngredientList.parse() on this file drops the
+# extra keys (risky, accept, recording metadata). supplier_id is the scenario's id so
+# World.fromIntake can map suppliers; it is not scored. Scored: recall of risky ingredients,
+# exact variant, supplier type (evals.md §8); name/brand/form/precision are reported.
+recording_id: R01
+scenario_id: D01
+audio: evals/intake/audio/R01_D01.m4a
+label_photo: evals/intake/photos/L01_D01.jpg
+label_photo_fallback: evals/intake/photos/L01_D01.sim.png
+transcript_ref: evals/intake/transcripts/R01_D01.txt
+recorder: Galih
+style: clean, calm, the stage demo recording
+variant_case: true
+product: Keripik Pisang Original
+product_accept:
+- Keripik Pisang Original
+seller_name: Bu Sari
+ingredients:
+- ing_id: ing-1
+  name: pisang kepok
+  brand: null
+  variant: null
+  form: fresh
+  supplier:
+    supplier_id: sup-pasar-1
+    type: market_stall
+    name: null
+  risky: false
+  accept:
+    form:
+    - fresh
+    - unknown
+- ing_id: ing-2
+  name: minyak goreng
+  brand: Sentosa
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-sentosa
+    type: certified_producer
+    name: null
+  risky: true
+  accept:
+    form:
+    - processed
+    - unknown
+- ing_id: ing-3
+  name: bumbu balado
+  brand: null
+  variant: Original
+  form: processed
+  supplier:
+    supplier_id: sup-toko-bumbu-jaya
+    type: distributor
+    name: Toko Bumbu Jaya
+  risky: true
+- ing_id: ing-4
+  name: cabai bubuk
+  brand: null
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-pasar-2
+    type: market_stall
+    name: null
+  risky: true
+must_not_extract: []

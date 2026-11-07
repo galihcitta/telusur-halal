@@ -1,0 +1,47 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops and products are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Source: PRD v6 §7.9 'Seed registry and Shopee catalog for the dev set', copied verbatim.
+# evals/seed/registry.yaml — shared mock registry; a superset of the §7.9 test registry (R-101…R-701)
+# --- from the §7.9 test registry ---
+- {reg_id: R-101, cert_no: ID-SIM-0101, producer: PT Minyak Sentosa, product: Minyak Goreng Sentosa}
+- {reg_id: R-201, cert_no: ID-SIM-0201, producer: CV Rasa Nusantara, product: Bumbu Balado, variant: Pedas}
+- {reg_id: R-202, cert_no: ID-SIM-0202, producer: CV Rasa Nusantara, product: Bumbu Balado, variant: Original}
+- {reg_id: R-301, cert_no: ID-SIM-0301, producer: PT Cabai Prima, product: Cabai Bubuk Halal}
+- {reg_id: R-401, cert_no: ID-SIM-0401, producer: PT Coklat Jaya, product: Coklat Batang}
+- {reg_id: R-402, cert_no: ID-SIM-0402, producer: CV Kakao Mandiri, product: Coklat Batang}
+- {reg_id: R-501, cert_no: ID-SIM-0501, producer: PT Esens Wangi, product: Essence Vanili}
+- {reg_id: R-502, cert_no: ID-SIM-0501, producer: PT Esens Wangi, product: Essence Pandan}   # one certificate, two products
+- {reg_id: R-601, cert_no: ID-SIM-0601, producer: PT Bumbu Lain, product: Bumbu Balado}
+- {reg_id: R-701, cert_no: ID-SIM-0701, producer: PT Tepung Makmur, product: Tepung Terigu Makmur}
+# --- added for the dev set ---
+- {reg_id: R-102, cert_no: ID-SIM-0102, producer: PT Minyak Sentosa, product: Margarin Sentosa}        # B01 D13; other-product distractor for B12
+- {reg_id: R-103, cert_no: ID-SIM-0103, producer: CV Kelapa Hijau, product: Minyak Kelapa Murni}      # B12 distractor (other producer, other product)
+- {reg_id: R-302, cert_no: ID-SIM-0302, producer: CV Pedas Mantap, product: Cabai Bubuk}             # another producer of Cabai Bubuk (distractor)
+- {reg_id: R-403, cert_no: ID-SIM-0403, producer: PT Coklat Jaya, product: Coklat Compound, variant: Dark}   # B02 D20
+- {reg_id: R-404, cert_no: ID-SIM-0404, producer: PT Coklat Jaya, product: Coklat Compound, variant: Milk}   # variant distractor for D20
+- {reg_id: R-503, cert_no: ID-SIM-0503, producer: PT Esens Wangi, product: Essence Butter}           # second Essence Butter producer (no listing)
+- {reg_id: R-504, cert_no: ID-SIM-0504, producer: PT Esens Wangi, product: Essence Rum}              # substitute for D18
+- {reg_id: R-511, cert_no: ID-SIM-0511, producer: CV Aroma Dapur, product: Essence Butter}           # substitute for D13 (L-31)
+- {reg_id: R-512, cert_no: ID-SIM-0512, producer: CV Aroma Dapur, product: Essence Rum}              # second substitute for D18 (S3)
+- {reg_id: R-602, cert_no: ID-SIM-0602, producer: CV Dapur Minang, product: Bumbu Balado, variant: Original}   # substitute for D04, D06; another producer of Bumbu Balado Original
+- {reg_id: R-702, cert_no: ID-SIM-0702, producer: PT Tepung Mawar, product: Tepung Beras Mawar}      # B01 D08
+- {reg_id: R-711, cert_no: ID-SIM-0711, producer: PT Gula Manis Jaya, product: Gula Pasir Manis Jaya}   # B01 D16
+- {reg_id: R-721, cert_no: ID-SIM-0721, producer: PT Pasta Nusantara, product: Makaroni Spiral Nusa}    # B01 D05, D06
+- {reg_id: R-801, cert_no: ID-SIM-0801, producer: PT Tapioka Jaya, product: Tepung Tapioka}          # B17 D07 (the only one); repack D21
+- {reg_id: R-911, cert_no: ID-SIM-0911, producer: CV Sri Rejeki, product: Kerupuk Mentah}            # B01 D10
+- {reg_id: R-912, cert_no: ID-SIM-0912, producer: PT Dua Putri, product: Kerupuk Mentah}             # substitute for D09
+- {reg_id: R-921, cert_no: ID-SIM-0921, producer: CV Seblak Juara, product: Bumbu Seblak Kencur}     # substitute for D10
+- {reg_id: R-922, cert_no: ID-SIM-0922, producer: PT Rasa Kencur, product: Bumbu Seblak}             # second producer (no listing)
+- {reg_id: R-931, cert_no: ID-SIM-0931, producer: PT Tempe Sehat, product: Tempe Kedelai}            # substitute 1 for D11
+- {reg_id: R-932, cert_no: ID-SIM-0932, producer: CV Tempe Murni, product: Tempe Kedelai}            # substitute 2 for D11
+- {reg_id: R-941, cert_no: ID-SIM-0941, producer: CV Nanas Madu, product: Selai Nanas}               # B10 D12 (photo)
+- {reg_id: R-942, cert_no: ID-SIM-0942, producer: PT Selai Sari, product: Selai Nanas}               # second producer
+- {reg_id: R-951, cert_no: ID-SIM-0951, producer: CV Lumpia Mas, product: Kulit Lumpia}              # B01 D14, D15
+- {reg_id: R-961, cert_no: ID-SIM-0961, producer: PT Gelatin Nusantara, product: Gelatin Sapi}       # substitute for D16
+- {reg_id: R-962, cert_no: ID-SIM-0962, producer: CV Halal Gel, product: Gelatin Sapi}               # second producer (no listing)
+- {reg_id: R-971, cert_no: ID-SIM-0971, producer: PT Susu Prima, product: Keju Bubuk}                # substitute for D17
+- {reg_id: R-972, cert_no: ID-SIM-0972, producer: CV Keju Nusantara, product: Keju Bubuk}            # second producer (no listing)
+- {reg_id: R-981, cert_no: ID-SIM-0981, producer: CV Bawang Renyah, product: Bawang Goreng}          # substitute for D19
+- {reg_id: R-982, cert_no: ID-SIM-0982, producer: UD Bawang Sedap, product: Bawang Goreng}           # second producer (no listing)
+- {reg_id: R-991, cert_no: ID-SIM-0991, producer: PT Kelinci Mas Pangan, product: Kacang Tanah Kupas}   # B01 D19
+# ID-SIM-0999 is missing on purpose (B05, D05)

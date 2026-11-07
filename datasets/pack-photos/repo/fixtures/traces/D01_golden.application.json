@@ -1,0 +1,81 @@
+{
+  "product": "Keripik Pisang Original",
+  "seller_name": "Bu Sari",
+  "rows": [
+    {
+      "jenis_bahan": "Bahan",
+      "tipe_bahan": "Bahan Tidak Bersertifikat",
+      "nama_bahan": "pisang kepok",
+      "merk": null,
+      "produsen": null,
+      "no_sertifikat_halal": null,
+      "dasar": "R-EXEMPT (KMA 1360/2021)",
+      "bukti": []
+    },
+    {
+      "jenis_bahan": "Bahan",
+      "tipe_bahan": "Bahan Bersertifikat",
+      "nama_bahan": "Minyak Goreng Sentosa",
+      "merk": "Sentosa",
+      "produsen": "PT Minyak Sentosa",
+      "no_sertifikat_halal": "ID-SIM-0101",
+      "dasar": "reg_id R-101 (R-REGISTRY)",
+      "bukti": [
+        "intake"
+      ]
+    },
+    {
+      "jenis_bahan": "Bahan",
+      "tipe_bahan": "Bahan Bersertifikat",
+      "nama_bahan": "Bumbu Balado Original",
+      "merk": null,
+      "produsen": "CV Rasa Nusantara",
+      "no_sertifikat_halal": "ID-SIM-0202",
+      "dasar": "reg_id R-202 (R-VARIANT-MATCH)",
+      "bukti": [
+        "p-2"
+      ]
+    },
+    {
+      "jenis_bahan": "Bahan",
+      "tipe_bahan": "Bahan Bersertifikat",
+      "nama_bahan": "Cabai Bubuk Halal 100g",
+      "merk": null,
+      "produsen": "PT Cabai Prima",
+      "no_sertifikat_halal": "ID-SIM-0301",
+      "dasar": "reg_id R-301 (R-SUBSTITUTE)",
+      "bukti": [
+        "L-9"
+      ]
+    },
+    {
+      "jenis_bahan": "Cleaning Agent",
+      "tipe_bahan": null,
+      "nama_bahan": "Cleaning Agent",
+      "merk": null,
+      "produsen": null,
+      "no_sertifikat_halal": null,
+      "dasar": "Diisi penjual",
+      "bukti": []
+    },
+    {
+      "jenis_bahan": "Kemasan",
+      "tipe_bahan": null,
+      "nama_bahan": "Kemasan",
+      "merk": null,
+      "produsen": null,
+      "no_sertifikat_halal": null,
+      "dasar": "Diisi penjual",
+      "bukti": []
+    }
+  ],
+  "todo_for_seller": [
+    "Buat akun SiHalal dan hubungkan NIB",
+    "Tetapkan penyelia halal (harus Muslim, boleh pemilik usaha)",
+    "Isi bahan pembersih (cleaning agent)",
+    "Isi kemasan",
+    "Isi produk: nama, merek, dan foto (maksimal 10 produk per pengajuan)",
+    "Narasi proses produksi",
+    "Isi Manual SJPH dari template BPJPH"
+  ]
+}

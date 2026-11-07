@@ -1,0 +1,28 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D11
+product: Keripik Tempe
+seller_name: Bu Wati
+seller_policy: {substitute: reject_all, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: minyak goreng
+    brand: Sentosa
+    form: processed
+    supplier: {supplier_id: sup-sentosa, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-101]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: tempe
+    form: processed
+    supplier: {supplier_id: sup-pasar-tempe, type: market_stall, name: Lapak Tempe Pak Darmo}
+    expected_end: open
+    acceptable_reg_ids: [R-931, R-932]   # L-61, L-62; keduanya ditolak penjual
+    expected_rule: R-REFERRAL
+    must_not_ask: true
+expected_product_outcome: referral
+expected_submitted: false
+expected_seller_asks: 2                  # pengganti L-61 ditolak, pengganti L-62 ditolak; tidak ada pengajuan

@@ -1,0 +1,34 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D09
+product: Seblak Kering
+seller_name: Teh Euis
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: cabai bubuk
+    brand: Cabai Prima
+    form: processed
+    supplier: {supplier_id: sup-cabai-prima, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-301]
+    expected_rule: R-PRODUCER-MATCH      # R-302 CV Pedas Mantap juga Cabai Bubuk
+    must_not_ask: false
+  - name: kerupuk mentah
+    form: processed
+    supplier:
+      supplier_id: sup-toko-kerupuk-asep
+      type: distributor
+      name: Toko Kerupuk Kang Asep
+      pack:
+        note: Bungkusnya sudah dibuang, tapi ada logo halalnya kok.
+      behaviour: [no_pack_vouch]
+    expected_end: substitute_approved
+    acceptable_reg_ids: [R-912]          # L-41
+    expected_rule: R-SUBSTITUTE
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 3                  # foto kemasan (tidak ada), pengganti, pengajuan

@@ -1,0 +1,28 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D19
+product: Kacang Bawang
+seller_name: Pak Darto
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: kacang tanah
+    brand: Kelinci Mas
+    form: processed
+    supplier: {supplier_id: sup-kelinci-mas, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-991]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: bawang goreng
+    form: processed
+    supplier: {supplier_id: sup-pasar-bawang, type: market_stall, name: Lapak Bawang Bu Tini}
+    expected_end: substitute_approved
+    acceptable_reg_ids: [R-981]          # L-91
+    expected_rule: R-SUBSTITUTE          # mark_exempt harus ditolak lebih dulu
+    must_not_ask: true
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 2                  # pengganti, pengajuan

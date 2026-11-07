@@ -1,0 +1,42 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D03
+product: Singkong Balado
+seller_name: Bu Rina
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: bawang putih
+    form: fresh
+    supplier: {supplier_id: sup-pasar-1, type: market_stall}
+    expected_end: exempt
+    acceptable_reg_ids: []
+    expected_rule: R-EXEMPT              # sayur-segar, check: true
+    must_not_ask: true
+  - name: minyak goreng
+    brand: Sentosa
+    form: processed
+    supplier: {supplier_id: sup-sentosa, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-101]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: bumbu balado
+    variant: Original
+    form: processed
+    supplier:
+      supplier_id: sup-toko-bumbu-jaya
+      type: distributor
+      name: Toko Bumbu Jaya
+      pack:
+        first: {file: D03_pack.png, product: Bumbu Balado Original, producer: CV Rasa Nusantara, cert_no: ID-SIM-0202}
+      behaviour: [right_pack]
+    expected_end: verified
+    acceptable_reg_ids: [R-202]          # R-201 (Pedas) dan R-601 (PT Bumbu Lain) adalah pengalih
+    expected_rule: R-VARIANT-MATCH
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 2                  # foto kemasan, pengajuan

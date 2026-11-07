@@ -1,0 +1,41 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D10
+product: Seblak Kering
+seller_name: Teh Euis
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: kerupuk mentah
+    brand: Sri Rejeki
+    form: processed
+    supplier: {supplier_id: sup-sri-rejeki, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-911]
+    expected_rule: R-PRODUCER-MATCH      # R-912 PT Dua Putri juga Kerupuk Mentah
+    must_not_ask: false
+  - name: garam
+    form: unknown
+    supplier: {supplier_id: sup-pasar-1, type: market_stall}
+    expected_end: exempt
+    acceptable_reg_ids: []
+    expected_rule: R-EXEMPT              # nacl, check: true
+    must_not_ask: true
+  - name: bumbu seblak
+    form: processed
+    supplier:
+      supplier_id: sup-toko-bumbu-imas
+      type: distributor
+      name: Toko Bumbu Bu Imas
+      pack:
+        note: Saya beli kiloan, dibungkus plastik biasa tanpa tulisan.
+      behaviour: [no_pack]
+    expected_end: substitute_approved
+    acceptable_reg_ids: [R-921]          # L-51
+    expected_rule: R-SUBSTITUTE
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 3                  # foto kemasan (tidak ada), pengganti, pengajuan

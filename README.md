@@ -2,13 +2,17 @@
 
 A proposed halal evidence assistant for micro and small food businesses in Indonesia.
 
-The agent is intended to turn a seller's voice note and product label into an ingredient list, identify missing halal evidence, verify exact products against the official registry, and help resolve gaps through suppliers or certified substitutes.
+The agent is intended to turn a seller's voice note and product label into an ingredient list, identify missing halal evidence, and verify exact products against the official registry using ingredient-pack photos supplied by the seller. It proposes certified substitutes when evidence cannot be established.
 
-The proposed workflow requires seller approval before contacting a new supplier, changing a recipe, or submitting an application. Cases that cannot be resolved are escalated to a halal facilitator or referred to the regular certification route.
+The agent never contacts suppliers. Ingredient swaps require seller approval. It prepares an ingredient evidence packet and remaining-application checklist for facilitator review.
 
 ## Project status
 
-Concept and planning stage. This repository currently contains the hackathon proposal; application code, registry integrations, and evaluation scenarios have not been implemented.
+Fresh hackathon build. Prepared simulated datasets are available; application code and registry integrations have not been implemented here.
+
+## Shared dataset
+
+Start with the [dataset guide](datasets/README.md). The pack-photo dataset includes registry and catalogue seeds, development and adversarial scenarios, pack images, intake transcripts and expected results. See [pre-event asset declarations](docs/declarations.md) for provenance.
 
 ## Background
 

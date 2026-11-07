@@ -1,0 +1,23 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops and products are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Source: PRD v6 §7.9, copied verbatim. Shops and prices are made up.
+# evals/seed/shopee.yaml — shared mock Shopee catalog; reg_id null = not certified
+- {listing_id: L-9,  product: Cabai Bubuk Halal 100g, shop: Prima Official, price_idr: 18500, reg_id: R-301}
+- {listing_id: L-10, product: Cabai Bubuk Curah 500g, shop: Toko Rempah Murah, price_idr: 32000, reg_id: null}
+- {listing_id: L-21, product: Bumbu Balado Original Dapur Minang 250g, shop: Dapur Minang Official, price_idr: 27000, reg_id: R-602}
+- {listing_id: L-22, product: Bumbu Balado Curah 1kg, shop: Grosir Bumbu Kiloan, price_idr: 45000, reg_id: null}
+- {listing_id: L-31, product: Essence Butter Aroma Dapur 30ml, shop: Aroma Dapur Official, price_idr: 11000, reg_id: R-511}
+- {listing_id: L-32, product: Essence Rum 30ml, shop: Esens Wangi Store, price_idr: 9500, reg_id: R-504}
+- {listing_id: L-33, product: Essence Rum Aroma Dapur 60ml, shop: Aroma Dapur Official, price_idr: 15000, reg_id: R-512}
+- {listing_id: L-34, product: Essence Rum Curah 100ml, shop: Toko Kue Serba Ada, price_idr: 12000, reg_id: null}
+- {listing_id: L-41, product: Kerupuk Mentah Dua Putri 1kg, shop: Dua Putri Official, price_idr: 38000, reg_id: R-912}
+- {listing_id: L-42, product: Kerupuk Mentah Curah 1kg, shop: Grosir Kerupuk Garut, price_idr: 25000, reg_id: null}
+- {listing_id: L-51, product: Bumbu Seblak Kencur Juara 100g, shop: Seblak Juara Store, price_idr: 14000, reg_id: R-921}
+- {listing_id: L-61, product: Tempe Kedelai Sehat 500g, shop: Tempe Sehat Official, price_idr: 12000, reg_id: R-931}
+- {listing_id: L-62, product: Tempe Kedelai Murni 500g, shop: Tempe Murni Store, price_idr: 11000, reg_id: R-932}
+- {listing_id: L-71, product: Gelatin Sapi Halal 100g, shop: Gelatin Nusantara Official, price_idr: 42000, reg_id: R-961}
+- {listing_id: L-72, product: Gelatin Bubuk Tawar 100g, shop: Toko Bahan Kue Ceria, price_idr: 30000, reg_id: null}
+- {listing_id: L-81, product: Keju Bubuk Susu Prima 100g, shop: Susu Prima Official, price_idr: 26000, reg_id: R-971}
+- {listing_id: L-91, product: Bawang Goreng Renyah 250g, shop: Bawang Renyah Official, price_idr: 35000, reg_id: R-981}
+- {listing_id: L-92, product: Bawang Goreng Curah 500g, shop: Grosir Bawang Brebes, price_idr: 40000, reg_id: null}
+- {listing_id: L-95, product: Coklat Batang Compound 1kg, shop: Toko Bahan Kue Ceria, price_idr: 55000, reg_id: null}   # no certified substitute for coklat batang (D15)

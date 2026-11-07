@@ -1,0 +1,52 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D01
+product: Keripik Pisang Original
+seller_name: Bu Sari
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay:
+  - {reg_id: R-101, cert_no: ID-SIM-0101, producer: PT Minyak Sentosa, product: Minyak Goreng Sentosa}
+  - {reg_id: R-201, cert_no: ID-SIM-0201, producer: CV Rasa Nusantara, product: Bumbu Balado, variant: Pedas}
+  - {reg_id: R-202, cert_no: ID-SIM-0202, producer: CV Rasa Nusantara, product: Bumbu Balado, variant: Original}
+  - {reg_id: R-301, cert_no: ID-SIM-0301, producer: PT Cabai Prima, product: Cabai Bubuk Halal}
+shopee_listings:
+  - {listing_id: L-9, product: Cabai Bubuk Halal 100g, shop: Prima Official, price_idr: 18500, reg_id: R-301}
+ingredients:
+  - name: pisang kepok
+    form: fresh
+    supplier: {supplier_id: sup-pasar-1, type: market_stall}
+    expected_end: exempt
+    expected_rule: R-EXEMPT
+    must_not_ask: true
+  - name: minyak goreng
+    brand: Sentosa
+    supplier: {supplier_id: sup-sentosa, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-101]
+    expected_rule: R-REGISTRY
+  - name: bumbu balado
+    variant: Original
+    form: processed
+    supplier:
+      supplier_id: sup-toko-bumbu-jaya
+      type: distributor
+      name: Toko Bumbu Jaya
+      pack:
+        first: {file: D01_pack_pedas.png, product: Bumbu Balado Pedas, producer: CV Rasa Nusantara, cert_no: ID-SIM-0201}
+        on_reask: {file: D01_pack_original.png, product: Bumbu Balado Original, producer: CV Rasa Nusantara, cert_no: ID-SIM-0202}
+        note_on_reask: Ini yang Original, Bu.
+      behaviour: [wrong_variant_then_right]
+    expected_end: verified
+    acceptable_reg_ids: [R-202]        # R-201 adalah jebakan
+    expected_rule: R-VARIANT-MATCH
+  - name: cabai bubuk
+    form: processed
+    supplier: {supplier_id: sup-pasar-2, type: market_stall}
+    must_not_ask: true
+    expected_end: substitute_approved
+    acceptable_reg_ids: [R-301]
+    expected_rule: R-SUBSTITUTE
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 4                  # foto kemasan, foto ulang, pengganti, pengajuan

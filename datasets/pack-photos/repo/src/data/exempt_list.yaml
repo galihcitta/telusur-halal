@@ -1,0 +1,26 @@
+# Exempt ingredients (PRD v6 §7.5), initial content from the Lampiran of KMA 1360/2021, which is the
+# list in force on 7 Nov 2026. Entries are KMA terms; aliases and varieties are the team's
+# interpretation, not KMA text. check: true = boundary not yet confirmed by a Pendamping PPH; every
+# scenario that relies on one is logged in evals/LABELS_CHANGELOG.md.
+#
+# Not used yet: Kepkaban BPJPH 301/2026 (signed 31 Aug 2026) replaces this list about six months after
+# signing, around end of Feb 2027. It is not in force on the day, so nothing here comes from it. See
+# reference/exempt-ingredients.json in the dataset folder (KMA 1360/2021 and Kepkaban 301/2026, both encoded).
+#
+# Deliberately narrow: KMA 1360/2021 also exempts things this file does not list (for example tempe,
+# fresh tubers such as singkong, dried legumes, fresh milk). Leaving them out only costs a false
+# refusal, never a wrong approval, and every dev label was computed against exactly these 8 entries.
+# Adding an entry changes labels (D11 tempe would become exempt), so only add one through
+# LABELS_CHANGELOG.md.
+- {id: buah-segar, name: buah segar, aliases: [pisang, nanas, mangga, apel], ref: "Lampiran a.1 no.1",
+   varieties: [kepok, raja, ambon, tanduk, uli, susu, madu, harum manis, malang, merah, hijau]}
+- {id: sayur-segar, name: sayuran segar, aliases: [bawang putih, bawang merah, cabai segar, kentang], ref: "a.1 no.2", check: true}
+- {id: serealia, name: serealia, aliases: [beras, jagung], ref: "a.1 no.4; 'Beras jagung' a.1 no.11", check: true,
+   varieties: [putih, merah, pulen, manis]}
+- {id: telur-segar, name: telur segar, aliases: [telur ayam, telur bebek], ref: "a.2 no.1", varieties: [kampung, negeri, ras]}
+- {id: ikan, name: ikan segar, aliases: [ikan beku, ikan kering, ikan asin], ref: "a.2 no.2-5"}
+- {id: air, name: air dari sumber, aliases: [air], ref: "a.4 no.1"}
+- {id: es, name: es batu, aliases: [es], ref: "a.4 no.3"}
+- {id: nacl, name: natrium klorida, aliases: [garam], ref: "c.1 no.13", check: true}
+# aliases and varieties are the team's interpretation, not KMA text. check: true = boundary not confirmed;
+# usable in dev labels, but every scenario that uses one is logged in LABELS_CHANGELOG.md for the PPH review

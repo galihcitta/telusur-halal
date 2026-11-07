@@ -1,0 +1,35 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D16
+product: Permen Jelly
+seller_name: Bu Dewi
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: gula pasir
+    brand: Manis Jaya
+    form: processed
+    supplier: {supplier_id: sup-gula-manis-jaya, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-711]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: gelatin
+    form: processed
+    supplier:
+      supplier_id: sup-toko-kue-ceria
+      type: distributor
+      name: Toko Bahan Kue Ceria
+      pack:
+        first: {file: D16_pack.png, product: Gelatin, text: Logo halal tanpa nomor}
+        note: Ada logo halalnya, Bu.
+      behaviour: [logo_only]
+    expected_end: substitute_approved
+    acceptable_reg_ids: [R-961]          # L-71
+    expected_rule: R-SUBSTITUTE
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 3                  # foto kemasan, pengganti, pengajuan

@@ -1,0 +1,52 @@
+# SIMULATED intake gold for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Made-up seller,
+# suppliers and brands; no real products or certificates. The top-level product / seller_name /
+# ingredients block is an IngredientList (PRD §7.2): IngredientList.parse() on this file drops the
+# extra keys (risky, accept, recording metadata). supplier_id is the scenario's id so
+# World.fromIntake can map suppliers; it is not scored. Scored: recall of risky ingredients,
+# exact variant, supplier type (evals.md §8); name/brand/form/precision are reported.
+recording_id: R07
+scenario_id: D05
+audio: evals/intake/audio/R07_D05.m4a
+label_photo: evals/intake/photos/L04_D05.jpg
+label_photo_fallback: evals/intake/photos/L04_D05.sim.png
+transcript_ref: evals/intake/transcripts/R07_D05.txt
+recorder: Galih
+style: Sundanese fillers, a market name that is not a supplier
+variant_case: false
+product: Makaroni Pedas
+product_accept:
+- Makaroni Pedas
+- Makaroni Pedas Level 3
+seller_name: Pak Ujang
+ingredients:
+- ing_id: ing-1
+  name: makaroni
+  brand: Nusa
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-pasta-nusa
+    type: certified_producer
+    name: null
+  risky: true
+- ing_id: ing-2
+  name: minyak goreng
+  brand: Sentosa
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-sentosa
+    type: certified_producer
+    name: null
+  risky: true
+- ing_id: ing-3
+  name: cabai bubuk
+  brand: null
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-toko-cabe-rawit
+    type: distributor
+    name: Toko Cabe Rawit
+  risky: true
+must_not_extract: []

@@ -1,0 +1,41 @@
+# SIMULATED intake gold for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Made-up seller,
+# suppliers and brands; no real products or certificates. The top-level product / seller_name /
+# ingredients block is an IngredientList (PRD §7.2): IngredientList.parse() on this file drops the
+# extra keys (risky, accept, recording metadata). supplier_id is the scenario's id so
+# World.fromIntake can map suppliers; it is not scored. Scored: recall of risky ingredients,
+# exact variant, supplier type (evals.md §8); name/brand/form/precision are reported.
+recording_id: R10
+scenario_id: D09
+audio: evals/intake/audio/R10_D09.m4a
+label_photo: null
+label_photo_fallback: null
+transcript_ref: evals/intake/transcripts/R10_D09.txt
+recorder: Galih
+style: Sundanese, very casual, no label photo
+variant_case: false
+product: Seblak Kering
+product_accept:
+- Seblak Kering
+seller_name: Teh Euis
+ingredients:
+- ing_id: ing-1
+  name: cabai bubuk
+  brand: Cabai Prima
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-cabai-prima
+    type: certified_producer
+    name: null
+  risky: true
+- ing_id: ing-2
+  name: kerupuk mentah
+  brand: null
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-toko-kerupuk-asep
+    type: distributor
+    name: Toko Kerupuk Kang Asep
+  risky: true
+must_not_extract: []

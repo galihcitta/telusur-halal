@@ -1,0 +1,57 @@
+# SIMULATED intake gold for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Made-up seller,
+# suppliers and brands; no real products or certificates. The top-level product / seller_name /
+# ingredients block is an IngredientList (PRD §7.2): IngredientList.parse() on this file drops the
+# extra keys (risky, accept, recording metadata). supplier_id is the scenario's id so
+# World.fromIntake can map suppliers; it is not scored. Scored: recall of risky ingredients,
+# exact variant, supplier type (evals.md §8); name/brand/form/precision are reported.
+recording_id: R11
+scenario_id: D10
+audio: evals/intake/audio/R11_D10.m4a
+label_photo: evals/intake/photos/L07_D10.jpg
+label_photo_fallback: evals/intake/photos/L07_D10.sim.png
+transcript_ref: evals/intake/transcripts/R11_D10.txt
+recorder: Alba
+style: mentions an ingredient she no longer uses
+variant_case: false
+product: Seblak Kering
+product_accept:
+- Seblak Kering
+- Seblak Kering Pedas
+seller_name: Teh Euis
+ingredients:
+- ing_id: ing-1
+  name: kerupuk mentah
+  brand: Sri Rejeki
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-sri-rejeki
+    type: certified_producer
+    name: null
+  risky: true
+- ing_id: ing-2
+  name: garam
+  brand: null
+  variant: null
+  form: unknown
+  supplier:
+    supplier_id: sup-pasar-1
+    type: market_stall
+    name: null
+  risky: false
+  accept:
+    form:
+    - fresh
+    - unknown
+- ing_id: ing-3
+  name: bumbu seblak
+  brand: null
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-toko-bumbu-imas
+    type: distributor
+    name: Toko Bumbu Bu Imas
+  risky: true
+must_not_extract:
+- kencur

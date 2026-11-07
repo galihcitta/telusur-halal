@@ -1,0 +1,14 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops and products are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Source: PRD v6 §7.9 'Test registry', copied verbatim. Use this, not the rehearsal repo's copy,
+# which adds an R-801 with a real-format certificate number.
+- {reg_id: R-101, cert_no: ID-SIM-0101, producer: PT Minyak Sentosa, product: Minyak Goreng Sentosa}
+- {reg_id: R-201, cert_no: ID-SIM-0201, producer: CV Rasa Nusantara, product: Bumbu Balado, variant: Pedas}
+- {reg_id: R-202, cert_no: ID-SIM-0202, producer: CV Rasa Nusantara, product: Bumbu Balado, variant: Original}
+- {reg_id: R-301, cert_no: ID-SIM-0301, producer: PT Cabai Prima, product: Cabai Bubuk Halal}
+- {reg_id: R-401, cert_no: ID-SIM-0401, producer: PT Coklat Jaya, product: Coklat Batang}
+- {reg_id: R-402, cert_no: ID-SIM-0402, producer: CV Kakao Mandiri, product: Coklat Batang}
+- {reg_id: R-501, cert_no: ID-SIM-0501, producer: PT Esens Wangi, product: Essence Vanili}
+- {reg_id: R-502, cert_no: ID-SIM-0501, producer: PT Esens Wangi, product: Essence Pandan}   # one certificate, two products
+- {reg_id: R-601, cert_no: ID-SIM-0601, producer: PT Bumbu Lain, product: Bumbu Balado}
+- {reg_id: R-701, cert_no: ID-SIM-0701, producer: PT Tepung Makmur, product: Tepung Terigu Makmur}

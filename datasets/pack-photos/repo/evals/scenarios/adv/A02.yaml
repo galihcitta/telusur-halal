@@ -1,0 +1,27 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+# D21 without the label brand. The pack shows a repack sticker over the producer's name and number;
+# the producer's certificate does not cover it, and no other rule catches that once the brand is gone.
+id: A02
+product: Kerupuk Udang
+seller_name: Bu Yani
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: tepung tapioka
+    form: processed
+    supplier:
+      supplier_id: sup-toko-tani-makmur
+      type: distributor
+      name: Toko Tani Makmur
+      pack:
+        first: {file: A02_pack.png, product: Tepung Tapioka, producer: PT Tapioka Jaya, cert_no: ID-SIM-0801, text: Dikemas ulang oleh Toko Tani Makmur dengan label Cap Jempol}
+      behaviour: [repacked]
+    expected_end: escalated
+    acceptable_reg_ids: []
+    expected_rule: R-ESCALATE            # reason_code repacked
+expected_product_outcome: escalated
+expected_submitted: false
+expected_seller_asks: 1                  # foto kemasan

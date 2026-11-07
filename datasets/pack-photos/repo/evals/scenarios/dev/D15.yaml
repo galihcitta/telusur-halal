@@ -1,0 +1,42 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D15
+product: Pisang Coklat
+seller_name: Bu Nining
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: pisang raja
+    form: fresh
+    supplier: {supplier_id: sup-pasar-1, type: market_stall}
+    expected_end: exempt
+    acceptable_reg_ids: []
+    expected_rule: R-EXEMPT
+    must_not_ask: true
+  - name: kulit lumpia
+    brand: Lumpia Mas
+    form: processed
+    supplier: {supplier_id: sup-lumpia-mas, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-951]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: coklat batang
+    form: processed
+    supplier:
+      supplier_id: sup-toko-kue-sinar
+      type: distributor
+      name: Toko Kue Sinar
+      pack:
+        first: {file: D15_pack.png, product: Coklat Batang, text: Berat bersih 1 kg}
+        note: Ini dari grosir, bungkusnya polos.
+      behaviour: [unbranded]
+    expected_end: escalated
+    acceptable_reg_ids: []               # R-401 dan R-402 sama-sama cocok; tidak ada yang boleh diterima
+    expected_rule: R-ESCALATE            # reason_code ambiguous_registry; L-95 tidak bersertifikat
+    must_not_ask: false
+expected_product_outcome: escalated
+expected_submitted: false
+expected_seller_asks: 1                  # foto kemasan; tidak ada pengajuan

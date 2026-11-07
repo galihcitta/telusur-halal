@@ -1,0 +1,60 @@
+# SIMULATED intake gold for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Made-up seller,
+# suppliers and brands; no real products or certificates. The top-level product / seller_name /
+# ingredients block is an IngredientList (PRD §7.2): IngredientList.parse() on this file drops the
+# extra keys (risky, accept, recording metadata). supplier_id is the scenario's id so
+# World.fromIntake can map suppliers; it is not scored. Scored: recall of risky ingredients,
+# exact variant, supplier type (evals.md §8); name/brand/form/precision are reported.
+recording_id: R06
+scenario_id: D02
+audio: evals/intake/audio/R06_D02.m4a
+label_photo: evals/intake/photos/L03_D02.jpg
+label_photo_fallback: evals/intake/photos/L03_D02.sim.png
+transcript_ref: evals/intake/transcripts/R06_D02.txt
+recorder: Ardiyan
+style: Javanese code-switching
+variant_case: false
+product: Keripik Pisang
+product_accept:
+- Keripik Pisang
+- Keripik Pisang Manis
+seller_name: Bu Sari
+ingredients:
+- ing_id: ing-1
+  name: pisang kepok
+  brand: null
+  variant: null
+  form: fresh
+  supplier:
+    supplier_id: sup-pasar-1
+    type: market_stall
+    name: null
+  risky: false
+  accept:
+    form:
+    - fresh
+    - unknown
+- ing_id: ing-2
+  name: minyak goreng
+  brand: Sentosa
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-sentosa
+    type: certified_producer
+    name: null
+  risky: true
+  accept:
+    form:
+    - processed
+    - unknown
+- ing_id: ing-3
+  name: tepung terigu
+  brand: Makmur
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-makmur
+    type: certified_producer
+    name: null
+  risky: true
+must_not_extract: []

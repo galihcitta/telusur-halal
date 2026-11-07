@@ -1,0 +1,19 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Copy of evals/scenarios/dev/D02.yaml in the pack-photo contracts (PRD v6 §7.6 / §7.9 test data, converted).
+id: D02
+product: Keripik Pisang
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay:
+  - {reg_id: R-101, cert_no: ID-SIM-0101, producer: PT Minyak Sentosa, product: Minyak Goreng Sentosa}
+  - {reg_id: R-701, cert_no: ID-SIM-0701, producer: PT Tepung Makmur, product: Tepung Terigu Makmur}
+ingredients:
+  - {name: pisang kepok, form: fresh, supplier: {supplier_id: sup-pasar-1, type: market_stall},
+     expected_end: exempt, expected_rule: R-EXEMPT, must_not_ask: true}
+  - {name: minyak goreng, brand: Sentosa, supplier: {supplier_id: sup-sentosa, type: certified_producer},
+     expected_end: verified, acceptable_reg_ids: [R-101], expected_rule: R-REGISTRY}
+  - {name: tepung terigu, brand: Makmur, form: processed, supplier: {supplier_id: sup-makmur, type: certified_producer},
+     expected_end: verified, acceptable_reg_ids: [R-701], expected_rule: R-REGISTRY}
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 1                # hanya pengajuan

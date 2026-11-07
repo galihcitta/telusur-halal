@@ -1,0 +1,56 @@
+# SIMULATED intake gold for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Made-up seller,
+# suppliers and brands; no real products or certificates. The top-level product / seller_name /
+# ingredients block is an IngredientList (PRD §7.2): IngredientList.parse() on this file drops the
+# extra keys (risky, accept, recording metadata). supplier_id is the scenario's id so
+# World.fromIntake can map suppliers; it is not scored. Scored: recall of risky ingredients,
+# exact variant, supplier type (evals.md §8); name/brand/form/precision are reported.
+recording_id: R08
+scenario_id: D06
+audio: evals/intake/audio/R08_D06.m4a
+label_photo: evals/intake/photos/L05_D06.jpg
+label_photo_fallback: evals/intake/photos/L05_D06.sim.png
+transcript_ref: evals/intake/transcripts/R08_D06.txt
+recorder: Alba
+style: clean, brand and shop for the same ingredient
+variant_case: false
+product: Makaroni Pedas
+product_accept:
+- Makaroni Pedas
+- Makaroni Pedas Balado
+seller_name: Pak Ujang
+ingredients:
+- ing_id: ing-1
+  name: makaroni
+  brand: Nusa
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-pasta-nusa
+    type: certified_producer
+    name: null
+  risky: true
+- ing_id: ing-2
+  name: bawang putih
+  brand: null
+  variant: null
+  form: fresh
+  supplier:
+    supplier_id: sup-pasar-1
+    type: market_stall
+    name: null
+  risky: false
+  accept:
+    form:
+    - fresh
+    - unknown
+- ing_id: ing-3
+  name: bumbu balado
+  brand: Rasa Nusantara
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-toko-sinar-bumbu
+    type: distributor
+    name: Toko Sinar Bumbu
+  risky: true
+must_not_extract: []

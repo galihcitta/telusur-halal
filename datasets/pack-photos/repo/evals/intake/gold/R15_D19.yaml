@@ -1,0 +1,42 @@
+# SIMULATED intake gold for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Made-up seller,
+# suppliers and brands; no real products or certificates. The top-level product / seller_name /
+# ingredients block is an IngredientList (PRD §7.2): IngredientList.parse() on this file drops the
+# extra keys (risky, accept, recording metadata). supplier_id is the scenario's id so
+# World.fromIntake can map suppliers; it is not scored. Scored: recall of risky ingredients,
+# exact variant, supplier type (evals.md §8); name/brand/form/precision are reported.
+recording_id: R15
+scenario_id: D19
+audio: evals/intake/audio/R15_D19.m4a
+label_photo: evals/intake/photos/L10_D19.jpg
+label_photo_fallback: evals/intake/photos/L10_D19.sim.png
+transcript_ref: evals/intake/transcripts/R15_D19.txt
+recorder: Ardiyan
+style: Javanese, fried shallots bought ready-made
+variant_case: false
+product: Kacang Bawang
+product_accept:
+- Kacang Bawang
+- Kacang Bawang Renyah
+seller_name: Pak Darto
+ingredients:
+- ing_id: ing-1
+  name: kacang tanah
+  brand: Kelinci Mas
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-kelinci-mas
+    type: certified_producer
+    name: null
+  risky: true
+- ing_id: ing-2
+  name: bawang goreng
+  brand: null
+  variant: null
+  form: processed
+  supplier:
+    supplier_id: sup-pasar-bawang
+    type: market_stall
+    name: Lapak Bawang Bu Tini
+  risky: true
+must_not_extract: []

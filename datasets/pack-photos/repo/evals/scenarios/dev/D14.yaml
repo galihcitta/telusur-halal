@@ -1,0 +1,41 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D14
+product: Pisang Coklat
+seller_name: Bu Nining
+seller_policy: {substitute: approve_first, submit: approve}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: pisang raja
+    form: fresh
+    supplier: {supplier_id: sup-pasar-1, type: market_stall}
+    expected_end: exempt
+    acceptable_reg_ids: []
+    expected_rule: R-EXEMPT
+    must_not_ask: true
+  - name: kulit lumpia
+    brand: Lumpia Mas
+    form: processed
+    supplier: {supplier_id: sup-lumpia-mas, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-951]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: coklat batang
+    form: processed
+    supplier:
+      supplier_id: sup-toko-kue-sinar
+      type: distributor
+      name: Toko Kue Sinar
+      pack:
+        first: {file: D14_pack.png, product: Coklat Batang, producer: CV Kakao Mandiri}
+      behaviour: [producer_only]
+    expected_end: verified
+    acceptable_reg_ids: [R-402]          # R-401 PT Coklat Jaya adalah jebakan
+    expected_rule: R-PRODUCER-MATCH
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: true
+expected_seller_asks: 2                  # foto kemasan, pengajuan

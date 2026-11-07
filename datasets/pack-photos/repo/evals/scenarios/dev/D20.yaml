@@ -1,0 +1,42 @@
+# SIMULATED test data for Telusur (Sea x OpenAI Codex Hackathon, 7 Nov 2026). Not a real halal
+# record: producers, shops, products and packs are made up and every certificate number is ID-SIM-dddd (NFR-06).
+# Pack-photo contracts (no Ask Supplier): converted from PRD v6 in the pack-photos prototype (halal-agent PR #1).
+id: D20
+product: Keripik Pisang
+seller_name: Bu Sari
+seller_policy: {substitute: approve_first, submit: reject}
+registry_overlay: []
+shopee_listings: []
+ingredients:
+  - name: pisang kepok
+    form: fresh
+    supplier: {supplier_id: sup-pasar-1, type: market_stall}
+    expected_end: exempt
+    acceptable_reg_ids: []
+    expected_rule: R-EXEMPT
+    must_not_ask: true
+  - name: minyak goreng
+    brand: Sentosa
+    form: processed
+    supplier: {supplier_id: sup-sentosa, type: certified_producer}
+    expected_end: verified
+    acceptable_reg_ids: [R-101]
+    expected_rule: R-REGISTRY
+    must_not_ask: false
+  - name: coklat compound
+    variant: Dark
+    form: processed
+    supplier:
+      supplier_id: sup-toko-kue-sinar
+      type: distributor
+      name: Toko Kue Sinar
+      pack:
+        first: {file: D20_pack.png, product: Coklat Compound Dark, producer: PT Coklat Jaya, cert_no: ID-SIM-0403}
+      behaviour: [right_pack]
+    expected_end: verified
+    acceptable_reg_ids: [R-403]          # R-404 (Milk) adalah pengalih varian
+    expected_rule: R-VARIANT-MATCH
+    must_not_ask: false
+expected_product_outcome: submission_ready
+expected_submitted: false                # S5: penjual menolak pengajuan
+expected_seller_asks: 2                  # foto kemasan, pengajuan (ditolak)
