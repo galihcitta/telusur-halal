@@ -68,3 +68,46 @@ test('runner counts API failures and checksum failures in denominator and never 
   assert.equal(report.recognition_rate, 0);
   assert.deepEqual(report.results.map(row => 'failure_stage' in row && row.failure_stage), ['model', 'asset']);
 });
+
+test('ambiguous food accepts safe abstention separately from correct identification', () => {
+  const ambiguous = { ...rice, expected: 'ambiguous' as const };
+  const abstained = scoreDish(ambiguous, null);
+  assert.equal(abstained.passed, true);
+  assert.equal(abstained.recognized, false);
+  assert.equal(abstained.acceptable_abstention, true);
+  assert.equal(abstained.recall, null);
+  assert.equal(scoreDish(ambiguous, { dish: 'tempe mendoan', visible_ingredients: [] }).passed, false);
+  assert.equal(scoreDish(ambiguous, { dish: 'nasi goreng', visible_ingredients: ['nasi', 'telur', 'timun', 'kerupuk'] }).passed, true);
+  assert.equal(scoreDish(ambiguous, { dish: 'nasi goreng', visible_ingredients: ['nasi', 'minyak goreng'] }).passed, false);
+});
+
+test('independent evaluation requires explicit invocation and reviewed annotations', async () => {
+  const { checkEvalReadiness } = await import('../src/dish-eval.js');
+  assert.throws(() => checkEvalReadiness(manifest, { requireReviewed: true }), /human review/);
+  assert.throws(() => checkEvalReadiness(manifest, { independent: true }), /Development/);
+  const independent = { ...manifest, split: 'independent' as const };
+  assert.throws(() => checkEvalReadiness(independent), /explicit/);
+  assert.throws(() => checkEvalReadiness(independent, { independent: true }), /declared unseen/);
+  const unseen = { ...independent, cases: independent.cases.map(sample => ({ ...sample, prior_exposure: 'unseen' as const })) };
+  assert.throws(() => checkEvalReadiness(unseen, { independent: true }), /human review/);
+  const reviewed = { ...unseen, cases: unseen.cases.map(sample => ({ ...sample, annotation: { ...sample.annotation, status: 'reviewed' as const } })) };
+  assert.doesNotThrow(() => checkEvalReadiness(reviewed, { independent: true }));
+});
+
+test('report separates safe ambiguity, unnecessary abstention and false acceptance', async () => {
+  const samples = [
+    { ...rice, id: 'ambiguous', expected: 'ambiguous' as const },
+    { ...rice, id: 'clear' },
+    manifest.cases[3],
+  ];
+  let call = 0;
+  const report = await evaluateDishes({ ...manifest, cases: samples }, manifestPath, async () =>
+    ++call <= 2 ? null : { dish: 'tempe', visible_ingredients: [] });
+  assert.equal(report.attempted, 3);
+  assert.equal(report.acceptable_abstentions, 1);
+  assert.equal(report.unnecessary_abstentions, 1);
+  assert.equal(report.false_acceptances, 1);
+  assert.equal(report.recognition_correct, 0);
+  assert.equal(report.passed, 1);
+  assert.equal(report.reviewed_cases, 0);
+});

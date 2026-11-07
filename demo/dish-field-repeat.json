@@ -1,0 +1,67 @@
+{
+  "mode": "live_model",
+  "version": "dish-field-dev-v1",
+  "split": "development",
+  "manifest_sha256": "2a6c9a34b57fbdda56b933e770b8e64a9740b8677fed1afbcc9cec225b433429",
+  "model": "gpt-4.1-mini",
+  "timestamp": "2026-11-07T07:40:39.173Z",
+  "attempted": 1,
+  "annotations_pending_review": 1,
+  "recognition_correct": 0,
+  "recognition_rate": 0,
+  "completed": 1,
+  "technical_failures": 0,
+  "passed": 0,
+  "pass_rate": 0,
+  "acceptable_abstentions": 0,
+  "unnecessary_abstentions": 0,
+  "false_acceptances": 0,
+  "reviewed_cases": 0,
+  "reviewed_passed": 0,
+  "by_provenance": {
+    "synthetic": {
+      "attempted": 0,
+      "passed": 0
+    },
+    "team_photo": {
+      "attempted": 1,
+      "passed": 0
+    },
+    "public_photo": {
+      "attempted": 0,
+      "passed": 0
+    }
+  },
+  "results": [
+    {
+      "id": "field-sale-001",
+      "expected": "ambiguous",
+      "annotation_status": "draft",
+      "provenance": "team_photo",
+      "prediction": {
+        "dish": "ikan asap",
+        "visible_ingredients": [
+          "ikan",
+          "serbuk bumbu",
+          "plastik pembungkus"
+        ]
+      },
+      "passed": false,
+      "abstained": false,
+      "acceptable_abstention": false,
+      "recognized": false,
+      "matched": [],
+      "missing": [],
+      "unsupported": [
+        "ikan",
+        "serbuk bumbu",
+        "plastik pembungkus"
+      ],
+      "duplicates": [],
+      "forbidden": [],
+      "precision": 0,
+      "recall": null,
+      "duration_ms": 2540
+    }
+  ]
+}

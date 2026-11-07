@@ -2,7 +2,7 @@
 
 Dataset development untuk menguji `createModel().readDish()` yang digunakan aplikasi saat ini. Tujuannya mengukur **pengenalan makanan dan bahan yang terlihat**, bukan memastikan resep lengkap atau status halal. Foto dan label referensi hanya dipakai oleh evaluator; tidak dimasukkan ke prompt atau dijadikan contoh jawaban untuk model.
 
-Semua anotasi awal berstatus **draft**, dibuat dari pemeriksaan visual sebelum baseline model dijalankan. Evaluator perlu meninjau nama makanan, alias dan bahan sebelum mengubah `annotation.status` menjadi `reviewed`. Set ini kecil, publik, dan bukan held-out independen. Foto web mungkin pernah masuk data pelatihan model.
+Semua anotasi awal berstatus **draft**, dibuat dari pemeriksaan visual sebelum baseline model dijalankan. Evaluator perlu meninjau nama makanan, alias dan bahan sebelum mengubah `annotation.status` menjadi `reviewed`. Set awal ini kecil, publik, dan bukan held-out independen. Foto pengguna dalam manifest field disimpan privat dan juga termasuk development. Foto web mungkin pernah masuk data pelatihan model.
 
 ## Referensi awal
 
@@ -76,3 +76,17 @@ Normalisasi hanya huruf besar/kecil, spasi, dan Unicode NFC. Tidak ada pencocoka
 6. Jalankan validasi lalu evaluasi. Tambahkan kasus negatif, tampilan mirip, variasi porsi dan pencahayaan. Siapkan set independen terpisah yang tidak dipakai untuk tuning; jangan membuka arsip held-out lama.
 
 Menambahkan eval menyediakan pengukuran dan contoh kegagalan. Ini tidak otomatis melatih model atau membuat semua rekomendasinya akurat.
+
+## Foto ambigu dan field eval
+
+[Field manifest](field-manifest.json) menambahkan kasus sale pisang yang namanya dikonfirmasi pengguna. Foto asli berada di `.run/dish-eval-inputs/sale-pisang.jpg` (ignored), bukan aset publik. Jalankan `npm run eval:dishes:field`; tanpa aset yang sesuai checksum kasus gagal secara eksplisit. Komposisi resep belum diketahui dan `recipe_reference` tetap null.
+
+`expected: ambiguous` menerima identifikasi benar dengan bahan yang didukung **atau** `null` (abstain). `null` tidak menambah `recognition_correct`; hasil dicatat terpisah sebagai `acceptable_abstentions`. Pada aplikasi saat ini, `null` membuka editor kosong dengan petunjuk untuk foto lebih jelas/isi resep; model tidak mengembalikan pertanyaan klarifikasi terstruktur. Salah nama tetap gagal. Abstain pada `expected: dish` dilaporkan sebagai `unnecessary_abstentions`; menerima gambar negatif menjadi `false_acceptances`.
+
+Gunakan `npm run eval:corrections` untuk pengujian fixture koreksi resep. Suite ini menguji editor/service dan ekspor, bukan percakapan model atau kelengkapan resep sale pisang asli.
+
+## Review dan data independen
+
+`--require-reviewed` menolak run jika masih ada anotasi draft. `split: independent` hanya boleh berjalan dengan `--independent`, seluruh anotasi reviewed, dan seluruh kasus dinyatakan `prior_exposure: unseen`. `prior_exposure` default adalah development agar contoh lama tidak otomatis dianggap independen. Independensi tetap merupakan tanggung jawab evaluator; metadata tidak dapat membuktikan riwayat paparan data.
+
+Laporan memisahkan jumlah kasus reviewed, hasil reviewed, jumlah referensi resep, abstain, dan sumber foto. Telemetry dialihkan ke stderr agar laporan Node di stdout tetap JSON valid. Lihat [matriks cakupan dan rencana pengumpulan](../../docs/eval-coverage.md) untuk batas bukti yang sudah tersedia dan data manusia yang masih diperlukan.
