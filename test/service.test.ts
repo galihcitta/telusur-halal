@@ -523,6 +523,10 @@ test('case agent uses live eligibility across a wrong pack, seller decline, and 
       const [next] = actions();
       if (next.action === 'request_pack') {
         assert.equal(execute(next.ingredient_id, 'search_catalogue', next.stage), false);
+      } else if (next.reason === 'NO_PACK') {
+        assert.equal(execute(next.ingredient_id, 'refer', next.stage), false);
+        assert.equal(execute('wrong-id', 'search_catalogue', next.stage), false);
+        assert.equal(actions()[0].action, 'search_catalogue');
       }
       assert.equal(execute(next.ingredient_id, next.action, next.stage), true);
       recordToolResult(next.action, { ingredient_id: next.ingredient_id, stage: next.stage },

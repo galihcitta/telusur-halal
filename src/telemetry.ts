@@ -21,6 +21,10 @@ export function estimateModelCost(model: string, usage: Usage | null): number | 
     const cached = usage.cached_input_tokens ?? 0;
     return ((usage.input_tokens - cached) * 0.4 + cached * 0.1 + usage.output_tokens * 1.6) / 1e6;
   }
+  if (model === 'gpt-6.1-terra' && usage.input_tokens <= 272_000) {
+    const cached = usage.cached_input_tokens ?? 0;
+    return ((usage.input_tokens - cached) + cached * 0.05 + usage.output_tokens * 5) / 1e6;
+  }
   return null;
 }
 

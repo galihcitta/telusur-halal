@@ -451,7 +451,11 @@ export class CaseService {
       ...packs.filter(row => row.status === 'open' && !row.pending_request)
         .map(row => ({ row, allowed: this.packActions(row), stage: 'pack' as const })),
       ...this.catalogueRows(entry)
-        .map(row => ({ row, allowed: ['search_catalogue', 'refer'] as AgentAction[], stage: 'catalogue' as const })),
+        .map(row => ({
+          row,
+          allowed: (row.reason === 'NO_PACK' ? ['search_catalogue'] : ['search_catalogue', 'refer']) as AgentAction[],
+          stage: 'catalogue' as const,
+        })),
     ];
     const actions = (): WorkflowAction[] => choices().flatMap(({ row, allowed, stage }) => allowed.map(action => ({
       ingredient_id: row.ingredient_id, ingredient: row.declared_name, reason: row.reason, action, stage,
