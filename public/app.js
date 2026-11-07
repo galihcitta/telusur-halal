@@ -1,12 +1,16 @@
 const workspace = document.querySelector('#workspace');
 const notice = document.querySelector('#notice');
-const title = document.querySelector('#page-title');
 let view;
 let session;
 let editing = false;
 let busy = false;
 let observer = false;
 let replay = false;
+let screen;
+let activePanel;
+let intakeFiles;
+const packPhotos = new Map();
+const previews = new WeakMap();
 const observerId = new URLSearchParams(location.search).get('case');
 
 const escape = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
@@ -20,6 +24,35 @@ const conditions = { unknown: 'Belum diketahui', sealed: 'Tersegel', repacked: '
 const forms = { unknown: 'Belum diketahui', fresh: 'Segar', processed: 'Olahan' };
 const sourceModes = { actual_media: 'Unggahan audio dan gambar', fixture: 'Fixture uji', replay: 'Putar ulang' };
 const idr = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
+
+const iconPaths = {
+  check: '<path d="m5 12 4 4L19 6"/>',
+  alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5m0 4h.01"/>',
+  camera: '<path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="3.5"/>',
+  audio: '<path d="M4 10v4m4-7v10m4-13v16m4-13v10m4-7v4"/>',
+  edit: '<path d="m14 5 5 5M5 14 16 3l5 5-11 11-6 1z"/>',
+};
+const icon = (name) => `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]}</svg>`;
+
+function focusHeading() {
+  workspace.querySelector('#page-title')?.focus();
+}
+
+function previewImage(canvas, file) {
+  if (!canvas) return;
+  previews.set(canvas, file);
+  if (!file || typeof createImageBitmap !== 'function') return;
+  createImageBitmap(file).then((image) => {
+    if (previews.get(canvas) === file) {
+      const scale = Math.min(1, 720 / Math.max(image.width, image.height));
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      canvas.getContext('2d')?.drawImage(image, 0, 0, canvas.width, canvas.height);
+      canvas.hidden = false;
+    }
+    image.close();
+  }).catch(() => {});
+}
 
 function message(text, error = false) {
   notice.hidden = !text;
@@ -55,8 +88,10 @@ async function run(task, pending = 'Sedang memproses…') {
   try {
     const result = await task();
     if (result?.case) {
+      const focusWasInWorkspace = workspace.contains(document.activeElement);
       view = result.case;
       render();
+      if (focusWasInWorkspace) focusHeading();
     }
     message(view?.error || '', Boolean(view?.error));
     return result;
@@ -221,6 +256,9 @@ function showStart() {
       setState('idle', 'Rekam suara', 'File audio dipilih.');
     }
   };
+  form.elements.label.onchange = () => {
+    form.querySelector('.file-name').textContent = form.elements.label.files[0]?.name || 'Belum ada foto';
+  };
   form.onsubmit = (event) => {
     event.preventDefault();
     if (captureBusy || recorder?.state === 'recording') return;
@@ -234,6 +272,9 @@ function showStart() {
     run(async () => {
       const result = await request('/api/cases', data);
       session = result.session;
+      if (result.case?.draft) {
+        intakeFiles = { audio: URL.createObjectURL(data.get('audio')), label: data.get('label') };
+      }
       resetPreview();
       return result;
     }, 'Membaca rekaman dan label…');
@@ -268,7 +309,7 @@ function ingredientEditor(ingredient) {
     ingredient.pack_condition === 'loose' ? 'Curah' : ''].filter(Boolean).map(escape).join(' · ');
   return `<details class="editor" data-id="${escape(ingredient.ingredient_id)}" ${ingredient.declared_name ? '' : 'open'}>
     <summary><span><span class="ingredient-name">${escape(ingredient.declared_name || 'Bahan baru')}</span>
-    <small class="ingredient-meta" ${summary ? '' : 'hidden'}>${summary}</small></span><span class="edit-hint">Ubah</span></summary>
+    <small class="ingredient-meta" ${summary ? '' : 'hidden'}>${summary}</small></span><span class="edit-hint">${icon('edit')} Ubah</span></summary>
     <div class="grid">
       ${input('declared_name', 'Nama bahan', ingredient.declared_name, true)}
       ${input('brand', 'Merek', ingredient.brand)}
@@ -304,8 +345,16 @@ function wireEditorRow(row) {
   syncVariant();
   row.querySelector('.remove').onclick = () => {
     row.remove();
+    updateConfirmLabel();
     workspace.querySelector('#add').focus();
   };
+}
+
+function updateConfirmLabel() {
+  if (view.phase !== 'intake_review') return;
+  const count = workspace.querySelector('#ingredients').childElementCount;
+  workspace.querySelector('#confirm-form [type=submit]').textContent = count
+    ? `Konfirmasi ${count} bahan` : 'Konfirmasi bahan';
 }
 
 function showEditor() {
@@ -313,11 +362,19 @@ function showEditor() {
   const source = fromDraft ? view.draft : view;
   const ingredients = source?.ingredients ?? [];
   const notes = source?.notes ?? [];
-  workspace.innerHTML = `<div class="sheet">
-    <h2>${fromDraft ? 'Ini bahan yang saya temukan' : 'Perbarui resep'}</h2>
-    <p class="muted">${fromDraft ? 'Saya membaca rekaman dan label Anda. Cukup ubah bahan yang berbeda dari yang Anda pakai.' : 'Setelah disimpan, bukti dan usulan dari revisi ini perlu diperiksa kembali.'}</p>
-    ${notes.length ? `<section class="note intake-note"><h3>Yang perlu Anda cek</h3><ul>${notes.map((note) => `<li>${escape(note)}</li>`).join('')}</ul><p>Pilih <strong>Ubah</strong> di bahan terkait, atau tambahkan bahan yang belum ada.</p></section>` : ''}
-    ${source?.transcript ? `<details><summary>Transkrip rekaman</summary><p>${escape(source.transcript)}</p></details>` : ''}
+  workspace.innerHTML = `<div class="review-heading">
+    <h1 id="page-title" tabindex="-1">${fromDraft ? 'Cek daftar bahan' : 'Perbarui resep'}</h1>
+    <p class="muted">${fromDraft ? 'Cocokkan dengan resep yang Anda pakai.' : 'Setelah disimpan, bukti dan usulan dari revisi ini perlu diperiksa kembali.'}</p>
+    </div>
+    <div class="review-layout">
+    <aside class="sheet review-source">
+      <h2>${fromDraft ? 'Suara dan label' : 'Resep saat ini'}</h2>
+      ${fromDraft && intakeFiles ? `<audio class="source-audio" controls preload="metadata" aria-label="Dengarkan catatan suara" src="${escape(intakeFiles.audio)}"></audio>
+      <canvas class="source-preview" role="img" aria-label="Foto label yang diunggah" hidden></canvas>` : ''}
+      ${source?.transcript ? `<details><summary>${icon('audio')} Transkrip rekaman</summary><p>${escape(source.transcript)}</p></details>` : ''}
+      ${notes.length ? `<section class="note intake-note"><h3>Yang perlu Anda cek</h3><ul>${notes.map((note) => `<li>${escape(note)}</li>`).join('')}</ul><p>Pilih <strong>Ubah</strong> di bahan terkait, atau tambahkan bahan yang belum ada.</p></section>` : ''}
+      ${!fromDraft ? `<p>${escape(source?.product_name)}</p>` : ''}
+    </aside>
     <form id="confirm-form">
       <details class="recipe-settings"><summary>Detail produk</summary><div class="grid">
         ${input('product_name', 'Nama produk', source?.product_name, true)}
@@ -325,13 +382,15 @@ function showEditor() {
       </div></details>
       <div id="ingredients">${ingredients.map(ingredientEditor).join('')}</div>
       <button class="quiet" id="add" type="button">Tambah bahan</button>
-      <p class="muted confirm-copy">Dengan memilih Periksa bahan ini, Anda menyatakan daftar ini sesuai dengan bahan yang Anda gunakan.</p>
+      <p class="muted confirm-copy">Konfirmasi bahwa daftar ini sesuai dengan bahan yang Anda gunakan.</p>
       <div class="actions">
-        <button class="primary" type="submit">Periksa bahan ini</button>
+        <button class="primary" type="submit">${fromDraft ? 'Konfirmasi bahan' : 'Simpan perubahan'}</button>
         ${fromDraft ? '' : '<button id="cancel-edit" type="button" class="quiet">Batal</button>'}
       </div>
     </form>
   </div>`;
+  previewImage(workspace.querySelector('.source-preview'), intakeFiles?.label);
+  updateConfirmLabel();
   workspace.querySelectorAll('.editor').forEach(wireEditorRow);
   const list = workspace.querySelector('#ingredients');
   const settings = workspace.querySelector('.recipe-settings');
@@ -339,10 +398,11 @@ function showEditor() {
   workspace.querySelector('#add').onclick = () => {
     list.insertAdjacentHTML('beforeend', ingredientEditor({ form: 'unknown', pack_condition: 'unknown' }));
     wireEditorRow(list.lastElementChild);
+    updateConfirmLabel();
     list.lastElementChild.querySelector('input').focus();
   };
   const cancel = workspace.querySelector('#cancel-edit');
-  if (cancel) cancel.onclick = () => { editing = false; render(); };
+  if (cancel) cancel.onclick = () => { editing = false; render(); focusHeading(); };
 
   workspace.querySelector('#confirm-form').onsubmit = (event) => {
     event.preventDefault();
@@ -376,6 +436,10 @@ function showEditor() {
         ingredients,
       });
       editing = false;
+      if (result.case?.phase !== 'intake_review' && intakeFiles) {
+        URL.revokeObjectURL(intakeFiles.audio);
+        intakeFiles = undefined;
+      }
       return result;
     });
   };
@@ -385,12 +449,22 @@ function packRequest(ingredient) {
   return `<form class="pack-form" data-request="${escape(ingredient.pending_request.request_id)}">
     <fieldset>
       <legend>Foto kemasan · permintaan ${ingredient.pending_request.attempt} dari 2</legend>
-      <p>Unggah bagian depan serta area yang menunjukkan produsen dan nomor sertifikat. Satu gambar cukup jika semuanya terlihat.</p>
       <div class="grid">
         ${select('condition', 'Kondisi kemasan', conditions, ingredient.pack_condition)}
         ${select('mode', 'Cara memberi bukti', { photo: 'Unggah foto', typed: 'Salin tulisan dari kemasan', no_pack: 'Tidak ada kemasan' }, 'photo')}
       </div>
-      <label class="upload photo-fields">Foto kemasan<input name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple></label>
+      <div class="photo-fields">
+        <div class="camera-preview" aria-hidden="true">${icon('camera')}</div>
+        <canvas class="source-preview" role="img" aria-label="Pratinjau foto kemasan" hidden></canvas>
+        <label class="upload upload-row camera-action">${icon('camera')}<span>Ambil foto
+          <input name="capture" type="file" accept="image/png,image/jpeg,image/webp" capture="environment">
+          <small class="file-name" aria-live="polite">Belum ada foto</small>
+        </span></label>
+        <label class="upload upload-row"><span>Pilih dari galeri
+          <input name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+          <small class="file-name" aria-live="polite">Belum ada foto</small>
+        </span></label>
+      </div>
       <div class="typed-fields grid" hidden>
         ${input('product', 'Nama produk pada kemasan')}
         ${input('manufacturer', 'Produsen')}
@@ -405,9 +479,13 @@ function packRequest(ingredient) {
   </form>`;
 }
 
-function wirePack(form) {
+function wirePack(form, ingredient) {
   const mode = form.elements.mode;
   const condition = form.elements.condition;
+  const { capture, images } = form.elements;
+  const photoFiles = () => capture.files.length ? capture.files : images.files;
+  const canvas = form.querySelector('canvas');
+  const camera = form.querySelector('.camera-preview');
   const syncMode = () => {
     if (condition.value === 'loose') mode.value = 'no_pack';
     const noPack = mode.value === 'no_pack';
@@ -415,11 +493,26 @@ function wirePack(form) {
     form.querySelector('.photo-fields').hidden = !photo;
     form.querySelector('.typed-fields').hidden = mode.value !== 'typed';
     form.querySelector('.current-confirm').hidden = noPack;
-    form.elements.images.required = photo;
+    images.required = photo && !capture.files.length;
     form.elements.confirmed_current.required = !noPack;
   };
   mode.onchange = syncMode;
   condition.onchange = syncMode;
+  function updatePhoto(changed, other) {
+    if (changed.files.length) other.value = '';
+    for (const input of [capture, images]) {
+      const selected = input.files;
+      input.nextElementSibling.textContent = selected.length > 1
+        ? selected.length + ' foto dipilih' : selected[0]?.name || 'Belum ada foto';
+    }
+    const file = photoFiles()[0];
+    camera.hidden = Boolean(file);
+    canvas.hidden = true;
+    previewImage(canvas, file);
+    syncMode();
+  }
+  capture.onchange = () => updatePhoto(capture, images);
+  images.onchange = () => updatePhoto(images, capture);
   syncMode();
 
   form.onsubmit = (event) => {
@@ -431,7 +524,7 @@ function wirePack(form) {
     data.set('mode', mode.value);
     data.set('confirmed_current', String(form.elements.confirmed_current.checked));
     if (mode.value === 'photo') {
-      for (const file of form.elements.images.files) data.append('images', file);
+      for (const file of photoFiles()) data.append('images', file);
     }
     if (mode.value === 'typed') {
       const value = (name) => form.elements[name].value.trim();
@@ -453,7 +546,16 @@ function wirePack(form) {
       if (certificateState === 'unreadable') fields.unreadable_fields.push('certificate_number');
       data.set('observed', JSON.stringify(fields));
     }
-    run(() => request(path('pack'), data), 'Memeriksa bukti kemasan…');
+    const submittedPhoto = mode.value === 'photo' && photoFiles().length === 1 ? photoFiles()[0] : undefined;
+    run(async () => {
+      const result = await request(path('pack'), data);
+      const updated = result.case?.ingredients.find(row => row.ingredient_id === ingredient.ingredient_id);
+      const accepted = updated?.evidence.some(item => item.request_id === form.dataset.request && item.source_type === 'photo');
+      if (submittedPhoto && accepted) packPhotos.set(ingredient.ingredient_id, { request: form.dataset.request, file: submittedPhoto });
+      if (updated && !updated.pending_request) activePanel = undefined;
+      screen = undefined;
+      return result;
+    }, 'Memeriksa bukti kemasan…');
   };
 }
 
@@ -477,43 +579,113 @@ function offerCard(proposal) {
   const { listing, registry, status, proposal_id } = proposal;
   const stateText = {
     pending: 'Menunggu pilihan Anda',
-    approved: 'Disetujui sebagai rencana, menunggu penerapan',
+    approved: 'Disetujui, belum dipakai',
     declined: 'Ditolak',
   }[status];
+  const featured = listing.listing_id === 'L-9' && listing.product === 'Cabai Bubuk Halal';
   return `<section class="offer" aria-label="Usulan pengganti dari Shopee">
-    <div class="row-head"><h3>${escape(listing.product)}${listing.variant ? ' · ' + escape(listing.variant) : ''}</h3><span class="badge">${escape(stateText)}</span></div>
-    <p><strong>Penawaran simulasi Shopee · ${escape(listing.listing_id)}</strong></p>
+    <div class="offer-product">
+      ${featured ? '<figure class="offer-photo"><img src="/assets/chili-powder.webp" alt="" width="640" height="640"><figcaption>Ilustrasi produk</figcaption></figure>' : ''}
+      <div>
+        <span class="badge gap">Shopee simulasi</span>
+        <h3>${escape(listing.product)}${listing.variant ? ' · ' + escape(listing.variant) : ''}</h3>
+        <p class="muted">${[listing.pack_size, listing.shop].filter(Boolean).map(escape).join(' · ')}</p>
+        <p class="muted">${escape(listing.manufacturer)}</p>
+        <p class="offer-price">${escape(idr.format(listing.price_idr))}</p>
+      </div>
+    </div>
+    <p class="offer-registry"><strong>Registri simulasi</strong> · ${escape(registry.certificate_number)}</p>
+    <details><summary>Detail produk dan sumber</summary>
     <dl>
       <dt>Varian</dt><dd>${escape(listing.variant || 'Tanpa varian')}</dd>
-      <dt>Produsen</dt><dd>${escape(listing.manufacturer)}</dd>
-      <dt>Toko</dt><dd>${escape(listing.shop)}</dd>
-      <dt>Harga</dt><dd>${escape(idr.format(listing.price_idr))}</dd>
-      <dt>Ukuran</dt><dd>${escape(listing.pack_size || 'Belum tercatat')}</dd>
+      <dt>Penawaran</dt><dd>${escape(listing.listing_id)}</dd>
       <dt>Dasar</dt><dd>${escape(registry.record_id)} · ${escape(registry.certificate_number)}</dd>
       <dt>Sumber</dt><dd>${escape(listing.source_ref)}</dd>
     </dl>
-    <p>${escape(listing.fit)}</p>
-    <p>Bahan pada resep saat ini tetap tercatat. Jika memilih untuk menerapkan usulan, konfirmasi kemasan produk yang benar-benar Anda gunakan.</p>
+    <p>${escape(listing.fit)}</p></details>
+    <p class="note">${status === 'pending' ? 'Resep berubah setelah bahan dipakai. Konfirmasi kemasan produk yang benar-benar Anda gunakan.' : escape(stateText)}</p>
     ${!observer && view.phase !== 'paused' && status === 'pending' ? `<div class="actions" data-proposal="${escape(proposal_id)}">
-      <button type="button" class="primary" data-decision="approve">Setujui sebagai rencana</button>
-      <button type="button" data-decision="decline">Tolak usulan</button>
+      <button type="button" class="primary" data-decision="approve">Setujui usulan</button>
+      <button type="button" class="quiet" data-decision="decline">Tolak usulan</button>
     </div>` : ''}
   </section>`;
 }
 
+const evidenceCount = () => view.ingredients.filter(row => row.status === 'exempt' || row.status === 'verified').length;
+const evidenceSummary = () => `${evidenceCount()} dari ${view.ingredients.length} bahan punya bukti`;
+const ingredientTitle = (ingredient) => [ingredient.declared_name, ingredient.variant,
+  ingredient.pack_condition === 'loose' && !/\bcurah\b/i.test(ingredient.declared_name) ? 'curah' : ''].filter(Boolean).join(' ');
+
+function variantConflict(ingredient) {
+  const latest = ingredient.evidence.at(-1);
+  const observed = latest?.observed;
+  if (ingredient.reason !== 'IDENTITY_MISMATCH' || latest?.revision !== view.revision ||
+      !observed?.variant_known || !ingredient.variant) return undefined;
+  const normal = (value) => value?.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ');
+  if (normal(ingredient.variant) !== normal(observed.variant)) return latest;
+}
+
+function mapStatus(ingredient) {
+  if (variantConflict(ingredient)) return 'Varian berbeda';
+  if (ingredient.pending_request) return 'Perlu foto';
+  if (ingredient.reason === 'SCOPE_REVIEW') return 'Perlu tinjauan';
+  if (ingredient.status === 'exempt') return 'Pengecualian';
+  if (ingredient.status === 'verified') return 'Kemasan cocok';
+  return ingredient.status === 'open' ? statuses.open : 'Bukti belum tersedia';
+}
+
+function panelButton(kind, label, id = '', classes = 'quiet') {
+  return `<button class="${classes}" type="button" data-kind="${kind}" data-id="${escape(id)}">${label}</button>`;
+}
+
 function ingredientRow(ingredient) {
-  const proposals = view.proposals.filter((proposal) => proposal.ingredient_id === ingredient.ingredient_id);
+  const id = ingredient.ingredient_id;
+  const settled = ingredient.status === 'verified' || ingredient.status === 'exempt';
+  const active = !observer && view.phase !== 'paused';
+  const pending = active && ingredient.pending_request;
+  const offer = active && view.proposals.some(row => row.ingredient_id === id && row.status === 'pending');
+  const canInspect = ingredient.basis || ingredient.evidence.length || view.proposals.some(row => row.ingredient_id === id);
+  const status = `${settled ? icon('check') : icon('alert')} ${mapStatus(ingredient)}`;
+  const badge = `badge ${settled ? 'confirmed' : 'gap'}`;
   return `<li class="ingredient">
-    <div class="row-head">
-      <h3>${escape(ingredient.declared_name)}${ingredient.variant ? ' · ' + escape(ingredient.variant) : ''}</h3>
-      <span class="badge ${ingredient.status === 'unresolved' ? 'gap' : ''}">${statuses[ingredient.status]}</span>
+    <div class="map-row ${!settled && !pending ? 'is-gap' : ''}">
+      <div class="map-name"><h3>${escape(ingredientTitle(ingredient))}</h3></div>
+      <span class="map-connector" aria-hidden="true"></span>
+      <div class="map-status">${canInspect ? panelButton('evidence', status, id, badge) : `<span class="${badge}">${status}</span>`}</div>
+      ${pending ? panelButton('pack', variantConflict(ingredient) ? 'Foto ulang' : 'Foto kemasan', id, 'quiet row-action') : ''}
+      ${offer ? panelButton('offer', 'Lihat opsi di Shopee <span aria-hidden="true">→</span>', id, 'primary row-action') : ''}
     </div>
-    <p class="muted">${[ingredient.brand, forms[ingredient.form], conditions[ingredient.pack_condition], ingredient.purchase_location].filter(Boolean).map(escape).join(' · ')}</p>
+  </li>`;
+}
+
+function productBanner() {
+  const name = view.product_name;
+  return name ? `<div class="product-banner compact ${/keripik pisang/i.test(name) ? 'has-photo' : ''}">
+    <div class="product-copy"><p class="product-eyebrow">Produk Anda</p><p class="hero-title">${escape(name)}</p></div>
+  </div>` : '';
+}
+
+function evidencePanel(ingredient) {
+  const meta = [ingredient.brand, forms[ingredient.form], conditions[ingredient.pack_condition], ingredient.purchase_location]
+    .filter(Boolean).map(escape).join(' · ');
+  return `<h1 id="page-title" tabindex="-1">${escape(ingredientTitle(ingredient))}</h1>
+    ${meta ? `<p class="muted">${meta}</p>` : ''}
     ${ingredient.basis ? `<p>${escape(ingredient.basis)}</p>` : ''}
     ${evidenceLog(ingredient.evidence)}
-    ${!observer && view.phase !== 'paused' && ingredient.pending_request ? packRequest(ingredient) : ''}
-    ${proposals.map(offerCard).join('')}
-  </li>`;
+    ${view.proposals.filter(row => row.ingredient_id === ingredient.ingredient_id).map(offerCard).join('')}`;
+}
+
+function packPanel(ingredient) {
+  const mismatch = variantConflict(ingredient);
+  return `<h1 id="page-title" tabindex="-1">${mismatch ? 'Varian berbeda' : 'Foto kemasan'}</h1>
+    <p class="muted">${escape(ingredientTitle(ingredient))}</p>
+    ${mismatch ? `<div class="variant-comparison">
+      <canvas class="source-preview mismatch-photo" role="img" aria-label="Foto kemasan yang diperiksa" hidden></canvas>
+      <dl><div><dt>Resep Anda</dt><dd>${escape(ingredient.variant)}</dd></div>
+      <div><dt>Foto atau tulisan pada kemasan</dt><dd>${escape(mismatch.observed.variant || 'Tanpa varian')}</dd></div></dl>
+    </div><p class="note">${icon('alert')} Bukti belum cocok. Gunakan kemasan dengan varian yang tercantum pada resep.</p>`
+      : '<p>Pastikan nama produk, produsen, varian, dan nomor sertifikat terbaca. Satu foto cukup jika semuanya terlihat.</p>'}
+    ${packRequest(ingredient)}`;
 }
 
 function trace() {
@@ -528,7 +700,7 @@ function trace() {
     return `<li value="${event.seq}">${ingredient ? `<strong>${escape(ingredient)}</strong> · ` : ''}
       ${escape(event.data.summary)} <small class="muted">· revisi ${event.revision}</small>${exclusions}</li>`;
   });
-  return `<section class="sheet trace"><h2>Jejak tindakan</h2><ol>${entries.join('')}</ol></section>`;
+  return `<section class="trace"><h1 id="page-title" tabindex="-1">Riwayat cek</h1><ol>${entries.join('')}</ol></section>`;
 }
 
 function download(body, mime, filename) {
@@ -542,53 +714,117 @@ function download(body, mime, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function nextSellerAction() {
-  if (observer || view.phase !== 'awaiting_seller') return '';
-  const packs = view.ingredients.filter(row => row.pending_request);
-  if (packs.length) {
-    const names = packs.map(row => escape(row.declared_name)).join(', ');
-    return `<section class="note intake-note"><h3>Foto yang saya perlukan</h3><p>${names}</p>
-      <button type="button" class="quiet" id="next-seller-action">Buka permintaan foto</button></section>`;
-  }
-  if (view.proposals.some(offer => offer.status === 'pending')) {
-    return `<section class="note intake-note"><h3>Saya menemukan calon pengganti</h3>
-      <p>Lihat harga dan bukti produknya, lalu putuskan apakah pengganti ini cocok untuk resep Anda.</p>
-      <button type="button" class="quiet" id="next-seller-action">Lihat usulan</button></section>`;
-  }
-  return '';
+const hasRecipe = () => Boolean(view?.confirmed_ingredient_ids.length);
+
+function caseInfo() {
+  return `<div class="case-info">
+    ${replay ? '<p class="note"><strong>Replay · Putar ulang rekaman.</strong> Tampilan baca saja.</p>' :
+      observer ? '<p class="note">Tampilan baca saja.</p>' : ''}
+    ${view.scope === 'facilitator_review' && hasRecipe() ? '<p class="note">Produk atau proses ini perlu ditinjau oleh fasilitator.</p>' : ''}
+    ${view.phase === 'paused' ? '<p class="note">Pemeriksaan terjeda. Coba lagi untuk melanjutkan kasus ini.</p>' : ''}
+    <p class="case-source muted">${replay ? sourceModes.replay : sourceModes[view.source_mode] || 'Sumber kasus'} · Revisi ${view.revision}</p>
+  </div>`;
 }
 
-function showChecks() {
-  const paused = view.phase === 'paused';
-  const hasRecipe = view.confirmed_ingredient_ids.length > 0;
-  workspace.innerHTML = `<div class="sheet">
-    <div class="row-head"><h2>${view.phase === 'review_packet' ? 'Paket bukti bahan' : 'Bahan yang Anda gunakan'}</h2>
-      <span class="badge">${sourceModes[view.source_mode] || 'Sumber kasus'} · revisi ${view.revision}</span></div>
-    ${replay ? '<p class="note"><strong>Replay · Putar ulang rekaman.</strong> Jejak ini tersimpan dari sesi sebelumnya. Tampilan baca saja.</p>' :
-      observer ? '<p class="note">Tampilan baca saja.</p>' : ''}
-    ${view.scope === 'facilitator_review' && hasRecipe ? '<p class="note">Produk atau proses ini perlu ditinjau oleh fasilitator.</p>' : ''}
-    ${paused ? '<p class="note">Pemeriksaan terjeda. Coba lagi untuk melanjutkan kasus ini.</p>' : ''}
-    ${nextSellerAction()}
-    ${hasRecipe ? `<ol class="ledger">${view.ingredients.map(ingredientRow).join('')}</ol>` : ''}
-    ${!observer ? `<div class="actions">
-      ${paused ? '<button type="button" class="primary" id="retry">Coba lagi</button>' : ''}
-      ${paused && !hasRecipe ? '<a href="/">Mulai dengan rekaman atau label lain</a>' : ''}
-      ${hasRecipe ? '<button type="button" class="quiet" id="edit">Ubah resep</button><button type="button" class="primary export" data-format="html">Unduh paket bukti</button><button type="button" class="quiet export" data-format="json">Unduh JSON</button><button type="button" class="quiet export" data-format="trace">Unduh rekaman jejak</button>' : ''}
-    </div>` : ''}
-  </div>${trace()}`;
+function packetView() {
+  const approved = view.proposals.filter(proposal => proposal.status === 'approved');
+  return `<div class="packet-layout">
+    <section class="sheet packet-summary">
+      <h1 id="page-title" tabindex="-1">Berkas bukti bahan</h1>
+      <div class="recipe-columns">
+        <section><h2>Resep saat ini</h2><p class="evidence-count">${evidenceSummary()}</p>
+        <ul>${view.ingredients.map(row => {
+          const supported = row.status === 'verified' || row.status === 'exempt';
+          return `<li class="badge ${supported ? 'confirmed' : 'gap'}">${icon(supported ? 'check' : 'alert')} <span>${escape(ingredientTitle(row))}${supported ? '' : ' · belum terverifikasi'}</span></li>`;
+        }).join('')}</ul></section>
+        <section><h2>Usulan pengganti</h2>
+        ${approved.length ? `<ul>${approved.map(({ listing, registry }) => `<li><strong>${[listing.product, listing.variant, listing.pack_size].filter(Boolean).map(escape).join(' · ')}</strong>
+        <p class="muted">${escape(registry.certificate_number)} · Registri simulasi</p>
+        <span class="badge gap">${icon('alert')} Disetujui, belum dipakai</span></li>`).join('')}</ul>`
+        : '<p class="muted">Belum ada usulan yang disetujui.</p>'}</section>
+      </div>
+    </section>
+    <aside class="sheet handoff-panel">
+      <h2>Untuk fasilitator</h2>
+      <ul class="checklist">
+        <li>Konfirmasi bahan dan kemasan yang dipakai</li>
+        <li>Lengkapi dokumen usaha dan penanggung jawab halal</li>
+        <li>Tinjau proses, produk, dan dokumen bersama fasilitator</li>
+      </ul>
+      <p class="muted">Belum diajukan</p>
+      ${!observer ? `<button type="button" class="primary export" data-format="html">Unduh berkas bukti</button>
+      <details><summary>Format lainnya</summary><div class="actions">
+        <button type="button" class="quiet export" data-format="json">Unduh JSON</button>
+        <button type="button" class="quiet export" data-format="trace">Unduh rekaman jejak</button>
+      </div></details>` : ''}
+      ${panelButton('history', 'Riwayat cek', '', 'subtle-link')}
+    </aside>
+  </div>`;
+}
 
-  const next = workspace.querySelector('#next-seller-action');
-  if (next) next.onclick = () => {
-    const target = workspace.querySelector('.pack-form select') || workspace.querySelector('[data-decision]');
-    target?.focus();
-  };
-  workspace.querySelectorAll('.pack-form').forEach(wirePack);
+function showChecks(stage) {
+  const paused = view.phase === 'paused';
+  const ingredient = activePanel?.id && view.ingredients.find(row => row.ingredient_id === activePanel.id);
+  const proposals = view.proposals.filter(row => row.ingredient_id === ingredient?.ingredient_id);
+  let panel = '';
+  if (activePanel?.kind === 'history') panel = trace();
+  if (ingredient) {
+    if (activePanel.kind === 'pack' && ingredient.pending_request && !observer && !paused) panel = packPanel(ingredient);
+    if (activePanel.kind === 'evidence') panel = evidencePanel(ingredient);
+    if (activePanel.kind === 'offer' && proposals.length) {
+      panel = `<h1 id="page-title" tabindex="-1">Opsi pengganti</h1><p class="muted">Untuk ${escape(ingredientTitle(ingredient))}</p>
+        ${[...proposals].reverse().map(offerCard).join('')}`;
+    }
+  }
+  const packet = stage === 'packet' && !panel;
+  const heading = panel ? '<h2>Peta bukti bahan</h2>' : '<h1 id="page-title" tabindex="-1">Peta bukti bahan</h1>';
+  workspace.innerHTML = `${productBanner()}${caseInfo()}
+    ${packet ? packetView() : `<div class="case-layout ${panel ? 'has-panel' : ''}">
+      <section class="sheet map-panel">
+        <div class="map-heading">${heading}
+          ${hasRecipe() ? `<p class="evidence-count">${evidenceSummary()}</p>` : ''}
+        </div>
+        ${hasRecipe() ? `<ol class="ledger">${view.ingredients.map(ingredientRow).join('')}</ol>` : '<p class="muted">Belum ada daftar bahan yang dikonfirmasi.</p>'}
+        <div class="case-actions">${panelButton('history', 'Riwayat cek', '', 'subtle-link')}</div>
+      </section>
+      ${panel ? `<aside class="sheet case-panel">${panelButton('back', '← Kembali ke bukti', '', 'subtle-link panel-back')}${panel}</aside>` : ''}
+    </div>`}
+    ${!observer ? `<div class="case-actions">
+      ${paused ? '<button type="button" class="primary" id="retry">Coba lagi</button>' : ''}
+      ${paused && !hasRecipe() ? '<a href="/">Mulai dengan rekaman atau label lain</a>' : ''}
+      ${hasRecipe() && !packet ? '<button type="button" class="quiet" id="edit">Ubah resep</button>' : ''}
+    </div>` : ''}`;
+
+  workspace.querySelectorAll('[data-kind]').forEach(button => {
+    button.onclick = () => {
+      if (busy) return;
+      screen = 'checks';
+      activePanel = button.dataset.kind === 'back' ? undefined : { kind: button.dataset.kind, id: button.dataset.id };
+      render();
+      focusHeading();
+    };
+  });
+  const pack = workspace.querySelector('.pack-form');
+  if (pack) {
+    wirePack(pack, ingredient);
+    const photo = packPhotos.get(ingredient.ingredient_id);
+    if (photo && photo.request === variantConflict(ingredient)?.request_id) {
+      previewImage(workspace.querySelector('.mismatch-photo'), photo.file);
+    }
+  }
   workspace.querySelectorAll('[data-decision]').forEach((button) => {
-    button.onclick = () => run(() => request(path('decision'), {
-      revision: view.revision,
-      proposal_id: button.closest('[data-proposal]').dataset.proposal,
-      decision: button.dataset.decision,
-    }));
+    button.onclick = () => run(async () => {
+      const result = await request(path('decision'), {
+        revision: view.revision,
+        proposal_id: button.closest('[data-proposal]').dataset.proposal,
+        decision: button.dataset.decision,
+      });
+      if (result.case?.phase === 'review_packet') {
+        screen = undefined;
+        activePanel = undefined;
+      }
+      return result;
+    });
   });
   const retry = workspace.querySelector('#retry');
   if (retry) retry.onclick = () => run(() => request(path('retry'), { revision: view.revision }));
@@ -596,8 +832,10 @@ function showChecks() {
   if (edit) edit.onclick = () => {
     if (busy) return;
     editing = true;
+    screen = undefined;
+    activePanel = undefined;
     render();
-    workspace.querySelector('#confirm-form input')?.focus();
+    focusHeading();
   };
   workspace.querySelectorAll('.export').forEach((button) => {
     button.onclick = async () => {
@@ -620,15 +858,25 @@ function showChecks() {
 
 function render() {
   const stage = editing || !view || view.phase === 'intake_review' ? 'intake'
-    : view.phase === 'review_packet' ? 'packet' : 'checks';
+    : screen || (view.phase === 'review_packet' ? 'packet' : 'checks');
   document.querySelectorAll('[data-stage]').forEach((step) => {
     if (step.dataset.stage === stage) step.setAttribute('aria-current', 'step');
     else step.removeAttribute('aria-current');
+    step.disabled = step.dataset.stage === 'intake'
+      ? observer || Boolean(view && !hasRecipe() && stage !== 'intake')
+      : !hasRecipe() && step.dataset.stage !== stage;
+    step.onclick = () => {
+      if (busy || step.dataset.stage === stage) return;
+      editing = step.dataset.stage === 'intake';
+      screen = editing ? undefined : step.dataset.stage;
+      activePanel = undefined;
+      render();
+      focusHeading();
+    };
   });
-  title.textContent = view?.product_name || view?.draft?.product_name || 'Susun bukti bahan resep';
   if (!view) showStart();
   else if (!observer && (view.phase === 'intake_review' || editing)) showEditor();
-  else showChecks();
+  else showChecks(stage);
 }
 
 if (observerId) {

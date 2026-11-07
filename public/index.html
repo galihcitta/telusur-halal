@@ -3,81 +3,81 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#173e35">
+  <meta name="theme-color" content="#fffcf5">
   <title>Telusur Halal</title>
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
-  <header class="top"><div class="wrap mast">
-    <a href="/" class="brand" aria-label="Telusur Halal, halaman awal"><span class="mark" aria-hidden="true">T</span>Telusur Halal</a>
-    <span class="simulation">Sampel BPJPH dan data simulasi</span>
-  </div></header>
-  <main class="wrap">
-    <div class="intro">
-      <div><p class="kicker">Pendamping bukti bahan</p><h1 id="page-title">Susun bukti bahan resep</h1></div>
-      <p>Mulai dari cerita dan label produk. Telusuri bukti setiap bahan untuk ditinjau bersama fasilitator.</p>
+  <a class="skip-link" href="#workspace">Langsung ke isi</a>
+  <header class="top">
+    <div class="wrap mast">
+      <a href="/" class="brand" aria-label="Telusur Halal, halaman awal">
+        <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H6a2 2 0 0 0-2 2v2m12-4h2a2 2 0 0 1 2 2v2M4 16v2a2 2 0 0 0 2 2h2m12-4v2a2 2 0 0 1-2 2h-2M8 12l2.5 2.5L16 9"/></svg></span>
+        Telusur Halal
+      </a>
+      <nav class="steps" aria-label="Tahapan">
+        <button type="button" data-stage="intake" aria-current="step">Bahan</button>
+        <button type="button" data-stage="checks" disabled>Bukti</button>
+        <button type="button" data-stage="packet" disabled>Berkas</button>
+      </nav>
+      <div class="mast-meta"><span class="simulation">Simulasi</span></div>
     </div>
-    <ol class="steps" aria-label="Tahapan">
-      <li data-stage="intake" aria-current="step"><span>1</span> Catat resep</li>
-      <li data-stage="checks"><span>2</span> Periksa bahan</li>
-      <li data-stage="packet"><span>3</span> Paket bukti</li>
-    </ol>
+  </header>
+  <main class="wrap">
     <div id="notice" role="status" aria-live="polite" hidden></div>
-    <section id="workspace" aria-label="Ruang kerja bukti bahan"></section>
+    <section id="workspace" tabindex="-1" aria-label="Ruang kerja bukti bahan"></section>
   </main>
-  <footer class="wrap">Telusur Halal · Bukti bahan untuk peninjauan fasilitator</footer>
+  <footer class="wrap">Telusur Halal · Sampel BPJPH tersimpan dan data simulasi</footer>
 
   <template id="start-template">
     <div class="sheet start">
-      <div>
-        <h2>Ceritakan resep Anda</h2>
-        <p class="muted">Sebutkan nama produk, bahan, merek dan varian yang digunakan, serta bagaimana bahan dibeli.</p>
+      <div class="product-banner start-hero" aria-label="Contoh produk: Keripik Pisang Balado">
+        <div class="product-copy">
+          <p class="product-eyebrow">Contoh produk</p>
+          <p class="hero-title">Keripik Pisang Balado</p>
+          <p>250 g · Toko Bu Sari</p>
+        </div>
+      </div>
+      <div class="start-panel">
+        <h1 id="page-title" tabindex="-1">Ceritakan bahanmu</h1>
+        <p class="muted">Sebutkan nama produk, bahan, merek, dan varian. Tambahkan foto label supaya daftar bahannya bisa diperiksa.</p>
         <form id="start-form">
           <section class="voice-note" data-state="idle" aria-label="Catatan suara">
-            <div class="voice-top">
-              <strong>Catatan suara</strong>
+            <button type="button" class="input-row" id="record" aria-labelledby="record-action">
+              <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M6 10v1a6 6 0 0 0 12 0v-1m-6 7v4m-3 0h6"/></svg>
+              <svg class="stop-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+              <span id="record-action">Rekam suara</span>
               <span id="record-time" aria-label="Durasi rekaman">00:00</span>
-            </div>
-            <div class="voice-dial">
-              <svg class="voice-wave" viewBox="0 0 90 44" aria-hidden="true">
-                <path d="M5 19v6 M18 13v18 M31 7v30 M44 2v40 M57 11v22 M70 16v12 M83 20v4"/>
-              </svg>
-              <button type="button" id="record" aria-labelledby="record-action">
-                <svg class="mic-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M6 10v1a6 6 0 0 0 12 0v-1m-6 7v4m-3 0h6"/>
-                </svg>
-                <svg class="stop-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-              </button>
-              <svg class="voice-wave voice-wave-end" viewBox="0 0 90 44" aria-hidden="true">
-                <path d="M5 19v6 M18 13v18 M31 7v30 M44 2v40 M57 11v22 M70 16v12 M83 20v4"/>
-              </svg>
-            </div>
-            <p id="record-action">Rekam suara</p>
-            <p id="record-status" role="status">Ketuk mikrofon dan ceritakan resep Anda.</p>
+            </button>
+            <p id="record-status" role="status" class="muted">Ketuk mikrofon dan ceritakan resep Anda.</p>
             <audio id="record-preview" controls preload="metadata" aria-label="Dengarkan rekaman Anda" hidden></audio>
           </section>
           <details id="audio-fallback">
             <summary>Pakai rekaman yang sudah ada</summary>
             <label class="upload">File audio Bahasa Indonesia<input name="audio" type="file" accept="audio/*,.m4a,.mp4,.webm,.mp3,.wav"></label>
           </details>
-          <label class="upload">Foto label produk<input name="label" type="file" accept="image/png,image/jpeg,image/webp" required></label>
-          <button class="primary" type="submit">Baca rekaman dan label</button>
+          <label class="upload upload-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg>
+            <span>Tambah foto label
+              <input name="label" type="file" accept="image/png,image/jpeg,image/webp" required>
+              <small class="file-name" aria-live="polite">Belum ada foto</small>
+            </span>
+          </label>
+          <button class="primary intake-submit" type="submit">Lihat daftar bahan <span aria-hidden="true">→</span></button>
         </form>
       </div>
-      <aside class="rail">
-        <h3>Sebelum mulai</h3>
-        <p>Gunakan contoh kemasan dan rekaman yang boleh dibagikan. Audio dan foto dikirim ke layanan AI yang dikonfigurasi untuk dibaca.</p>
-        <p>Telusur memakai hasil pencarian BPJPH tersimpan serta data simulasi untuk skenario demo dan penawaran Shopee. Paket ini membantu peninjauan bahan bersama fasilitator.</p>
-        <details>
-          <summary>Putar ulang jejak tersimpan</summary>
-          <p>Pilih file rekaman jejak Telusur. File dibaca di browser untuk dilihat saja.</p>
-          <form id="replay-form">
-            <label class="upload">File rekaman jejak<input type="file" name="replay" accept=".json,application/json" required></label>
-            <button type="submit" class="quiet">Buka putar ulang</button>
-          </form>
-        </details>
-      </aside>
+    </div>
+    <div class="start-meta">
+      <p>Audio dan foto dikirim ke layanan AI yang dikonfigurasi untuk dibaca. Telusur Halal menggunakan hasil pencarian BPJPH tersimpan serta data simulasi untuk skenario demo dan penawaran Shopee.</p>
+      <details>
+        <summary>Putar ulang jejak tersimpan</summary>
+        <p>Pilih file rekaman jejak Telusur. File dibaca di browser untuk dilihat saja.</p>
+        <form id="replay-form">
+          <label class="upload">File rekaman jejak<input type="file" name="replay" accept=".json,application/json" required></label>
+          <button type="submit" class="quiet">Buka putar ulang</button>
+        </form>
+      </details>
     </div>
   </template>
 </body>
