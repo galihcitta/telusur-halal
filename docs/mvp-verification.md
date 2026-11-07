@@ -236,3 +236,8 @@ Typecheck and 58 automated tests passed. Regression cases covered repack aliases
   verified. Service tests exercise correction and export; no new live seller session
   or real audio was used. Existing in-memory cases need reassessment/new intake to
   receive changed rules; a page reload alone does not rewrite stored verdicts.
+- PR integration rerun on `a2de61e` (seller recovery/evidence integrity): typecheck
+  and all 60 tests passed. Restored the existing banana identity aliases used by
+  history tracking after integrating the shared fresh-category helper. The live
+  synthetic-image gate again passed 10/10 with zero technical failures, unsafe
+  acceptances or false refusals. Browser verification remains outstanding.

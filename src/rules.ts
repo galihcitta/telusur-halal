@@ -54,6 +54,9 @@ export function ingredientUse(declaredName: string) {
   return useAliases[name] ?? name;
 }
 
+// Preserve the established banana history aliases independently of fresh classification.
+const bananaNames = new Set(['pisang kepok', 'pisang', 'buah pisang', 'buah pisang kepok']);
+
 export function ingredientIdentity(row: Pick<Ingredient, 'declared_name' | 'variant' | 'brand'>) {
   const name = normalize(row.declared_name);
   if (bananaNames.has(name)) return { product: 'pisang kepok', variant: null, brand: undefined };
