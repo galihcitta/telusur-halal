@@ -54,6 +54,32 @@ export function ingredientUse(declaredName: string) {
   return useAliases[name] ?? name;
 }
 
+export function ingredientIdentity(row: Pick<Ingredient, 'declared_name' | 'variant' | 'brand'>) {
+  const name = normalize(row.declared_name);
+  const named = registry.filter(record => exactProductName(name, record));
+  const fullVariant = named.find(record => record.variant && name === normalize(record.product + ' ' + record.variant));
+  const variant = row.variant === undefined ? fullVariant?.variant && normalize(fullVariant.variant)
+    : row.variant === null ? null : normalize(row.variant);
+  const product = ingredientUse(fullVariant?.product ?? named[0]?.product ?? name);
+  const possible = registry.filter(record => ingredientUse(record.product) === product && (variant === undefined || sameVariant(variant, record.variant)));
+  const suppliedBrand = row.brand && normalize(row.brand);
+  const branded = possible.find(record => suppliedBrand &&
+    (brandAliases[record.record_id]?.includes(suppliedBrand) || manufacturerName(suppliedBrand) === manufacturerName(record.manufacturer)));
+  const exactMaker = !suppliedBrand && (fullVariant || ingredientUse(name) !== name) && named.length && new Set(named.map(record => record.manufacturer)).size === 1
+    ? named[0].manufacturer : undefined;
+  const brand = branded ? manufacturerName(branded.manufacturer) : exactMaker ? manufacturerName(exactMaker) : suppliedBrand;
+  const publicName = publicProductName(row.declared_name, row.variant ?? null);
+  const publicRecords = bpjphRecords.filter(record => normalize(record.product_name) === publicName);
+  if (publicRecords.length && !branded && !named.length) {
+    const maker = publicRecords[0].producer_name;
+    const publicBrand = !suppliedBrand ? undefined
+      : containsName(publicName, suppliedBrand) || manufacturerName(suppliedBrand) === manufacturerName(maker)
+        ? manufacturerName(maker) : suppliedBrand;
+    return { product: publicName, variant: null, brand: publicBrand };
+  }
+  return { product, variant, brand: brand || undefined };
+}
+
 function exactProductName(value: string, record: RegistryRecord) {
   const product = normalize(record.product);
   const observed = normalize(value);

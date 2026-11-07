@@ -112,10 +112,12 @@ test('scope review routes all current ingredients without catalogue or pack requ
 });
 
 test('a revised recipe invalidates old verdicts and proposals', async () => {
-  const { read, answer, confirm, decide } = await setup();
+  const { read, answer, service, id, session, decide } = await setup();
   await answer('correct');
   const proposal = read().proposals[0];
-  await confirm();
+  await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: 'Keripik Pisang Baru', scope: 'snack', ingredients: read().draft!.ingredients, reviewed: true,
+  }));
   assert.equal(read().revision, 2);
   assert.equal(read().ingredients[1].status, 'open');
   assert.equal(read().proposals.length, 0);
@@ -247,4 +249,202 @@ test('Palmia saved BPJPH match records its full basis before reaching the export
   const packet = buildPacket(read());
   assert.equal(packet.evidence_complete, true);
   assert.ok((packet.current_ingredients[1].source_refs as string[]).includes('https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=13'));
+});
+
+test('unchanged confirmation preserves requests, verdicts and seller decisions', async () => {
+  const { service, id, session, read, confirm, answer, decide } = await setup();
+  const initial = structuredClone(read());
+  await confirm();
+  assert.deepEqual(read(), initial);
+  await answer('correct');
+  await decide(read().proposals[0].proposal_id, 'approve');
+  const approved = structuredClone(read());
+  await confirm();
+  assert.deepEqual(read(), approved);
+  await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: read().product_name, scope: read().scope, ingredients: [...read().ingredients].reverse(), reviewed: true,
+  }));
+  assert.deepEqual(read(), approved);
+});
+
+test('wrong-photo provenance survives removal and re-addition without renewing requests', async () => {
+  const { service, id, session, read, answer } = await setup();
+  await answer('wrong');
+  const original = structuredClone(read().ingredients[1]);
+  const banana = read().ingredients[0];
+  const edit = (ingredients: typeof draft.ingredients) => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true, ingredients,
+  }));
+  await edit([banana]);
+  await edit([banana, { ...original, ingredient_id: undefined, declared_name: 'Bumbu Balado Original' }]);
+  const restored = read().ingredients[1];
+  assert.equal(restored.conflict, true);
+  assert.equal(restored.status, 'unresolved');
+  assert.equal(restored.requests, 2);
+  assert.equal(restored.pending_request, undefined);
+  assert.deepEqual(restored.evidence, original.evidence);
+  assert.ok(original.evidence[0].source_refs.every(ref => restored.source_refs.includes(ref)));
+  await assert.rejects(service.mutate(id, session, read().revision, entry => service.pack(entry, {
+    request_id: original.pending_request!.request_id, condition: 'sealed', mode: 'typed', observed: correct, images: [], confirmed_current: true,
+  })), /no longer pending/);
+  assert.equal(buildPacket(read()).evidence_complete, false);
+  assert.equal(read().events.filter(event => event.type === 'pack_requested').length, 2);
+});
+
+test('full-name repack identity survives split variant but isolates distinct variants and brands', async () => {
+  const { service, id, session, read } = await setup();
+  const banana = read().ingredients[0];
+  const edit = (rows: typeof draft.ingredients) => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true, ingredients: [banana, ...rows],
+  }));
+  const base = { declared_name: 'Bumbu Balado Original', form: 'processed' as const, pack_condition: 'repacked' as const };
+  await edit([base]);
+  await edit([]);
+  await edit([{ ...base, declared_name: 'Bumbu Balado', variant: 'Original', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'repacked');
+  await edit([{ ...base, declared_name: 'Bumbu Balado', variant: 'Pedas', brand: 'Rasa Nusantara', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'sealed');
+  assert.equal(read().ingredients[1].requests, 1);
+  await edit([{ ...base, brand: 'Rasa Nusantara' }]);
+  await edit([{ ...base, brand: 'Dapur Minang', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'sealed');
+  assert.equal(read().ingredients[1].requests, 1);
+  await edit([{ ...base, declared_name: 'Bumbu Balado', variant: 'Original', brand: 'Rasa Nusantara', pack_condition: 'sealed' },
+    { ...base, declared_name: 'Bumbu Balado', variant: 'Pedas', brand: 'Rasa Nusantara', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'repacked');
+  assert.equal(read().ingredients[2].pack_condition, 'sealed');
+});
+
+test('real recipe edits retain lifetime request and proposal bounds and invalidate approvals', async () => {
+  const { service, id, session, read, decide, answer } = await setup();
+  const originalRequest = read().ingredients[1].pending_request!.request_id;
+  const edit = (product_name: string) => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name, scope: 'snack', reviewed: true, ingredients: read().ingredients,
+  }));
+  await edit('Keripik Pisang Kedua');
+  assert.equal(read().revision, 2);
+  assert.equal(read().ingredients[1].pending_request?.attempt, 2);
+  await assert.rejects(service.mutate(id, session, read().revision, entry => service.pack(entry, {
+    request_id: originalRequest, condition: 'sealed', mode: 'typed', observed: correct, images: [], confirmed_current: true,
+  })), /no longer pending/);
+  await answer('correct');
+  const originalProposal = read().proposals[0].proposal_id;
+  await edit('Keripik Pisang Ketiga');
+  await assert.rejects(decide(originalProposal, 'approve'), /no longer pending/);
+  await edit('Keripik Pisang Keempat');
+  assert.equal(read().ingredients[1].pending_request, undefined);
+  assert.equal(read().ingredients[1].requests, 2);
+  assert.equal(read().events.filter(event => event.type === 'pack_requested').length, 2);
+  const offers = read().events.filter(event => event.type === 'substitute_proposed' && event.data.ingredient_id === read().ingredients[2].ingredient_id);
+  assert.equal(offers.length, 2);
+});
+
+test('explicit no-pack remains terminal after a recipe edit', async () => {
+  const { service, id, session, read, answer } = await setup();
+  await answer('correct', { mode: 'no_pack', images: [] });
+  const count = read().events.filter(event => event.type === 'pack_requested').length;
+  await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: 'Keripik Pisang Baru', scope: 'snack', reviewed: true, ingredients: read().ingredients,
+  }));
+  assert.equal(read().ingredients[1].reason, 'NO_PACK');
+  assert.equal(read().ingredients[1].pending_request, undefined);
+  assert.equal(read().events.filter(event => event.type === 'pack_requested').length, count);
+});
+
+test('cached omitted-brand alias cannot bypass another known repack SKU', async () => {
+  const { service, id, session, read } = await setup();
+  const banana = read().ingredients[0];
+  const edit = (brand: string | undefined, pack_condition: 'loose' | 'sealed' | 'repacked') => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true,
+    ingredients: [banana, { declared_name: 'Bumbu Balado', variant: 'Original', brand, form: 'processed', pack_condition }],
+  }));
+  await edit('Rasa Nusantara', 'loose');
+  await edit(undefined, 'loose');
+  await edit('Dapur Minang', 'repacked');
+  const before = structuredClone(read());
+  await assert.rejects(edit(undefined, 'sealed'), /Specify.*brand and variant/);
+  assert.deepEqual(read(), before);
+  await assert.rejects(service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true,
+    ingredients: [banana,
+      { declared_name: 'Coklat Batang', variant: null, brand: 'PT Coklat Jaya', form: 'processed', pack_condition: 'repacked' },
+      { declared_name: 'Bumbu Balado', variant: 'Original', form: 'processed', pack_condition: 'sealed' }],
+  })), /Specify.*brand and variant/);
+  // The first row of the rejected edit must not leave invisible history.
+  for (const brand of ['CV Kakao Mandiri', undefined]) {
+    await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+      product_name: draft.product_name, scope: 'snack', reviewed: true,
+      ingredients: [banana, { declared_name: 'Coklat Batang', variant: null, brand, form: 'processed', pack_condition: 'sealed' }],
+    }));
+    assert.equal(read().ingredients[1].pack_condition, 'sealed');
+  }
+  await edit('Dapur Minang', 'sealed');
+  assert.equal(read().ingredients[1].pack_condition, 'repacked');
+  await edit('Rasa Nusantara', 'sealed');
+  assert.equal(read().ingredients[1].pack_condition, 'sealed');
+});
+
+test('contradictory declaration edits cannot reuse a verified verdict as unchanged', async () => {
+  const { service, id, session, read, answer } = await setup();
+  await answer('correct');
+  assert.equal(read().ingredients[1].status, 'verified');
+  await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true,
+    ingredients: read().ingredients.map((row, index) => index === 1 ? { ...row, declared_name: 'Bumbu Balado Pedas' } : row),
+  }));
+  assert.equal(read().revision, 2);
+  assert.notEqual(read().ingredients[1].status, 'verified');
+});
+
+
+test('unknown variant cannot split a known oil brand alias from its full product name', async () => {
+  const { service, id, session, read } = await setup();
+  const banana = read().ingredients[0];
+  const edit = (ingredients: typeof draft.ingredients) => service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true, ingredients: [banana, ...ingredients],
+  }));
+  await edit([{ declared_name: 'minyak goreng', form: 'processed', pack_condition: 'repacked' }]);
+  await edit([{ declared_name: 'minyak goreng', brand: 'Sentosa', form: 'processed', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'repacked');
+  await edit([]);
+  await edit([{ declared_name: 'Minyak Goreng Sentosa', variant: null, form: 'processed', pack_condition: 'sealed' }]);
+  assert.equal(read().ingredients[1].pack_condition, 'repacked');
+  assert.equal(read().ingredients[1].pending_request, undefined);
+  assert.equal(read().ingredients[1].status, 'unresolved');
+  assert.equal(buildPacket(read()).evidence_complete, false);
+});
+
+
+test('unknown-to-known identity matrix preserves repack across supported names and brand omission', async () => {
+  for (const [generic, full, brand] of [
+    ['minyak goreng', 'Minyak Goreng Sentosa', 'Sentosa'],
+    ['cabai bubuk', 'Cabai Bubuk Halal', 'Cabai Prima'],
+  ]) {
+    for (const variant of [undefined, null]) {
+      const { service, id, session, read } = await setup();
+      const banana = read().ingredients[0];
+      const edit = (declared_name: string, brand: string | undefined, variant: null | undefined, pack_condition: 'repacked' | 'sealed') =>
+        service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+          product_name: draft.product_name, scope: 'snack', reviewed: true,
+          ingredients: [banana, { declared_name, brand, variant, form: 'processed', pack_condition }],
+        }));
+      await edit(generic, undefined, variant, 'repacked');
+      await edit(generic, brand, undefined, 'sealed');
+      assert.equal(read().ingredients[1].pack_condition, 'repacked');
+      await edit(full, undefined, null, 'sealed');
+      assert.equal(read().ingredients[1].pack_condition, 'repacked');
+      await edit(generic, undefined, undefined, 'sealed');
+      assert.equal(read().ingredients[1].pack_condition, 'repacked');
+    }
+  }
+});
+
+test('duplicate aliases cannot multiply ingredient history or request budgets', async () => {
+  const { service, id, session, read } = await setup();
+  const before = structuredClone(read());
+  await assert.rejects(service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true,
+    ingredients: [...read().ingredients, { declared_name: 'Bumbu Balado Original', brand: 'Rasa Nusantara', form: 'processed', pack_condition: 'sealed' }],
+  })), /duplicate ingredient rows/);
+  assert.deepEqual(read(), before);
 });

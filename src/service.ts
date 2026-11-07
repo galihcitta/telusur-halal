@@ -1,16 +1,28 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { eventSchema, IntakeInputError, PackInputError, type AgentAction, type CaseView, type Confirmation, type EventType, type Ingredient, type Media, type Model, type Observation, type SourceMode } from './contracts.js';
-import { checkEvidence, exemption, ingredientUse, searchCatalogue } from './rules.js';
+import { checkEvidence, exemption, ingredientIdentity, searchCatalogue } from './rules.js';
 
 export class RequestError extends Error {
   constructor(public status: number, message: string) { super(message); }
+}
+interface IngredientHistory {
+  identity: ReturnType<typeof ingredientIdentity>;
+  repacked: boolean;
+  conflict: boolean;
+  noPack: boolean;
+  requests: number;
+  offered: string[];
+  source_refs: string[];
+  evidence: Ingredient['evidence'];
 }
 interface Entry {
   view: CaseView;
   session: string;
   busy: boolean;
   retry?: () => Promise<void>;
-  repackHistory: Map<string, { source_refs: string[]; evidence: Ingredient['evidence'] }>;
+  history: Map<string, IngredientHistory>;
+  knownIds: Set<string>;
+  confirmationKey?: string;
 }
 export interface PackAnswer {
   request_id: string;
@@ -34,6 +46,17 @@ function mediaSetRef(images: Media[]) {
   return 'image-set:' + createHash('sha256').update([...new Set(images.map(mediaRef))].sort().join('|')).digest('hex');
 }
 
+function recipeKey(input: Pick<Confirmation, 'product_name' | 'scope' | 'ingredients'>) {
+  const normalize = (value: string | undefined) => value?.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ') || undefined;
+  return JSON.stringify({
+    product: normalize(input.product_name), scope: input.scope,
+    ingredients: input.ingredients.map(row => JSON.stringify({
+      name: normalize(row.declared_name), brand: normalize(row.brand), variant: row.variant === null ? null : normalize(row.variant),
+      form: row.form, condition: row.pack_condition, location: normalize(row.purchase_location), no_additives: row.no_additives,
+    })).sort(),
+  });
+}
+
 export class CaseService {
   private cases = new Map<string, Entry>();
   constructor(private model: Model, private source: SourceMode = 'actual_media') {}
@@ -50,7 +73,7 @@ export class CaseService {
       product_name: '', scope: 'facilitator_review', confirmed_ingredient_ids: [],
       ingredients: [], proposals: [], events: [],
     };
-    const entry: Entry = { view, session: randomBytes(32).toString('hex'), busy: false, repackHistory: new Map() };
+    const entry: Entry = { view, session: randomBytes(32).toString('hex'), busy: false, history: new Map(), knownIds: new Set() };
     await this.run(entry, async () => {
       const draft = await this.model.intake(audio, label);
       view.draft = {
@@ -111,35 +134,52 @@ export class CaseService {
     if (!view.draft?.ingredients.length || view.phase === 'paused') {
       throw new RequestError(409, 'Provide readable intake or retry the paused step first.');
     }
-    const previous = new Set([...view.draft.ingredients, ...view.ingredients].map(row => row.ingredient_id));
+    const previous = new Set([...entry.knownIds, ...view.draft.ingredients.map(row => row.ingredient_id)]);
     const ids = input.ingredients.flatMap(row => row.ingredient_id ? [row.ingredient_id] : []);
     if (new Set(ids).size !== ids.length || ids.some(id => !previous.has(id))) throw new RequestError(400, 'Invalid ingredient IDs.');
+    const identities = input.ingredients.map(ingredientIdentity);
+    const duplicate = identities.some((identity, index) => identities.slice(0, index).some(other =>
+      identity.product === other.product &&
+      (identity.variant === undefined || other.variant === undefined || identity.variant === other.variant) &&
+      (!identity.brand || !other.brand || identity.brand === other.brand)));
+    if (duplicate) throw new RequestError(400, 'Review duplicate ingredient rows before confirming.');
+    const confirmationKey = recipeKey(input);
+    if (view.confirmed_ingredient_ids.length &&
+        (confirmationKey === entry.confirmationKey || confirmationKey === recipeKey(view))) return;
+    const previousHistory = entry.history;
+    entry.history = structuredClone(previousHistory);
+    try {
+      for (const row of input.ingredients) this.historyFor(entry, row);
+    } catch (error) {
+      entry.history = previousHistory;
+      throw error;
+    }
+    // Snapshot safety facts before removing any rows. The history belongs to
+    // the ingredient, not its current display row or recipe revision.
+    for (const row of view.ingredients) {
+      const history = entry.history.get(JSON.stringify(ingredientIdentity(row))) ?? this.historyFor(entry, row);
+      history.repacked ||= row.pack_condition === 'repacked' || row.evidence.some(item => item.observed.repacked);
+      history.conflict = row.conflict;
+      history.evidence = row.evidence;
+      history.source_refs = [...new Set([...history.source_refs, ...row.source_refs, ...row.evidence.flatMap(item => item.source_refs)])];
+    }
     if (view.confirmed_ingredient_ids.length) view.revision++;
+    entry.confirmationKey = confirmationKey;
     const parsedEvent = view.events.find(event => event.type === 'intake_parsed');
     const refs = parsedEvent?.data.source_refs as string[] ?? [];
     view.product_name = input.product_name;
     const bananaSnack = /^(keripik pisang|pisang coklat)(?:\s|$)/iu.test(input.product_name);
     view.scope = view.draft.scope === 'snack' && input.scope === 'snack' && bananaSnack ? 'snack' : 'facilitator_review';
-    // Keep removed repacks at case scope: a new display row is not new goods.
-    for (const row of view.ingredients) {
-      if (row.pack_condition === 'repacked' || row.evidence.some(item => item.observed.repacked)) {
-        entry.repackHistory.set(ingredientUse(row.declared_name), {
-          source_refs: [...row.source_refs, ...row.evidence.flatMap(item => item.source_refs)],
-          evidence: row.evidence,
-        });
-      }
-    }
     view.ingredients = input.ingredients.map(row => {
       const ingredient_id = row.ingredient_id ?? randomUUID();
-      const old = view.ingredients.find(item => item.ingredient_id === ingredient_id && ingredientUse(item.declared_name) === ingredientUse(row.declared_name)) ??
-        view.ingredients.find(item => ingredientUse(item.declared_name) === ingredientUse(row.declared_name));
-      const history = entry.repackHistory.get(ingredientUse(row.declared_name));
-      const knownRepack = Boolean(history) || old?.pack_condition === 'repacked' || old?.evidence.some(item => item.observed.repacked);
+      entry.knownIds.add(ingredient_id);
+      const history = this.historyFor(entry, row);
+      history.repacked ||= row.pack_condition === 'repacked';
       return {
-        ...row, ingredient_id, pack_condition: knownRepack ? 'repacked' : row.pack_condition,
-        source_refs: [...new Set([...(row.ingredient_id ? refs : []), ...(history?.source_refs ?? []), `seller-confirmed:r${view.revision}`])],
-        status: 'open', basis: 'Waiting for evidence.', requests: 0, conflict: old?.conflict ?? false,
-        evidence: old?.evidence ?? history?.evidence ?? [],
+        ...row, ingredient_id, pack_condition: history.repacked ? 'repacked' : row.pack_condition,
+        source_refs: [...new Set([...(row.ingredient_id ? refs : []), ...history.source_refs, `seller-confirmed:r${view.revision}`])],
+        status: 'open', pending_request: undefined, reason: undefined, basis: 'Waiting for evidence.', requests: history.requests, conflict: history.conflict,
+        evidence: history.evidence,
       };
     });
     view.confirmed_ingredient_ids = view.ingredients.map(row => row.ingredient_id);
@@ -147,7 +187,7 @@ export class CaseService {
     append(view, 'intake_confirmed', 'Seller confirmed the current ingredient list.', {
       ingredient_ids: view.confirmed_ingredient_ids, scope: view.scope,
     });
-    await this.run(entry, () => this.advance(view));
+    await this.run(entry, () => this.advance(entry));
   }
 
   private verdict(view: CaseView, row: Ingredient, verdict: { status: Ingredient['status']; reason: NonNullable<Ingredient['reason']>; basis: string; source_refs: string[] }) {
@@ -166,7 +206,34 @@ export class CaseService {
     return choice;
   }
 
-  private async advance(view: CaseView) {
+  private historyFor(entry: Entry, row: Pick<Ingredient, 'declared_name' | 'variant' | 'brand'>) {
+    const identity = ingredientIdentity(row);
+    const key = JSON.stringify(identity);
+    const compatible = [...new Set(entry.history.values())].filter(item =>
+      item.identity.product === identity.product &&
+      (item.identity.variant === undefined || identity.variant === undefined || item.identity.variant === identity.variant) &&
+      (!item.identity.brand || !identity.brand || item.identity.brand === identity.brand));
+    // A cached omitted-brand alias is not an identity once multiple known SKUs
+    // exist. Require the seller to disambiguate instead of borrowing clean facts.
+    if (compatible.length > 1) throw new RequestError(400, 'Specify the ingredient brand and variant to distinguish its existing history.');
+    let history = compatible[0];
+    if (history) entry.history.set(key, history);
+    if (!history) {
+      history = { identity, repacked: false, conflict: false, noPack: false, requests: 0, offered: [], source_refs: [], evidence: [] };
+      entry.history.set(key, history);
+    }
+    // Refine missing fields once a seller identifies the SKU. Cached omission
+    // aliases still point here, but cannot turn this into another explicit SKU.
+    history.identity = {
+      product: history.identity.product,
+      variant: history.identity.variant === undefined ? identity.variant : history.identity.variant,
+      brand: history.identity.brand || identity.brand,
+    };
+    return history;
+  }
+
+  private async advance(entry: Entry) {
+    const view = entry.view;
     view.phase = 'checking';
     for (const row of view.ingredients) {
       if (row.status !== 'open' || row.pending_request) continue;
@@ -187,8 +254,11 @@ export class CaseService {
         });
         continue;
       }
-      if (row.requests >= 2) {
-        row.status = 'unresolved';
+      const history = this.historyFor(entry, row);
+      if (history.noPack || history.requests >= 2) {
+        this.verdict(view, row, { status: 'unresolved', reason: history.noPack ? 'NO_PACK' : 'SOURCE_BOUND',
+          basis: history.noPack ? 'Seller has no original pack for this ingredient.' : 'The two pack requests for this ingredient are exhausted. Facilitator review is required.',
+          source_refs: row.source_refs });
         continue;
       }
       const action = await this.action(view, row, row.requests === 0 ? ['request_pack'] : ['request_pack', 'refer']);
@@ -196,7 +266,8 @@ export class CaseService {
         row.status = 'unresolved';
         continue;
       }
-      row.pending_request = { request_id: randomUUID(), attempt: ++row.requests };
+      row.pending_request = { request_id: randomUUID(), attempt: ++history.requests };
+      row.requests = history.requests;
       append(view, 'pack_requested', row.requests === 1 ? 'Request front and maker/certificate area of the actual pack.' : 'Request one corrected or clearer pack photo.', {
         ingredient_id: row.ingredient_id, ...row.pending_request,
       });
@@ -205,7 +276,7 @@ export class CaseService {
     const waitingForPack = view.ingredients.some(row => row.pending_request);
     if (!waitingForPack && view.scope === 'snack') {
       for (const row of view.ingredients) {
-        if (row.status === 'unresolved' && row.reason !== 'EXEMPT_UNKNOWN' && row.reason !== 'SCOPE_REVIEW') await this.recommend(view, row);
+        if (row.status === 'unresolved' && row.reason !== 'EXEMPT_UNKNOWN' && row.reason !== 'SCOPE_REVIEW') await this.recommend(entry, row);
       }
     }
     view.phase = waitingForPack || view.proposals.some(proposal => proposal.status === 'pending') ? 'awaiting_seller' : 'review_packet';
@@ -234,6 +305,7 @@ export class CaseService {
       if (row.pack_condition !== 'repacked' && input.condition !== 'unknown') row.pack_condition = input.condition;
       if (observed?.repacked) row.pack_condition = 'repacked';
       if (input.mode === 'no_pack' || !observed) {
+        this.historyFor(entry, row).noPack = true;
         this.verdict(view, row, { status: 'unresolved', reason: 'NO_PACK', basis: 'Seller has no original pack for this ingredient.', source_refs });
       } else {
         const evidence = {
@@ -266,14 +338,16 @@ export class CaseService {
     };
     const resume = async () => {
       if (row.pending_request) await work();
-      await this.advance(view);
+      await this.advance(entry);
     };
     await this.run(entry, resume);
   }
 
-  private async recommend(view: CaseView, row: Ingredient) {
+  private async recommend(entry: Entry, row: Ingredient) {
+    const view = entry.view;
+    const history = this.historyFor(entry, row);
     const previous = view.proposals.filter(item => item.ingredient_id === row.ingredient_id);
-    if (previous.length >= 2 || previous.some(item => item.status !== 'declined')) return;
+    if (history.offered.length >= 2 || previous.some(item => item.status !== 'declined')) return;
     const completed = view.events.some(event => event.revision === view.revision && event.type === 'catalogue_searched' &&
       event.data.ingredient_id === row.ingredient_id && event.data.offer_index === previous.length);
     if (completed) return;
@@ -286,7 +360,7 @@ export class CaseService {
       return;
     }
     const results = options;
-    const candidate = results.eligible.find(item => !previous.some(proposal => proposal.listing.listing_id === item.listing.listing_id));
+    const candidate = results.eligible.find(item => !history.offered.includes(item.listing.listing_id));
     append(view, 'catalogue_searched', candidate ? 'Searched simulated Shopee and found an eligible candidate.' : 'No different eligible simulated listing found.', {
       ingredient_id: row.ingredient_id, offer_index: previous.length, searched: true,
       eligible: results.eligible.map(item => item.listing.listing_id), excluded: results.excluded,
@@ -297,6 +371,7 @@ export class CaseService {
       ingredient_id: row.ingredient_id, revision: view.revision, status: 'pending' as const,
     };
     view.proposals.push(proposal);
+    history.offered.push(proposal.listing.listing_id);
     append(view, 'substitute_proposed', 'Waiting for seller decision on the exact simulated listing.', {
       ingredient_id: row.ingredient_id, proposal_id: proposal.proposal_id,
       listing_id: proposal.listing.listing_id, price_idr: proposal.listing.price_idr,
@@ -311,6 +386,6 @@ export class CaseService {
     append(view, 'seller_decided', decision === 'approve' ? 'Seller approved a conditional change plan.' : 'Seller declined this proposed replacement.', {
       ingredient_id: proposal.ingredient_id, proposal_id: id, decision, authority: 'seller_session',
     });
-    await this.run(entry, () => this.advance(view));
+    await this.run(entry, () => this.advance(entry));
   }
 }

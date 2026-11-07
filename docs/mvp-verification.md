@@ -1,5 +1,26 @@
 # PRD v8 MVP verification
 
+## PR #3 follow-up verification — 7 November 2026
+
+All follow-up scenarios below were rerun through visible CUA browser controls after the final runtime restart. Source hashes were checked after the flows with no drift. Downloaded packets and traces were inspected independently. Typecheck and the full suite passed: **43/43 tests**. The existing D01 grader passed the final browser exports with no omissions, additions, duplicates or failures.
+
+| Browser reproduction | Independently inspected outcome |
+| --- | --- |
+| Repacked Original seasoning and unknown-variant Sentosa oil removed, saved, then re-added with full product names and sealed conditions | Revision 3 retained both as repacked/unresolved `CONFLICT_OR_REPACK`, with zero requests. Oil's brand moved into `Minyak Goreng Sentosa`; Original moved into `Bumbu Balado Original`. Neither received a typed override form. Packet remained incomplete. |
+| Add genuinely different Palmia Super Cake to that same case | Palmia remained sealed, received one request/read and verified against the saved BPJPH snapshot; it did not inherit either old ingredient's repack history. |
+| Wrong Pedas photo for Original, then ingredient removed/saved and restored | Revision 3 retained the old photo evidence and `conflict: true`; two already-delivered requests remained exhausted, with no third request or typed override form. Packet remained unresolved/incomplete. The browser prevented the typed bypass before submission; service tests separately cover rejection of conflicting typed evidence. |
+| Oil answered no-pack with pending L-9 proposal, then three identical edit/save cycles | Revision 1, full ingredient state, proposal ID/status, phase and confirmed IDs were exactly equal before/after. Every non-export event was identical. Oil remained at one request and L-9 remained pending. |
+| Decline L-9 and L-ALT-302, then make two real product-name edits | Revision 3 retained oil's no-pack outcome and one lifetime request. Trace contained two distinct proposals and two declines, with no third offer. Old proposals were invalidated for the edited recipe. |
+| Malformed oil PNG replaced, original D01 completed, L-9 approved, then two identical saves | Oil retained one request/receipt/read, seasoning two, and there was one proposal and one seller decision. All non-export events and full ingredient/proposal state stayed identical after the saves. Approved L-9 remained separate and pending adoption; chili remained unresolved and `evidence_complete` false. HTML, JSON and trace exported successfully. |
+
+The malformed PNG showed replacement guidance without trapping the case. The valid simulated Sentosa replacement used the same request, `8ac08d6f-1431-49d0-ae40-83a29bd99fe8`, at attempt 1. The failed image produced no extra receipt, read, request or seller decision. The final D01 run continued with wrong Pedas, corrected Original, and Shopee approval.
+
+All intake audio was synthesized Bahasa Indonesia; label and package PNGs were simulated fixture graphics submitted to the live model. Palmia used an explicitly synthetic seller transcription (`Palmia Super Cake Margarin`, `PT Salim Ivomas Pratama Tbk`, no printed variant or certificate), not a physical photo. Its real saved BPJPH record cites certificate `ID00410000054910420` and `https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=13`; the typed observation retains an absent certificate. This is snapshot verification, not a fresh official lookup.
+
+Local evidence, excluded from Git: `/Users/galihcitta/.codex/visualizations/2026/11/07/01a1b433-ac9f-7871-94f1-bdbce3fd2af4/telusur-followup/REPORT.md`. Final artifacts use `final-*` and supersede interim artifacts: `final-repack-palmia-*`, `final-conflict-restored-*`, `final-no-pack-before-*` / `final-no-pack-after-*`, `final-budgets-after-edits-*`, `final-corrupt-recoverable.*`, and `final-d01-before-noop-*` / `final-d01-*`. JSON/trace pairs, screenshots and accessibility text are retained; D01 and Palmia also have HTML exports. `final-d01-export.json` reconstructs the grader input from the downloaded packet and trace.
+
+The broader recipe-history and no-op budget findings are covered by this follow-up. Original QA F3 (refresh loses control), F5 (instruction contamination), F6 (process/scope correction), F7 (transient-then-invalid intake retry), and F8 (localization/stale validation messages) remain outside these browser retests. Corrupt intake-label classification is separate from pack-photo replacement. No new human recording, real phone photo, direct microphone, Safari/device, screen-reader or disconnected-replay coverage is claimed.
+
 ## Integration release-blocker retest — 7 November 2026
 
 The integration branch was retested through visible browser controls using CUA against the actual local app and configured OpenAI services. Uploaded D01 audio is synthesized Bahasa Indonesia; label and package PNGs are prepared simulated graphics. No oracle observations or scenario IDs were supplied to browser intake. The BPJPH integration uses the saved public-search snapshot, not a fresh official lookup or physical-pack authentication.
@@ -30,7 +51,7 @@ This retest exposed an additional integration defect: the full BPJPH evidence ba
 
 ### Remaining QA findings and limits
 
-The two release blockers are corrected on the exercised paths. QA findings F3–F8 remain open: refresh loses seller control; duplicate/no-change recipe saves can reset budgets; instruction text can contaminate image observations; corrected process information can retain stale supported scope; a transient-then-invalid intake retry can leave a misleading paused state; and localization/stale validation messages need work. Corrupt intake-label classification is also outside this pack-photo fix. These are documented limitations, not claims that the entire adversarial matrix now passes.
+At this earlier integration checkpoint, the two release blockers were corrected on the exercised paths; the later follow-up above adds broader history and no-op coverage. At that earlier checkpoint, QA findings F3–F8 remained open: refresh loses seller control; duplicate/no-change recipe saves can reset budgets; instruction text can contaminate image observations; corrected process information can retain stale supported scope; a transient-then-invalid intake retry can leave a misleading paused state; and localization/stale validation messages need work. Corrupt intake-label classification is also outside this pack-photo fix. These are documented limitations, not claims that the entire adversarial matrix now passes.
 
 No human-recorded Bahasa sample or real phone label/package photo was added. Direct microphone capture, real-device/Safari/screen-reader behavior, and fully disconnected replay were not newly tested. No held-out cases were inspected. API keys and downloaded case artifacts remain outside Git.
 
