@@ -37,7 +37,7 @@ flowchart LR
 | --- | --- | --- |
 | Browser | HTML, CSS, vanilla JavaScript, MediaRecorder | Record or upload audio, upload photos, review ingredients, decide on substitutes, download and replay traces |
 | Backend | Node.js 22+, TypeScript, Express, Multer | Serve the UI and API, accept multipart uploads, enforce seller authority, and manage cases in memory |
-| AI | OpenAI Agents SDK, Audio Transcriptions and Responses APIs | The SDK orchestrates case tools. `gpt-4o-mini-transcribe` handles Bahasa Indonesia audio and `gpt-4.1-mini` handles structured image readings and tool calls. Defaults are configurable in [`.env.example`](.env.example). |
+| AI | OpenAI Agents SDK, Audio Transcriptions and Responses APIs | The SDK orchestrates case tools. `gpt-4o-mini-transcribe` handles Bahasa Indonesia audio, `gpt-4.1-mini` reads images, and `gpt-6.1-terra` chooses workflow tools. Defaults are configurable in [`.env.example`](.env.example). |
 | Contracts and data | Zod, local JSON and YAML | Validate inputs and model outputs, load the saved BPJPH sample and the simulated registry, catalogue, and evaluation fixtures |
 | Verification | Node test runner, TypeScript, browser smoke test, independent D01 grader | Check rules and permissions, exercise the browser flow, and score the downloaded trace and packet |
 

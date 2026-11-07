@@ -515,7 +515,7 @@ test('material product edits before first confirmation do not inherit the intake
 
 test('case agent uses live eligibility across a wrong pack, seller decline, and seller approval', async () => {
   const runs: string[][] = [];
-  const workflow: WorkflowRunner = async ({ actions, execute }) => {
+  const workflow: WorkflowRunner = async ({ actions, execute, recordToolResult }) => {
     const run: string[] = [];
     runs.push(run);
     assert.equal(execute('unknown-ingredient', 'request_pack', 'pack'), false);
@@ -523,8 +523,14 @@ test('case agent uses live eligibility across a wrong pack, seller decline, and 
       const [next] = actions();
       if (next.action === 'request_pack') {
         assert.equal(execute(next.ingredient_id, 'search_catalogue', next.stage), false);
+      } else if (next.reason === 'NO_PACK') {
+        assert.equal(execute(next.ingredient_id, 'refer', next.stage), false);
+        assert.equal(execute('wrong-id', 'search_catalogue', next.stage), false);
+        assert.equal(actions()[0].action, 'search_catalogue');
       }
       assert.equal(execute(next.ingredient_id, next.action, next.stage), true);
+      recordToolResult(next.action, { ingredient_id: next.ingredient_id, stage: next.stage },
+        { applied: true, available_actions: actions() });
       assert.equal(execute(next.ingredient_id, next.action, next.stage), false);
       run.push(next.action);
     }
@@ -549,6 +555,11 @@ test('case agent uses live eligibility across a wrong pack, seller decline, and 
   assert.equal(buildPacket(read()).evidence_complete, false);
   assert.equal(buildPacket(read()).conditional_proposals[0].adoption, 'pending');
   assert.equal(read().events.filter(event => event.type === 'agent_action').length, 4);
+  const events = read().events;
+  assert.deepEqual(events.filter(event => event.type === 'agent_tool_result').map(event => event.data.tool),
+    ['request_pack', 'request_pack', 'search_catalogue', 'search_catalogue']);
+  assert.ok(events.some(event => event.type === 'seller_wait' && Array.isArray(event.data.pack_ingredients) && event.data.pack_ingredients.length));
+  assert.ok(events.some(event => event.type === 'seller_wait' && Array.isArray(event.data.decisions) && event.data.decisions.length));
 });
 
 test('retry after a partial case-agent run preserves the existing pack request', async () => {

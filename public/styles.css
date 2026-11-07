@@ -582,6 +582,7 @@ button.badge:hover { border-color: currentColor; }
   background: var(--blue);
 }
 .trace ol > li { position: relative; padding: .12rem 0 .85rem; overflow-wrap: anywhere; }
+.trace-output { white-space: pre-wrap; overflow-wrap: anywhere; }
 .trace ol > li:last-child { padding-bottom: .12rem; }
 .trace ol > li::before {
   content: "";

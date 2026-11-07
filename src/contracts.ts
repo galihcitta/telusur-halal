@@ -95,7 +95,7 @@ export interface Proposal {
 export const eventTypes = [
   'intake_parsed', 'intake_confirmed', 'pack_requested', 'pack_received', 'pack_read',
   'evidence_checked', 'catalogue_searched', 'substitute_proposed', 'seller_decided',
-  'case_paused', 'packet_exported', 'agent_action',
+  'case_paused', 'packet_exported', 'agent_action', 'agent_run_started', 'agent_tool_result', 'seller_wait',
 ] as const;
 export const eventSchema = z.object({
   seq: z.number().int().positive(),

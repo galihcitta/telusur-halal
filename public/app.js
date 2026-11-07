@@ -723,6 +723,7 @@ function packPanel(ingredient) {
 }
 
 function trace() {
+  const strings = (items) => Array.isArray(items) ? items.filter((item) => typeof item === 'string') : [];
   const ingredientNames = new Map(view.ingredients.map((row) => [row.ingredient_id, row.declared_name]));
   const entries = view.events.map((event) => {
     const ingredient = ingredientNames.get(event.data.ingredient_id);
@@ -731,8 +732,22 @@ function trace() {
     const exclusions = excluded.length ? `<details><summary>Penawaran yang disisihkan (${excluded.length})</summary>
       <ul>${excluded.filter((offer) => typeof offer?.listing_id === 'string' && typeof offer.reason === 'string')
         .map((offer) => `<li>${escape(offer.listing_id)} · ${escape(offer.reason)}</li>`).join('')}</ul></details>` : '';
+    const toolResult = event.type === 'agent_tool_result' ? `
+      <details><summary>Input dan hasil alat</summary>
+      <pre class="trace-output">${escape(JSON.stringify({ input: event.data.input, result: event.data.result }, null, 2))}</pre></details>` : '';
+    const pending = event.type === 'seller_wait' ? [
+      ['Foto kemasan', event.data.pack_ingredients],
+      ['Keputusan pengganti', event.data.decisions],
+    ].map(([label, items]) => [label, strings(items)]).filter(([, items]) => items.length)
+      .map(([label, items]) => `<div>${label} · ${items.map(escape).join(', ')}</div>`).join('') : '';
+    const eligibleIds = strings(event.data.eligible);
+    const eligible = event.type === 'catalogue_searched' && event.data.searched === true && Array.isArray(event.data.eligible)
+      ? `<div>Penawaran yang sesuai · ${eligibleIds.map(escape).join(', ') || 'Tidak ada'}</div>` : '';
+    const listing = event.type === 'substitute_proposed' && typeof event.data.listing_id === 'string'
+      ? `<div>Penawaran terpilih · ${escape(event.data.listing_id)}</div>` : '';
     return `<li value="${event.seq}">${ingredient ? `<strong>${escape(ingredient)}</strong> · ` : ''}
-      ${escape(event.data.summary)} <small class="muted">· revisi ${event.revision}</small>${exclusions}</li>`;
+      ${event.type === 'agent_tool_result' && typeof event.data.tool === 'string' ? `<code>${escape(event.data.tool)}</code> · ` : ''}
+      ${escape(event.data.summary)} <small class="muted">· revisi ${event.revision}</small>${toolResult}${pending}${eligible}${listing}${exclusions}</li>`;
   });
   return `<section class="trace"><h1 id="page-title" tabindex="-1">Riwayat cek</h1><ol>${entries.join('')}</ol></section>`;
 }
