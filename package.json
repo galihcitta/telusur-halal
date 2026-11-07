@@ -1,0 +1,20 @@
+{
+  "name": "telusur-halal",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "check": "tsc --noEmit && vitest run",
+    "grade": "node --import tsx evals/cli.ts",
+    "evaluate": "node --import tsx evals/batch.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsx": "^4",
+    "typescript": "^5.9",
+    "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "yaml": "^2"
+  }
+}
