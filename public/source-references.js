@@ -1,6 +1,7 @@
 function sourceLabel(source, evidenceType) {
   const confirmation = /^seller-confirmed:r(\d+)$/.exec(source);
   if (confirmation) return 'Dikonfirmasi penjual · Revisi ' + confirmation[1];
+  if (source === 'system-assumption:fresh-plant-v1') return 'Asumsi sistem · Segar utuh tanpa tambahan (dapat dikoreksi)';
   if (source.startsWith('seller-answer:')) return 'Jawaban penjual';
   if (source.startsWith('sha256:')) return evidenceType === 'photo' ? 'Foto kemasan' : 'Berkas unggahan';
   if (source.startsWith('image-set:')) return 'Kumpulan foto kemasan';

@@ -124,3 +124,24 @@ Source: [BPJPH explanation of PP 40/2026](https://bpjph.halal.go.id/main/read/pe
 A newly implemented OpenAI-backed case that rejects the wrong seasoning variant, accepts
 only evidence checked by the rules, pauses for a real seller decision, and exports a cited
 ingredient packet. Build the voice/photo entry in parallel against the same contracts.
+
+## Fresh plant categorization update (7 November 2026)
+
+User-approved policy update: do not require a separate freshness/additive question for
+common whole produce. This supersedes the blanket unknown-condition rule above for
+the bounded aliases in `public/fresh-ingredients.js` only (bananas, chilies, onions).
+
+Implementation plan (completed):
+1. Share an exact-name category adapter between UI and deterministic rules using the
+   saved KMA 1360/2021 fruit/vegetable reference; preserve the prepared dataset.
+2. Assume fresh whole produce without additives only in the absence of contradictory
+   information. Processed forms, additions, repack/conflict and unclarified branded or
+   variant products cannot use this default. Other ingredients keep their existing path.
+3. Display the correctable assumption in ingredient review and the evidence map;
+   persist its explicit basis/source in verdict events and packets without changing
+   unknown input fields into claims of seller confirmation.
+4. Test exclusions and corrections, typecheck, run unit and actual-image checks.
+   Browser verification availability and results are recorded in verification notes.
+
+This is a conditional facilitator-review classification, not verified packaging or
+an independently confirmed statement about the seller's actual ingredient.

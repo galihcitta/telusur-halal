@@ -218,3 +218,26 @@ Chrome used the same real nasi goreng and Palmia Super Cake JPEGs from the initi
 Two edits to the rice purchase location carried the original Palmia observation through revisions 2 and 3 without another upload or model read. The other unchanged requests stayed on attempt 1. After resolving the remaining requests as no package available, a second refresh restored the seller packet and access to the private Palmia image. The downloaded HTML contained the original Palmia JPEG byte for byte, with the dish photo excluded. The JSON and trace retained the original evidence revision, five unresolved ingredients, and the facilitator referral. Replay showed the match in read-only mode. Observer access omitted the draft, and unauthenticated seller and photo requests returned 403.
 
 Typecheck and 58 automated tests passed. Regression cases covered repack aliases, conflicting variant fields, exact product names, unrelated edits, and the captured Palmia reading. The separate live vision matrix passed 10 of 10 simulated pack cases. This retest used desktop Chrome and a running in-memory server.
+
+## Fresh plant categorization — 7 November 2026
+
+- User-approved default: bounded banana/chili/onion aliases may use a visible,
+  correctable assumption of fresh whole produce without additives. Explicit
+  processing/additions, repacks and conflicts block the assumption; unclarified
+  branded/variant products also do not receive the default.
+- Node 26.3.0; `npm ci`, typecheck, and 57 unit/service tests passed. New tests cover
+  aliases, exclusions, contradictory conditions, unchanged unknown input fields,
+  assumption provenance in the current packet/trace, and revocation on correction.
+- Actual-image gate: 10/10 passed using gpt-4.1-mini on existing simulated test images;
+  zero technical failures, unsafe acceptances, or false refusals in this small run.
+  These are vision checks on synthetic media, not human-recorded field validation.
+- Browser check attempted but browser access host was unavailable (no browser tabs
+  exposed). Visual layout and the interactive correction path are not claimed as
+  verified. Service tests exercise correction and export; no new live seller session
+  or real audio was used. Existing in-memory cases need reassessment/new intake to
+  receive changed rules; a page reload alone does not rewrite stored verdicts.
+- PR integration rerun on `a2de61e` (seller recovery/evidence integrity): typecheck
+  and all 60 tests passed. Restored the existing banana identity aliases used by
+  history tracking after integrating the shared fresh-category helper. The live
+  synthetic-image gate again passed 10/10 with zero technical failures, unsafe
+  acceptances or false refusals. Browser verification remains outstanding.

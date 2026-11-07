@@ -808,3 +808,22 @@ test('unrecognized dish leaves an empty draft that the seller can fill', async (
   assert.ok(confirmed.ingredients[0].pending_request);
   assert.equal(confirmed.ingredients[0].status, 'open');
 });
+
+test('fresh assumptions reach trace and packet and are revoked by seller corrections', async () => {
+  const ingredients: Draft['ingredients'] = ['cabai hijau', 'bawang merah'].map(declared_name => ({
+    declared_name, form: 'unknown', pack_condition: 'loose',
+  }));
+  const { service, id, session, read } = await setup({ intake: async () => ({ ...draft, ingredients }) });
+  assert.ok(read().ingredients.every(row => row.status === 'exempt' && !row.pending_request));
+  assert.ok(read().ingredients.every(row => row.no_additives === undefined && row.form === 'unknown'));
+  const packet = buildPacket(read());
+  assert.ok(packet.current_ingredients.every(row => row.basis.includes('Asumsi sistem') &&
+    (row.source_refs as string[]).includes('system-assumption:fresh-plant-v1')));
+  assert.match(packetHtml(packet), /Asumsi sistem/);
+  await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true,
+    ingredients: read().ingredients.map(row => ({ ...row, no_additives: false })),
+  }));
+  assert.ok(read().ingredients.every(row => row.status === 'unresolved'));
+  assert.equal(buildPacket(read()).evidence_complete, false);
+});
