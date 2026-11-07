@@ -3,11 +3,13 @@ import multer from 'multer';
 import { z } from 'zod';
 import { confirmation, observation, type Media } from './contracts.js';
 import { createModel, isSupportedMedia } from './model.js';
+import { createWorkflowRunner } from './orchestration.js';
 import { buildPacket, packetHtml } from './packet.js';
 import { append, CaseService, RequestError } from './service.js';
 
 const app = express();
-const store = new CaseService(createModel());
+const workflow = process.env.TELUSUR_ORCHESTRATION === 'responses' ? undefined : createWorkflowRunner();
+const store = new CaseService(createModel(), 'actual_media', workflow);
 const upload = multer({ limits: { fileSize: 12 * 1024 * 1024, files: 4, fields: 12 } });
 const revision = z.coerce.number().int().positive();
 const id = z.string().uuid();

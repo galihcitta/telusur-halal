@@ -10,10 +10,10 @@ mkdir -p "$output"
 browser() { agent-browser --session "$session" "$@"; }
 trap 'browser close >/dev/null 2>&1 || true' EXIT
 submit_pack() {
-  local form=$1
-  browser upload "$form input[name=images]" "$2"
-  browser check "$form input[name=confirmed_current]"
-  browser click "$form button[type=submit]"
+  local photo_input="${2:-images}"
+  browser upload ".pack-form input[name=$photo_input]" "$1"
+  browser check '.pack-form input[name=confirmed_current]'
+  browser click '.pack-form button[type=submit]'
 }
 
 url="${TELUSUR_URL:-http://127.0.0.1:4173}"
@@ -36,30 +36,37 @@ browser click '#start-form button[type=submit]'
 browser wait '#confirm-form'
 browser screenshot "$output/d01-guided-review.png"
 browser click '#confirm-form button[type=submit]'
-browser wait '.pack-form'
-test "$(browser get count '.pack-form')" = 2
+oil='.ledger > li:has(h3:text("minyak goreng")) button[data-kind=pack]'
+seasoning='.ledger > li:has(h3:text("bumbu balado")) button[data-kind=pack]'
+browser wait "$oil"
+test "$(browser get count '.ledger button[data-kind=pack]')" = 2
 
-submit_pack '.ledger > li:has(h3:text("minyak goreng"))' "$PWD/demo/d01-sentosa.png"
-browser wait --text 'ID-SIM-0101'
-submit_pack '.pack-form' "$photos/D01_pack_pedas.png"
+browser click "$oil"
+submit_pack "$PWD/demo/d01-sentosa.png"
+browser wait '#workspace:not([aria-busy=true])'
+browser click "$seasoning"
+submit_pack "$photos/D01_pack_pedas.png" capture
 browser wait --text 'permintaan 2 dari 2'
 browser screenshot "$output/d01-pack-rejected.png"
-submit_pack '.pack-form' "$photos/D01_pack_original.png"
-browser wait --text 'Setujui sebagai rencana'
+submit_pack "$photos/D01_pack_original.png"
+browser wait '.ledger button[data-kind=offer]'
+browser screenshot --full "$output/d01-evidence-map.png"
+browser click '.ledger button[data-kind=offer]'
+browser wait 'button[data-decision=approve]'
 browser screenshot "$output/d01-pending.png"
-browser find role button click --name 'Setujui sebagai rencana' --exact
-browser wait --text 'Disetujui sebagai rencana, menunggu penerapan'
-browser eval '(() => {
-  const original = window.fetch.bind(window);
-  window.fetch = async (...args) => {
-    const response = await original(...args);
-    if (String(args[0]).endsWith("/export")) window.__d01Export = await response.clone().json();
-    return response;
-  };
-})()' >/dev/null
+browser click 'button[data-decision=approve]'
+browser wait --text 'Disetujui, belum dipakai'
 browser download '.export[data-format=html]' "$output/d01-evidence.html"
+browser click 'details:not([open]):has(.export[data-format=json]) > summary'
 browser download '.export[data-format=json]' "$output/d01-packet.json"
-browser eval 'JSON.stringify(window.__d01Export)' |
-  node --input-type=module -e 'import {readFileSync} from "node:fs"; console.log(JSON.parse(readFileSync(0, "utf8")))' > "$output/d01-export.json"
+browser click 'details:not([open]):has(.export[data-format=trace]) > summary'
+browser download '.export[data-format=trace]' "$output/d01-trace.json"
+node --input-type=module - "$output/d01-trace.json" "$output/d01-packet.json" > "$output/d01-export.json" <<'JS'
+import { readFileSync } from 'node:fs';
+const [tracePath, packetPath] = process.argv.slice(2);
+const { case: trace } = JSON.parse(readFileSync(tracePath, 'utf8'));
+const packet = JSON.parse(readFileSync(packetPath, 'utf8'));
+console.log(JSON.stringify({ case: trace, packet }, null, 2));
+JS
 npm run grade:d01 -- "$output/d01-export.json"
 browser errors

@@ -6,7 +6,7 @@ Telusur Halal helps Indonesian micro and small food sellers turn a Bahasa Indone
 
 ## Architecture
 
-The model reads seller inputs and chooses the next step. The server decides whether evidence meets the rules, and the seller confirms the recipe and decides whether to approve a proposed substitute.
+The model reads seller inputs, then the Agents SDK runs a case-level tool loop. The agent can request packs, search the simulated catalogue, or refer a gap. The server checks each action against the current case and applies the evidence rules. When the case needs seller input, the run ends and the next seller response starts a new run from the updated case. The seller confirms the recipe and decides whether to approve a proposed substitute.
 
 ```mermaid
 flowchart LR
@@ -37,7 +37,7 @@ flowchart LR
 | --- | --- | --- |
 | Browser | HTML, CSS, vanilla JavaScript, MediaRecorder | Record or upload audio, upload photos, review ingredients, decide on substitutes, download and replay traces |
 | Backend | Node.js 22+, TypeScript, Express, Multer | Serve the UI and API, accept multipart uploads, enforce seller authority, and manage cases in memory |
-| AI | OpenAI Audio Transcriptions and Responses APIs | `gpt-4o-mini-transcribe` for Bahasa Indonesia audio. `gpt-4.1-mini` for structured label and pack readings and constrained tool calls. Defaults are configurable in [`.env.example`](.env.example). |
+| AI | OpenAI Agents SDK, Audio Transcriptions and Responses APIs | The SDK orchestrates case tools. `gpt-4o-mini-transcribe` handles Bahasa Indonesia audio and `gpt-4.1-mini` handles structured image readings and tool calls. Defaults are configurable in [`.env.example`](.env.example). |
 | Contracts and data | Zod, local JSON and YAML | Validate inputs and model outputs, load the saved BPJPH sample and the simulated registry, catalogue, and evaluation fixtures |
 | Verification | Node test runner, TypeScript, browser smoke test, independent D01 grader | Check rules and permissions, exercise the browser flow, and score the downloaded trace and packet |
 
@@ -69,6 +69,7 @@ For the full D01 flow, use the [demo input guide](demo/README.md). Confirm the d
 npm run typecheck
 npm test
 npm run test:images
+# Compare the legacy single-action Responses workflow with the scripted baseline
 npm run compare:policy
 # With the server running and agent-browser installed
 bash demo/browser-d01.sh

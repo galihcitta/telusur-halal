@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { IntakeInputError, type Draft, type Media, type Model, type Observation } from '../src/contracts.js';
+import type { WorkflowRunner } from '../src/orchestration.js';
 import { buildPacket } from '../src/packet.js';
 import { CaseService, type PackAnswer } from '../src/service.js';
 
@@ -19,13 +20,13 @@ const correct: Observation = {
 const wrong = { ...correct, product: 'Bumbu Balado Pedas', variant: 'Pedas', certificate_number: 'ID-SIM-0201' };
 const media = (name: string): Media => ({ bytes: Buffer.from(name), mime: 'image/png', name });
 
-async function setup(overrides: Partial<Model> = {}, scope: Draft['scope'] = 'snack') {
+async function setup(overrides: Partial<Model> = {}, scope: Draft['scope'] = 'snack', workflow?: WorkflowRunner) {
   const service = new CaseService({
     intake: async () => ({ ...draft, scope }),
     choose: async ({ allowed }) => allowed[0],
     readPack: async ([file]) => file.name === 'wrong' ? wrong : correct,
     ...overrides,
-  }, 'fixture');
+  }, 'fixture', workflow);
   const created = await service.create(media('audio'), media('label'));
   const id = created.case.case_id;
   const session = created.session;
@@ -482,4 +483,92 @@ test('material product edits before first confirmation do not inherit the intake
   assert.equal(view.scope, 'facilitator_review');
   assert.ok(view.ingredients.every(row => row.reason === 'SCOPE_REVIEW' && !row.pending_request));
   assert.equal(buildPacket(view).evidence_complete, false);
+});
+
+
+test('case agent uses live eligibility across a wrong pack, seller decline, and seller approval', async () => {
+  const runs: string[][] = [];
+  const workflow: WorkflowRunner = async ({ actions, execute }) => {
+    const run: string[] = [];
+    runs.push(run);
+    assert.equal(execute('unknown-ingredient', 'request_pack', 'pack'), false);
+    while (actions().length) {
+      const [next] = actions();
+      if (next.action === 'request_pack') {
+        assert.equal(execute(next.ingredient_id, 'search_catalogue', next.stage), false);
+      }
+      assert.equal(execute(next.ingredient_id, next.action, next.stage), true);
+      assert.equal(execute(next.ingredient_id, next.action, next.stage), false);
+      run.push(next.action);
+    }
+  };
+  const { read, answer, decide } = await setup({
+    choose: async () => assert.fail('The case agent must choose the action'),
+  }, 'snack', workflow);
+
+  await answer('wrong');
+  assert.equal(read().ingredients[1].reason, 'IDENTITY_MISMATCH');
+  assert.equal(read().ingredients[1].pending_request?.attempt, 2);
+  await answer('correct');
+  const first = read().proposals[0];
+  await assert.rejects(decide(first.proposal_id, 'approve', 'foreign'), /Seller session/);
+  await decide(first.proposal_id, 'decline');
+  const alternative = read().proposals[1];
+  assert.notEqual(first.listing.listing_id, alternative.listing.listing_id);
+  await decide(alternative.proposal_id, 'approve');
+
+  assert.deepEqual(runs, [['request_pack'], ['request_pack'], ['search_catalogue'], ['search_catalogue']]);
+  assert.equal(read().phase, 'review_packet');
+  assert.equal(buildPacket(read()).evidence_complete, false);
+  assert.equal(buildPacket(read()).conditional_proposals[0].adoption, 'pending');
+  assert.equal(read().events.filter(event => event.type === 'agent_action').length, 4);
+});
+
+test('retry after a partial case-agent run preserves the existing pack request', async () => {
+  const workflow: WorkflowRunner = async ({ actions, execute }) => {
+    const [next] = actions();
+    assert.equal(execute(next.ingredient_id, next.action, next.stage), true);
+  };
+  const { service, read, id, session } = await setup({
+    intake: async () => ({
+      ...draft,
+      ingredients: [...draft.ingredients, {
+        declared_name: 'minyak goreng', form: 'processed', pack_condition: 'sealed', brand: 'Sentosa', variant: null,
+      }],
+    }),
+  }, 'snack', workflow);
+  assert.equal(read().phase, 'paused');
+  const first = read().ingredients[1].pending_request;
+  assert.equal(first?.attempt, 1);
+  assert.equal(read().ingredients[3].pending_request, undefined);
+  await service.mutate(id, session, read().revision, entry => service.retry(entry));
+  assert.equal(read().phase, 'awaiting_seller');
+  assert.deepEqual(read().ingredients[1].pending_request, first);
+  assert.equal(read().ingredients[3].pending_request?.attempt, 1);
+  assert.equal(read().events.filter(event => event.type === 'pack_requested').length, 2);
+});
+
+test('a repeated pack referral cannot consume the catalogue decision for that ingredient', async () => {
+  const workflow: WorkflowRunner = async ({ actions, execute }) => {
+    const referral = actions().find(action => action.action === 'refer' && action.stage === 'pack');
+    if (referral) {
+      assert.equal(execute(referral.ingredient_id, 'refer', 'pack'), true);
+      assert.equal(execute(referral.ingredient_id, 'refer', 'pack'), false);
+      assert.ok(actions().some(action => action.ingredient_id === referral.ingredient_id &&
+        action.action === 'search_catalogue' && action.stage === 'catalogue'));
+    }
+    while (actions().length) {
+      const [next] = actions();
+      assert.equal(execute(next.ingredient_id, next.action, next.stage), true);
+    }
+  };
+  const { answer, read } = await setup({}, 'snack', workflow);
+  await answer('wrong');
+  const view = read();
+  const seasoning = view.ingredients[1];
+  assert.equal(view.phase, 'awaiting_seller');
+  assert.ok(view.events.some(event => event.type === 'catalogue_searched' &&
+    event.data.ingredient_id === seasoning.ingredient_id && event.data.searched === true));
+  assert.equal(view.events.filter(event => event.type === 'agent_action' &&
+    event.data.ingredient_id === seasoning.ingredient_id && event.data.action === 'refer').length, 1);
 });
