@@ -4,9 +4,19 @@ Telusur Halal helps Indonesian micro and small food sellers start with a cooked-
 
 **Review the MVP** · [Run locally](#run-the-mvp) · [D01 demo inputs](demo/README.md) · [Verification results](docs/mvp-verification.md)
 
-![Telusur Halal evidence map showing a Palmia package match and five unresolved ingredients](docs/screenshots/palmia-evidence.jpg)
+## App screenshots
+
+From the **start screen**, sellers can upload a cooked dish photo or provide a voice note and a label photo.
+
+![Telusur Halal start screen with dish photo and voice-and-label intake options](docs/screenshots/start-screen.jpg)
 
 The **Bukti** screen shows a real Palmia package match against the saved BPJPH sample alongside ingredients that still need evidence. [Browser retest](docs/mvp-verification.md#seller-recovery-and-palmia-photo-retest)
+
+![Telusur Halal evidence map showing a Palmia package match and five unresolved ingredients](docs/screenshots/palmia-evidence.jpg)
+
+The **Berkas** screen gathers the current ingredients, evidence gaps, and checklist for the facilitator.
+
+![Telusur Halal Berkas screen with ingredient evidence, unresolved gaps, and the facilitator checklist](docs/screenshots/berkas-screen.jpg)
 
 ## Architecture
 
