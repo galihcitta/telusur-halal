@@ -1,6 +1,7 @@
 import type { Evidence, Ingredient, Listing, Reason, RegistryRecord } from './contracts.js';
 import { catalogue, registry } from './data.js';
 import { bpjphRecords } from './bpjph.js';
+import { freshPlantCandidate, freshPlantAssumption } from '../public/fresh-ingredients.js';
 
 export { DATASET_VERSION } from './data.js';
 
@@ -13,7 +14,6 @@ interface Verdict<S extends 'verified' | 'exempt' | 'unresolved'> {
 
 const exemptionSource =
   'datasets/pack-photos/reference/exempt-ingredients.json#KMA_1360_2021/a1_tumbuhan';
-const bananaNames = new Set(['pisang kepok', 'pisang', 'buah pisang', 'buah pisang kepok']);
 
 function normalize(value: string) {
   return value.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ');
@@ -171,26 +171,29 @@ export function exemption(ingredient: Ingredient): Verdict<'exempt' | 'unresolve
       source_refs: ['datasets/pack-photos/reference/exempt-ingredients.json#KMA_1360_2021/a3_fermentasi_mikroba'],
     };
   }
-  if (!bananaNames.has(name)) return undefined;
+  if (!freshPlantCandidate(ingredient)) return undefined;
   const source_refs = [...ingredient.source_refs, exemptionSource];
   if (ingredient.pack_condition === 'repacked' || ingredient.conflict) {
     return {
       status: 'unresolved', reason: 'CONFLICT_OR_REPACK',
-      basis: 'Konfirmasi kondisi dan asal pisang bersama fasilitator.',
+      basis: 'Konfirmasi kondisi dan asal bahan bersama fasilitator.',
       source_refs,
     };
   }
-  if (ingredient.form !== 'fresh' || ingredient.no_additives !== true) {
+  const assumed = freshPlantAssumption(ingredient);
+  if (!assumed && (ingredient.form !== 'fresh' || ingredient.no_additives !== true)) {
     return {
       status: 'unresolved', reason: 'EXEMPT_UNKNOWN',
-      basis: 'Pengecualian memerlukan pisang segar tanpa tambahan atau bahan penolong.',
+      basis: 'Kondisi bahan belum mendukung pengecualian: perlu bahan tumbuhan segar tanpa tambahan atau bahan penolong.',
       source_refs,
     };
   }
   return {
     status: 'exempt', reason: 'EXEMPT_CONDITIONS',
-    basis: 'Penjual mengonfirmasi pisang segar tanpa tambahan atau bahan penolong. Dasar: kutipan KMA 1360/2021, buah segar.',
-    source_refs,
+    basis: assumed
+      ? 'Asumsi sistem: bahan tumbuhan segar utuh tanpa tambahan atau bahan penolong. Dapat dikoreksi melalui Ubah resep. Pengecualian bersyarat berdasarkan rujukan tersimpan KMA 1360/2021; untuk tinjauan fasilitator.'
+      : 'Penjual mengonfirmasi bahan tumbuhan segar tanpa tambahan atau bahan penolong. Dasar: rujukan tersimpan KMA 1360/2021, buah dan sayuran segar. Untuk tinjauan fasilitator.',
+    source_refs: assumed ? [...source_refs, 'system-assumption:fresh-plant-v1'] : source_refs,
   };
 }
 

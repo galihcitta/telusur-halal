@@ -60,7 +60,7 @@ Return only distinct ingredients actually mentioned as part of the recipe; the s
 Variant belongs to the ingredient itself, not to the seller's finished snack.
 For a named variant set variant_known true and transcribe the name; for a confirmed absence set variant_known true and variant null.
 Otherwise set variant_known false and variant null. Do not assume no additives, a variant, or that a pack is sealed based on the ingredient name, shop or purchase location.
-For fresh bananas, no_additives is true only when the seller explicitly confirms the bananas are fresh with no additives.
+For all ingredients, no_additives is true only when the seller explicitly states there are no additives. Leave unmentioned form/additives unknown; deterministic rules separately apply visible fresh-plant assumptions. Preserve explicit processed forms and additions.
 For commercial ingredients ordinary vocabulary can establish form (e.g. powder and cooking oil are processed).
 Treat curah as loose, and explicitly described repacking as repacked. A named producer alone establishes neither condition.
 Set label_readable false when the seller's product identity or ingredient label cannot be read at all.

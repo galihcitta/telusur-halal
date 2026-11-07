@@ -29,3 +29,9 @@ This declaration covers the dataset import. Record additional assets and open-so
 - Pinned direct dependencies are listed in [package.json](../package.json), with transitive versions in [package-lock.json](../package-lock.json). OpenAI provides live transcription, vision and action selection. The simulated data is local.
 - [Banana chip product photography](../public/assets/banana-chips.webp) was generated with OpenAI ImageGen for the redesigned UI. It illustrates the example recipe and is never used as ingredient or label evidence.
 - [Chili powder pouch photography](../public/assets/chili-powder.webp) was generated with OpenAI ImageGen as an explicitly labeled illustration for the simulated L-9 offer. It does not depict a verified listing or serve as evidence.
+
+- Fresh-plant day-of adapter: `public/fresh-ingredients.js` maps bounded banana,
+  chili and onion aliases to the saved KMA 1360/2021 plant category. The user-approved
+  fresh/without-additives default is identified as `system-assumption:fresh-plant-v1`,
+  not seller testimony. Prepared fixtures and checksum files are unchanged; the
+  application tests now distinguish assumptions from explicit confirmation.

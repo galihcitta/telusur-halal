@@ -1,3 +1,4 @@
+import { freshPlantAssumption } from './fresh-ingredients.js';
 import { renderSourceReferences } from './source-references.js';
 
 const workspace = document.querySelector('#workspace');
@@ -421,7 +422,8 @@ function ingredientEditor(ingredient) {
   const variantMode = ingredient.variant === null ? 'none' : ingredient.variant ? 'named' : 'unknown';
   const additives = ingredient.no_additives === true ? 'yes' : ingredient.no_additives === false ? 'no' : 'unknown';
   const summary = [ingredient.brand, ingredient.variant, ingredient.form === 'fresh' ? 'Segar' : '',
-    ingredient.pack_condition === 'loose' ? 'Curah' : ''].filter(Boolean).map(escape).join(' · ');
+    ingredient.pack_condition === 'loose' ? 'Curah' : '',
+    freshPlantAssumption(ingredient) ? 'Asumsi: segar utuh tanpa tambahan (dapat diubah)' : ''].filter(Boolean).map(escape).join(' · ');
   return `<details class="editor" data-id="${escape(ingredient.ingredient_id)}" ${ingredient.declared_name ? '' : 'open'}>
     <summary><span><span class="ingredient-name">${escape(ingredient.declared_name || 'Bahan baru')}</span>
     <small class="ingredient-meta" ${summary ? '' : 'hidden'}>${summary}</small></span><span class="edit-hint">${icon('edit')} Ubah</span></summary>
@@ -452,7 +454,12 @@ function wireEditorRow(row) {
     row.querySelector('.ingredient-name').textContent = value('declared_name') || 'Bahan baru';
     const meta = row.querySelector('.ingredient-meta');
     meta.textContent = [value('brand'), mode.value === 'named' ? value('variant') : '',
-      value('form') === 'fresh' ? 'Segar' : '', value('pack_condition') === 'loose' ? 'Curah' : '']
+      value('form') === 'fresh' ? 'Segar' : '', value('pack_condition') === 'loose' ? 'Curah' : '',
+      freshPlantAssumption({ declared_name: value('declared_name'), form: value('form'),
+        pack_condition: value('pack_condition'), brand: value('brand'),
+        variant: mode.value === 'named' ? value('variant') : undefined,
+        no_additives: value('no_additives') === 'unknown' ? undefined : value('no_additives') === 'yes'
+      }) ? 'Asumsi: segar utuh tanpa tambahan (dapat diubah)' : '']
       .filter(Boolean).join(' · ');
     meta.hidden = !meta.textContent;
   });
@@ -762,7 +769,8 @@ function mapStatus(ingredient) {
   if (variantConflict(ingredient)) return 'Varian berbeda';
   if (ingredient.pending_request) return 'Perlu foto';
   if (ingredient.reason === 'SCOPE_REVIEW') return 'Perlu tinjauan';
-  if (ingredient.status === 'exempt') return 'Pengecualian';
+  if (ingredient.status === 'exempt') return 'Pengecualian bersyarat';
+  if (ingredient.reason === 'EXEMPT_UNKNOWN') return 'Kondisi perlu diperjelas';
   if (ingredient.status === 'verified') return 'Kemasan cocok';
   return ingredient.status === 'open' ? statuses.open : 'Bukti belum tersedia';
 }
@@ -788,6 +796,7 @@ function ingredientRow(ingredient) {
       ${pending ? panelButton('pack', variantConflict(ingredient) ? 'Foto ulang' : 'Foto kemasan', id, 'quiet row-action') : ''}
       ${offer ? panelButton('offer', 'Lihat opsi di Shopee <span aria-hidden="true">→</span>', id, 'primary row-action') : ''}
     </div>
+      ${ingredient.status === 'exempt' && freshPlantAssumption(ingredient) ? '<p class="note">Asumsi: segar utuh tanpa tambahan. Dapat dikoreksi melalui Ubah resep.</p>' : ''}
   </li>`;
 }
 

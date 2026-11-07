@@ -139,9 +139,10 @@ test('typed recovery cites the seller and cannot replace a conflicted photo or k
   assert.equal(checkEvidence({ ...base, evidence: [repack] }, fromPack(), 'case', 1).reason, 'CONFLICT_OR_REPACK');
 });
 
-test('fresh banana exemption requires an affirmative no-additives confirmation; tempe remains open', () => {
-  const banana = { ...base, declared_name: 'pisang kepok', form: 'fresh' as const };
-  assert.equal(exemption(banana)?.reason, 'EXEMPT_UNKNOWN');
+test('fresh plant assumptions are distinguished from explicit confirmation; tempe remains open', () => {
+  const banana = { ...base, declared_name: 'pisang kepok', variant: null, form: 'fresh' as const };
+  assert.equal(exemption(banana)?.status, 'exempt');
+  assert.ok(exemption(banana)?.source_refs.includes('system-assumption:fresh-plant-v1'));
   assert.equal(exemption({ ...banana, no_additives: false })?.status, 'unresolved');
   assert.equal(exemption({ ...banana, no_additives: true })?.status, 'exempt');
   assert.equal(exemption({ ...banana, no_additives: true, form: 'processed' })?.reason, 'EXEMPT_UNKNOWN');
@@ -184,4 +185,17 @@ test('BPJPH match uses full product and manufacturer and keeps registry number s
   assert.equal(checkEvidence(palmia, fromPack({
     ...evidence, certificate_number: 'ID36210084939791126', certificate_state: 'printed',
   }), 'case', 1).reason, 'CERTIFICATE_MISMATCH');
+});
+
+ test('fresh plant aliases exclude processed names and never override contradictions', () => {
+  for (const declared_name of ['cabai hijau', 'Cabe merah segar', 'bawang merah', 'bawang putih']) {
+    const row = { ...base, declared_name, variant: null, form: 'unknown' as const, pack_condition: 'loose' as const };
+    assert.equal(exemption(row)?.status, 'exempt');
+    for (const correction of [{ form: 'processed' as const }, { no_additives: false }, { conflict: true }, { pack_condition: 'repacked' as const }, { brand: 'Merek' }]) {
+      assert.equal(exemption({ ...row, ...correction })?.status, 'unresolved');
+    }
+  }
+  for (const declared_name of ['cabai bubuk', 'pasta cabai hijau', 'bawang goreng', 'garam', 'vitsin', 'ayam segar']) {
+    assert.equal(exemption({ ...base, declared_name, form: 'fresh', no_additives: true }), undefined);
+  }
 });
