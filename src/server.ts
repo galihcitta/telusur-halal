@@ -38,6 +38,10 @@ app.get('/api/cases/:id', (req, res) => {
   const { draft: _privateDraft, ...observer } = view;
   res.json(observer);
 });
+app.get('/api/cases/:id/photos/:source', (req, res) => {
+  const photo = store.readPhoto(id.parse(req.params.id), auth(req), req.params.source);
+  res.set('X-Content-Type-Options', 'nosniff').type(photo.mime).send(photo.bytes);
+});
 app.post('/api/cases/:id/confirm', async (req, res) => {
   const input = confirmation.parse(req.body);
   await store.mutate(id.parse(req.params.id), auth(req), revision.parse(req.body.revision), entry => store.confirm(entry, input));
@@ -67,13 +71,13 @@ app.post('/api/cases/:id/retry', async (req, res) => {
   res.json({ case: store.read(id.parse(req.params.id)) });
 });
 app.post('/api/cases/:id/export', async (req, res) => {
-  const packet = await store.mutate(id.parse(req.params.id), auth(req), revision.parse(req.body.revision), ({ view }) => {
+  const result = await store.mutate(id.parse(req.params.id), auth(req), revision.parse(req.body.revision), ({ view, photos }) => {
     if (!view.confirmed_ingredient_ids.length) throw new RequestError(409, 'Confirm ingredients before exporting.');
     const packet = buildPacket(view);
     append(view, 'packet_exported', 'Exported the current ingredients and conditional plans.', { evidence_complete: packet.evidence_complete });
-    return packet;
+    return { packet, html: packetHtml(packet, photos) };
   });
-  res.json({ case: store.read(id.parse(req.params.id)), packet, html: packetHtml(packet) });
+  res.json({ case: store.read(id.parse(req.params.id)), ...result });
 });
 const handleError: express.ErrorRequestHandler = (error, _req, res, _next) => {
   if (error instanceof RequestError) { res.status(error.status).json({ error: error.message }); return; }

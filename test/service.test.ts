@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { IntakeInputError, type Draft, type Media, type Model, type Observation } from '../src/contracts.js';
 import type { WorkflowRunner } from '../src/orchestration.js';
-import { buildPacket } from '../src/packet.js';
+import { buildPacket, packetHtml } from '../src/packet.js';
 import { CaseService, type PackAnswer } from '../src/service.js';
 
 const draft: Draft = {
@@ -596,4 +596,29 @@ test('a repeated pack referral cannot consume the catalogue decision for that in
     event.data.ingredient_id === seasoning.ingredient_id && event.data.searched === true));
   assert.equal(view.events.filter(event => event.type === 'agent_action' &&
     event.data.ingredient_id === seasoning.ingredient_id && event.data.action === 'refer').length, 1);
+});
+
+test('the report keeps pending photos and recipe referrals distinct', async () => {
+  const { read } = await setup();
+  const pending = buildPacket(read());
+  assert.equal(pending.current_ingredients[1].next_action, 'Seller to upload the requested package photo.');
+  const referred = await setup({ intake: async () => ({ ...draft, scope: 'facilitator_review', ingredients: [draft.ingredients[0]] }) });
+  const packet = buildPacket(referred.read());
+  assert.equal(packet.unresolved_items.length, 0);
+  const html = packetHtml(packet);
+  assert.match(html, /recipe or production process needs facilitator review/);
+  assert.match(html, /All current ingredients have evidence/);
+});
+
+test('package photos require the seller session and embed in the HTML report', async () => {
+  const { answer, read, service, id, session } = await setup();
+  await answer('correct');
+  const packet = buildPacket(read());
+  const source = packet.current_ingredients[1].evidence[0].source_refs[0];
+  assert.throws(() => service.readPhoto(id, 'foreign', source), /Seller session required/);
+  const photo = service.readPhoto(id, session, source);
+  assert.deepEqual(photo.bytes, media('correct').bytes);
+  const html = packetHtml(packet, new Map([[source, photo]]));
+  assert.ok(html.includes('data:image/png;base64,' + photo.bytes.toString('base64')));
+  assert.match(html, /<summary>Sumber rujukan<\/summary>/);
 });

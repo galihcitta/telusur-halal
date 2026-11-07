@@ -23,6 +23,7 @@ interface Entry {
   retry?: () => Promise<void>;
   history: Map<string, IngredientHistory>;
   knownIds: Set<string>;
+  photos: Map<string, Media>;
   confirmationKey?: string;
 }
 export interface PackAnswer {
@@ -84,7 +85,7 @@ export class CaseService {
       product_name: '', scope: 'facilitator_review', confirmed_ingredient_ids: [],
       ingredients: [], proposals: [], events: [],
     };
-    const entry: Entry = { view, session: randomBytes(32).toString('hex'), busy: false, history: new Map(), knownIds: new Set() };
+    const entry: Entry = { view, session: randomBytes(32).toString('hex'), busy: false, history: new Map(), knownIds: new Set(), photos: new Map() };
     await this.run(entry, async () => {
       const draft = await this.model.intake(audio, label);
       view.draft = {
@@ -103,7 +104,7 @@ export class CaseService {
     return { case: this.read(view.case_id), session: entry.session };
   }
 
-  async mutate<T>(id: string, session: string, revision: number, operation: (entry: Entry) => Promise<T> | T) {
+  private sellerEntry(id: string, session: string) {
     const entry = this.cases.get(id);
     if (!entry) throw new RequestError(404, 'Case not found.');
     const expected = Buffer.from(entry.session);
@@ -111,6 +112,17 @@ export class CaseService {
     if (expected.length !== supplied.length || !timingSafeEqual(expected, supplied)) {
       throw new RequestError(403, 'Seller session required.');
     }
+    return entry;
+  }
+
+  readPhoto(id: string, session: string, source: string) {
+    const photo = this.sellerEntry(id, session).photos.get(source);
+    if (!photo) throw new RequestError(404, 'Photo not found.');
+    return photo;
+  }
+
+  async mutate<T>(id: string, session: string, revision: number, operation: (entry: Entry) => Promise<T> | T) {
+    const entry = this.sellerEntry(id, session);
     if (entry.view.revision !== revision || entry.busy) throw new RequestError(409, 'Case changed or is busy. Refresh and try again.');
     entry.busy = true;
     try { return await operation(entry); } finally { entry.busy = false; }
@@ -350,6 +362,9 @@ export class CaseService {
           evidence.conflicts.push(verdict.reason);
         }
         row.evidence.push(evidence);
+        if (input.mode === 'photo') {
+          for (const image of input.images) entry.photos.set(mediaRef(image), image);
+        }
         this.verdict(view, row, verdict);
         if (row.status === 'unresolved' && row.requests < 2 && row.pack_condition !== 'repacked') row.status = 'open';
       }

@@ -1,4 +1,4 @@
-import type { CaseView } from './contracts.js';
+import type { CaseView, Media } from './contracts.js';
 import { BPJPH_DATASET_VERSION } from './bpjph.js';
 import { DATASET_VERSION } from './rules.js';
 
@@ -16,8 +16,9 @@ export function buildPacket(view: CaseView) {
       ingredient_id: row.ingredient_id, ingredient: row.declared_name, brand: row.brand, variant: row.variant,
       status: row.status, basis: row.basis, reason: row.reason, source_refs: verdict?.data.source_refs ?? row.source_refs,
       evidence: row.evidence.filter(evidence => evidence.revision === view.revision),
-      next_action: row.status === 'open' || row.status === 'unresolved'
-        ? 'Facilitator to review this gap and confirm the ingredient actually used.' : undefined,
+      next_action: row.pending_request ? 'Seller to upload the requested package photo.'
+        : row.status === 'open' || row.status === 'unresolved'
+          ? 'Facilitator to review this gap and confirm the ingredient actually used.' : undefined,
     };
   });
   return {
@@ -38,12 +39,14 @@ export function buildPacket(view: CaseView) {
 function escape(value: unknown) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
 }
-export function packetHtml(packet: ReturnType<typeof buildPacket>) {
+export function packetHtml(packet: ReturnType<typeof buildPacket>, photos: ReadonlyMap<string, Media> = new Map()) {
   const cells = (values: unknown[]) => values.map(value => `<td>${escape(value)}</td>`).join('');
+  const references = (sources: unknown[]) => sources.length
+    ? `<details><summary>Sumber rujukan</summary><ul>${sources.map(source => `<li>${escape(source)}</li>`).join('')}</ul></details>` : '';
   const rows = packet.current_ingredients.map(row => `<tr>${cells([
     [row.ingredient, row.brand, row.variant].filter(Boolean).join(' · '), row.status, row.basis,
-    Array.isArray(row.source_refs) ? row.source_refs.join('\n') : '', row.next_action,
-  ])}<td>${row.evidence.length ? `<ul>${row.evidence.map(({ observed, source_type, source_refs, conflicts }) => `
+  ])}<td>${references(Array.isArray(row.source_refs) ? row.source_refs : [])}</td>${cells([row.next_action])}
+  <td>${row.evidence.length ? `<ul>${row.evidence.map(({ observed, source_type, source_refs, conflicts }) => `
     <li><strong>${source_type === 'photo' ? 'Package photo' : 'Seller transcription'}</strong>
     <p>${[
       observed.product || 'Product unreadable',
@@ -52,17 +55,23 @@ export function packetHtml(packet: ReturnType<typeof buildPacket>) {
       observed.certificate_number || (observed.certificate_state === 'absent' ? 'Number not printed' : 'Number unreadable'),
     ].map(escape).join(' · ')}</p>
     ${conflicts.length ? `<p>${conflicts.map(escape).join(', ')}</p>` : ''}
-    <small>${source_refs.map(escape).join(', ')}</small></li>`).join('')}</ul>` : ''}</td></tr>`).join('');
+    ${source_type === 'photo' ? source_refs.map(source => {
+      const photo = photos.get(source);
+      if (!photo || !['image/png', 'image/jpeg', 'image/webp'].includes(photo.mime)) return '';
+      return `<img alt="Uploaded package photo" src="data:${photo.mime};base64,${photo.bytes.toString('base64')}">`;
+    }).join('') : ''}
+    ${references(source_refs)}</li>`).join('')}</ul>` : ''}</td></tr>`).join('');
   const proposals = packet.conditional_proposals.map(({ listing, registry, next_action }) =>
     `<li><strong>${escape([listing.product, listing.variant, listing.pack_size].filter(Boolean).join(' · '))}</strong>
     <p>${escape(listing.manufacturer)} · ${escape(listing.shop)} · Rp${listing.price_idr.toLocaleString('id-ID')}</p>
     <p>${escape(registry.record_id)} · ${escape(registry.certificate_number)} · ${escape(listing.source_ref)}</p>
     <p>${escape(next_action)}</p></li>`).join('');
   return `<!doctype html><html lang="en"><meta charset="utf-8"><title>Telusur Halal evidence packet</title>
-  <style>body{font:16px/1.55 system-ui;max-width:76rem;margin:3rem auto;padding:0 1.5rem;color:#16342d}table{border-collapse:collapse;width:100%}th,td{border:1px solid #b3c3bd;padding:.6rem;text-align:left;vertical-align:top;overflow-wrap:anywhere}td:nth-child(4){white-space:pre-line;font-size:.8rem}h2{margin-top:2rem}@media print{body{margin:0;padding:0}}</style>
+  <style>body{font:16px/1.55 system-ui;max-width:76rem;margin:3rem auto;padding:0 1.5rem;color:#16342d}table{border-collapse:collapse;width:100%}th,td{border:1px solid #b3c3bd;padding:.6rem;text-align:left;vertical-align:top;overflow-wrap:anywhere}td:nth-child(4){font-size:.8rem}td img{display:block;max-width:100%;max-height:18rem;margin:.5rem 0;object-fit:contain}h2{margin-top:2rem}@media print{body{margin:0;padding:0}}</style>
   <h1>${escape(packet.product_name)} · Evidence packet</h1>
   <p>${escape(packet.simulation_notice)}</p><p>Revision ${packet.revision} · ${escape(packet.source_mode)} · ${escape(packet.dataset_version)} · ${escape(packet.bpjph_dataset_version)}</p>
-  <h2>Current ingredients</h2><p>${packet.evidence_complete ? 'Ingredient evidence complete for this revision.' : 'Open evidence gaps remain.'}</p>
+  ${packet.scope === 'facilitator_review' ? '<p>The recipe or production process needs facilitator review.</p>' : ''}
+  <h2>Current ingredients</h2><p>${packet.unresolved_items.length ? 'Open ingredient evidence gaps remain.' : 'All current ingredients have evidence.'}</p>
   <table><thead><tr><th>Ingredient</th><th>Status</th><th>Basis</th><th>Sources</th><th>Next action</th><th>Package evidence</th></tr></thead><tbody>${rows}</tbody></table>
   <h2>Approved replacements pending adoption</h2>${proposals ? `<ul>${proposals}</ul>` : '<p>None.</p>'}
   <h2>Seller and facilitator checklist</h2><ul>${checklist.map(task => `<li>${escape(task)}</li>`).join('')}</ul></html>`;

@@ -571,7 +571,9 @@ function evidenceLog(evidence) {
     return `<li><strong>${source_type === 'photo' ? 'Pembacaan foto' : 'Salinan dari penjual'}</strong> · revisi ${revision}
       <p>${fields.map(escape).join(' · ')}</p>
       ${conflicts?.length ? `<p class="muted">${conflicts.map(escape).join(', ')}</p>` : ''}
-      <small>${source_refs.map(escape).join(', ')}</small></li>`;
+      ${source_type === 'photo' && session && !observer ? source_refs.filter(source => /^sha256:[a-f0-9]{64}$/.test(source))
+        .map(source => `<canvas class="report-photo" data-photo-source="${escape(source)}" role="img" aria-label="Foto kemasan yang diunggah" hidden></canvas>`).join('') : ''}
+      ${source_refs.length ? `<details><summary>Sumber rujukan</summary><ul>${source_refs.map(source => `<li>${escape(source)}</li>`).join('')}</ul></details>` : ''}</li>`;
   }).join('')}</ul></details>`;
 }
 
@@ -745,7 +747,8 @@ function packetView() {
           const supported = row.status === 'verified' || row.status === 'exempt';
           const verdict = currentEvents.findLast(event => event.type === 'evidence_checked' &&
             event.data.ingredient_id === row.ingredient_id);
-          const sources = Array.isArray(verdict?.data.source_refs) ? verdict.data.source_refs : row.source_refs;
+          const sources = Array.isArray(verdict?.data.source_refs) ? verdict.data.source_refs
+            : Array.isArray(row.source_refs) ? row.source_refs : [];
           const evidence = row.evidence.filter(item => item.revision === view.revision);
           return `<li>
             <strong>${escape(ingredientTitle(row))}</strong>
@@ -821,6 +824,22 @@ function showChecks(stage) {
       render();
       focusHeading();
     };
+  });
+  workspace.querySelectorAll('[data-photo-source]').forEach(canvas => {
+    const details = canvas.closest('details');
+    details.addEventListener('toggle', async () => {
+      if (!details.open || canvas.dataset.loaded) return;
+      canvas.dataset.loaded = 'true';
+      try {
+        const response = await fetch(path('photos/' + encodeURIComponent(canvas.dataset.photoSource)), {
+          headers: { Authorization: 'Bearer ' + session },
+        });
+        if (!response.ok) throw new Error('Foto tidak tersedia.');
+        previewImage(canvas, await response.blob());
+      } catch {
+        delete canvas.dataset.loaded;
+      }
+    });
   });
   const pack = workspace.querySelector('.pack-form');
   if (pack) {

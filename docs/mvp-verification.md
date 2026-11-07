@@ -192,3 +192,5 @@ Live D01 passed in the browser through seller approval and HTML, JSON, and trace
 The current structured policy comparator ran D01, D02 and D20 with fixture observations. Both policies passed all three cases. The historical 27 whole-recipe scope guards are outside that comparator after this change.
 
 The live D01 browser rerun opened the detailed Berkas view before downloading the report. The view and downloaded HTML matched the JSON packet for all four ingredient names, decision reasons, source references, and observed package identity fields. The HTML includes both the rejected Pedas reading and the corrected Original reading. The approved substitute remained pending adoption.
+
+The follow-up D01 browser run rendered uploaded photos in seller Berkas and passed the export grader. The downloaded D01 and Medan HTML reports embedded all original package uploads byte for byte, including the rejected D01 photo. Fingerprints appear under Sumber rujukan. Unauthenticated photo access returned HTTP 403. Regression tests covered pending seller photo requests and recipe referrals with zero open ingredient gaps. Typecheck and all 51 tests passed.
