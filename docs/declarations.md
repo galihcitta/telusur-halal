@@ -15,6 +15,7 @@ This declaration covers the dataset import. Record additional assets and open-so
 
 ## Planning reference
 
-- `docs/prd-telusur-en.html` is the unchanged pre-event PRD v7, copied at Galih's request for further review.
+- `docs/prd-telusur-en.html` was imported as pre-event PRD v7 and revised on 7 November 2026 to v8 after adversarial review, aligned with `docs/mvp-plan.md`. The original v7 remains in Git history.
 - Its eight referenced design images are included under `docs/prd-assets/ui/`.
-- The PRD contains illustrative code and task briefs. These are planning reference material, not a day-of application implementation or permission to reuse pre-event code. The fresh-build boundary remains in effect.
+- The PRD and task briefs are planning reference material, not a day-of application implementation or permission to reuse pre-event code, tests, prompts, or UI implementation. The fresh-build boundary remains in effect.
+- The prepared dataset is preserved as imported. Its legacy outcome names, brand-only verification paths, and expected ask counts do not override v8. Any day-of evaluation adapters, revised expectations, additional simulated pack assets, recordings, or photos must be declared separately with their provenance and reasons for changes.
