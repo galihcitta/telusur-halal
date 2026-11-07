@@ -339,6 +339,11 @@ export class CaseService {
 
     const waitingForPack = view.ingredients.some(row => row.pending_request);
     view.phase = waitingForPack || view.proposals.some(proposal => proposal.status === 'pending') ? 'awaiting_seller' : 'review_packet';
+    if (this.workflowRunner && view.phase === 'awaiting_seller') {
+      const packIngredients = view.ingredients.filter(row => row.pending_request).map(row => row.declared_name);
+      const decisions = view.proposals.filter(proposal => proposal.status === 'pending').map(proposal => proposal.listing.product);
+      append(view, 'seller_wait', 'Menunggu tindakan penjual.', { pack_ingredients: packIngredients, decisions });
+    }
   }
 
   async pack(entry: Entry, input: PackAnswer) {
@@ -453,8 +458,15 @@ export class CaseService {
     })));
     if (!actions().length) return;
 
+    append(entry.view, 'agent_run_started', 'OpenAI Agents SDK memulai pemeriksaan.');
     await run({
       actions,
+      recordToolResult: (tool, input, result) => {
+        const row = entry.view.ingredients.find(item => item.ingredient_id === input.ingredient_id);
+        append(entry.view, 'agent_tool_result', result.applied ? 'Tindakan diterapkan.' : 'Tindakan ditolak.', {
+          ingredient_id: row?.ingredient_id, tool, input, result,
+        });
+      },
       execute: (ingredientId, action, requestedStage) => {
         const choice = choices().find(item =>
           item.stage === requestedStage && item.row.ingredient_id === ingredientId && item.allowed.includes(action));

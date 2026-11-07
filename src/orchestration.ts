@@ -1,5 +1,6 @@
 import { Agent, Runner, tool } from '@openai/agents';
 import { z } from 'zod';
+import { observeModel } from './telemetry.js';
 import type { AgentAction, Ingredient } from './contracts.js';
 
 const workflowStage = z.enum(['pack', 'catalogue']);
@@ -12,9 +13,15 @@ export interface WorkflowAction {
   stage: z.infer<typeof workflowStage>;
 }
 
+interface WorkflowToolResult {
+  applied: boolean;
+  available_actions: WorkflowAction[];
+}
+
 export type WorkflowRunner = (workflow: {
   actions: () => WorkflowAction[];
   execute: (ingredientId: string, action: AgentAction, stage: WorkflowAction['stage']) => boolean;
+  recordToolResult: (tool: AgentAction, input: { ingredient_id: string; stage: WorkflowAction['stage'] }, result: WorkflowToolResult) => void;
   maxTurns: number;
 }) => Promise<void>;
 
@@ -26,19 +33,24 @@ const toolDescriptions = {
 
 export function createWorkflowRunner(): WorkflowRunner {
   const runner = new Runner({ tracingDisabled: true, traceIncludeSensitiveData: false });
-  return async ({ actions, execute, maxTurns }) => {
+  return async ({ actions, execute, recordToolResult, maxTurns }) => {
     const tools = (Object.keys(toolDescriptions) as AgentAction[]).map(action => tool({
       name: action,
       description: toolDescriptions[action],
       parameters: z.object({ ingredient_id: z.string(), stage: workflowStage }),
-      execute: ({ ingredient_id, stage }) => ({
-        applied: execute(ingredient_id, action, stage),
-        available_actions: actions(),
-      }),
+      execute: (input) => {
+        const result = {
+          applied: execute(input.ingredient_id, action, input.stage),
+          available_actions: actions(),
+        };
+        recordToolResult(action, input, result);
+        return result;
+      },
     }));
+    const model = process.env.OPENAI_AGENT_MODEL || 'gpt-4.1-mini';
     const agent = new Agent({
       name: 'Telusur evidence coordinator',
-      model: process.env.OPENAI_AGENT_MODEL || 'gpt-4.1-mini',
+      model,
       modelSettings: { parallelToolCalls: false, store: false, toolChoice: 'required' },
       resetToolChoice: false,
       toolUseBehavior: () => actions().length
@@ -52,9 +64,15 @@ export function createWorkflowRunner(): WorkflowRunner {
       ].join(' '),
       tools,
     });
-    await runner.run(agent, JSON.stringify({ available_actions: actions() }), {
+    await observeModel('agent_run', model, () => runner.run(agent, JSON.stringify({ available_actions: actions() }), {
       maxTurns,
       signal: AbortSignal.timeout(60_000),
-    });
+    }), ({ state: { usage } }) => ({ usage: usage.requests ? {
+      requests: usage.requests,
+      input_tokens: usage.inputTokens,
+      output_tokens: usage.outputTokens,
+      total_tokens: usage.totalTokens,
+      cached_input_tokens: usage.inputTokensDetails.reduce((sum, details) => sum + (typeof details.cached_tokens === 'number' ? details.cached_tokens : 0), 0),
+    } : null }));
   };
 }

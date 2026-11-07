@@ -1,6 +1,7 @@
 import OpenAI, { toFile } from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
-import type { ResponseInputImage } from 'openai/resources/responses/responses';
+import { observeModel } from './telemetry.js';
+import type { Response, ResponseInputImage } from 'openai/resources/responses/responses';
 import { z } from 'zod';
 import { ingredientInput, IntakeInputError, PackInputError, observation, type Draft, type Media, type Model } from './contracts.js';
 
@@ -118,6 +119,15 @@ function imageInput(media: Media): ResponseInputImage {
   };
 }
 
+function responseMetrics({ model, usage }: Pick<Response, 'model' | 'usage'>) {
+  return { model, usage: usage ? {
+    input_tokens: usage.input_tokens,
+    output_tokens: usage.output_tokens,
+    total_tokens: usage.total_tokens,
+    cached_input_tokens: usage.input_tokens_details.cached_tokens,
+  } : null };
+}
+
 export function createModel(): Model {
   let client: OpenAI | undefined;
   const visionModel = process.env.OPENAI_VISION_MODEL || 'gpt-4.1-mini';
@@ -140,11 +150,17 @@ export function createModel(): Model {
         throw new Error('Format rekaman tidak didukung. Pilih MP3, M4A, WAV, atau WebM.');
       }
       const extension = audioExtension[audio.mime.split(';')[0]];
-      const transcript = await api().audio.transcriptions.create({
+      const file = await toFile(audio.bytes, `audio.${extension}`, { type: audio.mime.split(';')[0] });
+      const transcript = await observeModel('transcription', transcribeModel, () => api().audio.transcriptions.create({
         model: transcribeModel,
         language: 'id',
-        file: await toFile(audio.bytes, `audio.${extension}`, { type: audio.mime.split(';')[0] }),
-      }).catch(error => {
+        file,
+      }), ({ usage }) => ({ usage: usage?.type === 'tokens' ? {
+        input_tokens: usage.input_tokens,
+        output_tokens: usage.output_tokens,
+        total_tokens: usage.total_tokens,
+        audio_input_tokens: usage.input_token_details?.audio_tokens,
+      } : usage?.type === 'duration' ? { audio_seconds: usage.seconds } : null })).catch(error => {
         if (error instanceof OpenAI.APIError && (error.status === 400 || error.status === 422)) {
           throw new IntakeInputError('Rekaman tidak bisa dibaca. Rekam ulang dan pastikan suara terdengar saat diputar.');
         }
@@ -153,7 +169,7 @@ export function createModel(): Model {
       if (!transcript.text.trim()) {
         throw new IntakeInputError('Tidak ada ucapan yang terbaca. Rekam ulang dan sebutkan nama produk serta bahannya.');
       }
-      const parsed = await api().responses.parse({
+      const parsed = await observeModel('vision_label', visionModel, () => api().responses.parse({
         model: visionModel,
         store: false,
         instructions: intakeInstructions,
@@ -162,7 +178,7 @@ export function createModel(): Model {
           labelInput,
         ] }],
         text: { format: zodTextFormat(intakeOutput, 'recipe_draft') },
-      }).catch(error => {
+      }), responseMetrics).catch(error => {
         if (error instanceof OpenAI.APIError && error.status === 400 &&
             ['invalid_image', 'invalid_image_format', 'invalid_image_url', 'image_parse_error'].includes(error.code ?? '')) {
           throw new IntakeInputError('File foto label tidak bisa dibuka. Pilih foto PNG, JPEG, atau WebP yang lain.');
@@ -195,13 +211,13 @@ export function createModel(): Model {
     },
 
     async readDish(photo) {
-      const response = await api().responses.parse({
+      const response = await observeModel('vision_dish', visionModel, () => api().responses.parse({
         model: visionModel,
         store: false,
         instructions: dishInstructions,
         input: [{ role: 'user', content: [imageInput(photo)] }],
         text: { format: zodTextFormat(dishOutput, 'dish_suggestions') },
-      }).catch(error => {
+      }), responseMetrics).catch(error => {
         if (invalidImage(error)) {
           throw new IntakeInputError('File foto masakan tidak bisa dibuka. Pilih foto PNG, JPEG, atau WebP yang lain.');
         }
@@ -215,13 +231,13 @@ export function createModel(): Model {
 
     async readPack(images) {
       if (!images.length) throw new Error('Unggah foto kemasan.');
-      const response = await api().responses.parse({
+      const response = await observeModel('vision_pack', visionModel, () => api().responses.parse({
         model: visionModel,
         store: false,
         instructions: packInstructions,
         input: [{ role: 'user', content: images.map(imageInput) }],
         text: { format: zodTextFormat(packOutput, 'pack_observation') },
-      }).catch(error => {
+      }), responseMetrics).catch(error => {
         // The same invalid bytes will never succeed on retry. Preserve the
         // request and let the seller supply another file instead.
         if (invalidImage(error)) {
@@ -245,7 +261,7 @@ export function createModel(): Model {
 
     async choose({ ingredient, reason, allowed }) {
       if (!allowed.length) throw new Error('Tidak ada tindakan yang tersedia.');
-      const response = await api().responses.create({
+      const response = await observeModel('agent_action', agentModel, () => api().responses.create({
         model: agentModel,
         store: false,
         instructions: `Select one available next action for an ingredient evidence case.
@@ -270,7 +286,7 @@ Call the tool once. You cannot confirm a recipe, set an evidence verdict, or dec
         }],
         tool_choice: { type: 'function', name: 'select_next_action' },
         parallel_tool_calls: false,
-      });
+      }), responseMetrics);
       const calls = response.output.filter(item => item.type === 'function_call');
       const call = calls[0];
       if (calls.length !== 1 || call.name !== 'select_next_action') {
