@@ -19,3 +19,10 @@ This declaration covers the dataset import. Record additional assets and open-so
 - Its eight referenced design images are included under `docs/prd-assets/ui/`.
 - The PRD and task briefs are planning reference material, not a day-of application implementation or permission to reuse pre-event code, tests, prompts, or UI implementation. The fresh-build boundary remains in effect.
 - The prepared dataset is preserved as imported. Its legacy outcome names, brand-only verification paths, and expected ask counts do not override v8. Any day-of evaluation adapters, revised expectations, additional simulated pack assets, recordings, or photos must be declared separately with their provenance and reasons for changes.
+
+## Day-of implementation
+
+- The application, browser UI, provider prompts, deterministic rules and tests were written fresh. The preserved dataset checksum manifest was verified again.
+- The v8 adapter in [src/data.ts](../src/data.ts) pins explicit manufacturer and variant mappings for curated simulated listings. It adds L-ALT-302 as a second simulated chili offer linked to the existing R-302 record, for the decline path.
+- The [demo guide](../demo/README.md) lists the synthetic Indonesian audio, simulated D01 oil pack and adversarial image assets. The unsupported sausage label is a new simulated graphic. Its synthetic recording omits ground pepper so the browser can exercise seller correction.
+- Pinned direct dependencies are listed in [package.json](../package.json), with transitive versions in [package-lock.json](../package-lock.json). OpenAI provides live transcription, vision and action selection. The simulated data is local.

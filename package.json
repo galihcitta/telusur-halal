@@ -1,0 +1,29 @@
+{
+  "name": "telusur-halal",
+  "version": "0.1.0",
+  "description": "A proposed halal evidence assistant for micro and small food businesses in Indonesia.",
+  "scripts": {
+    "test": "tsx --test test/*.test.ts",
+    "dev": "node --env-file-if-exists=.env --import tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test:images": "node --env-file-if-exists=.env --import tsx demo/check-images.ts",
+    "grade:d01": "tsx demo/grade-d01.ts",
+    "compare:policy": "node --env-file-if-exists=.env --import tsx demo/compare-policy.ts"
+  },
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "express": "5.3.0",
+    "multer": "2.5.0",
+    "openai": "7.53.0",
+    "yaml": "2.9.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/multer": "2.3.0",
+    "@types/node": "26.6.6",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
+  }
+}
