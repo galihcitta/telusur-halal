@@ -83,4 +83,14 @@ export const catalogue: readonly Listing[] = [
     repacked: false, fit: 'bumbu balado',
     source_ref: catalogueSource + '#L-21 (explicit v8 offer identity mapping)',
   },
+  {
+    listing_id: 'L-TAPIOCA-801', product: 'Tepung Tapioka', variant: null, manufacturer: 'PT Tapioka Jaya',
+    shop: 'Tapioka Jaya Official', price_idr: 14000, pack_size: '500 g', record_id: 'R-801',
+    repacked: false, fit: 'tepung tapioka', source_ref: 'src/data.ts#L-TAPIOCA-801 (simulated offer)',
+  },
+  {
+    listing_id: 'L-OIL-101', product: 'Minyak Goreng Sentosa', variant: null, manufacturer: 'PT Minyak Sentosa',
+    shop: 'Sentosa Official', price_idr: 22000, pack_size: '1 L', record_id: 'R-101',
+    repacked: false, fit: 'minyak goreng', source_ref: 'src/data.ts#L-OIL-101 (simulated offer)',
+  },
 ];

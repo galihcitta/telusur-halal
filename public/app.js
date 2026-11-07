@@ -1,3 +1,5 @@
+import { renderSourceReferences } from './source-references.js';
+
 const workspace = document.querySelector('#workspace');
 const notice = document.querySelector('#notice');
 let view;
@@ -605,7 +607,7 @@ function evidenceLog(evidence) {
       ${conflicts?.length ? `<p class="muted">${conflicts.map(escape).join(', ')}</p>` : ''}
       ${source_type === 'photo' && session && !observer ? source_refs.filter(source => /^sha256:[a-f0-9]{64}$/.test(source))
         .map(source => `<canvas class="report-photo" data-photo-source="${escape(source)}" role="img" aria-label="Foto kemasan yang diunggah" hidden></canvas>`).join('') : ''}
-      ${source_refs.length ? `<details><summary>Sumber rujukan</summary><ul>${source_refs.map(source => `<li>${escape(source)}</li>`).join('')}</ul></details>` : ''}</li>`;
+      ${renderSourceReferences(source_refs, escape, source_type)}</li>`;
   }).join('')}</ul></details>`;
 }
 
@@ -778,12 +780,15 @@ function caseInfo() {
 function packetView() {
   const approved = view.proposals.filter(proposal => proposal.status === 'approved');
   const currentEvents = view.events.filter(event => event.revision === view.revision);
-  const searched = view.events.some(event => event.revision === view.revision &&
-    event.type === 'catalogue_searched' && event.data.searched === true);
+  const searches = currentEvents.filter(event => event.type === 'catalogue_searched' && event.data.searched === true);
+  const unmatched = view.ingredients.filter(row => {
+    const latest = searches.findLast(event => event.data.ingredient_id === row.ingredient_id);
+    return Array.isArray(latest?.data.eligible) && latest.data.eligible.length === 0;
+  });
   const noProposals = view.proposals.some(proposal => proposal.status === 'pending')
     ? 'Tinjau usulan yang menunggu keputusan di tab Bukti.'
     : view.proposals.length ? 'Belum ada usulan yang disetujui.'
-    : searched ? 'Pencarian tidak menemukan pengganti yang sesuai.'
+    : searches.length ? 'Pencarian tidak menemukan pengganti yang sesuai.'
     : 'Pencarian pengganti belum dilakukan. Lihat status tiap bahan di tab Bukti.';
   return `<div class="packet-layout">
     <section class="sheet packet-summary">
@@ -801,7 +806,7 @@ function packetView() {
             <strong>${escape(ingredientTitle(row))}</strong>
             <span class="badge ${supported ? 'confirmed' : 'gap'}">${icon(supported ? 'check' : 'alert')} <span>${escape(mapStatus(row))}</span></span>
             ${row.basis ? `<p>${escape(row.basis)}</p>` : ''}
-            ${sources?.length ? `<details><summary>Sumber rujukan</summary><ul>${sources.map(source => `<li>${escape(source)}</li>`).join('')}</ul></details>` : ''}
+            ${renderSourceReferences(sources, escape)}
             ${evidenceLog(evidence)}
           </li>`;
         }).join('')}</ul></section>
@@ -809,7 +814,9 @@ function packetView() {
         ${approved.length ? `<ul>${approved.map(({ listing, registry }) => `<li><strong>${[listing.product, listing.variant, listing.pack_size].filter(Boolean).map(escape).join(' · ')}</strong>
         <p class="muted">${escape(registry.certificate_number)} · Registri simulasi</p>
         <span class="badge gap">${icon('alert')} Disetujui, belum dipakai</span></li>`).join('')}</ul>`
-        : `<p class="muted">${noProposals}</p>`}</section>
+        : !unmatched.length || view.proposals.length ? `<p class="muted">${noProposals}</p>` : ''}
+        ${unmatched.length ? `<p class="muted">Katalog Shopee simulasi belum memiliki pengganti yang sesuai untuk bahan berikut. Bawa daftar ini ke fasilitator untuk meninjau pilihan lain.</p>
+        <ul>${unmatched.map(row => `<li>${escape(row.declared_name)}</li>`).join('')}</ul>` : ''}</section>
       </div>
     </section>
     <aside class="sheet handoff-panel">
