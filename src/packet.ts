@@ -13,10 +13,11 @@ export function buildPacket(view: CaseView) {
   const events = view.events.filter(event => event.revision === view.revision);
   const current = view.ingredients.map(row => {
     const verdict = events.findLast(event => event.type === 'evidence_checked' && event.data.ingredient_id === row.ingredient_id);
+    const carriedIds = Array.isArray(verdict?.data.evidence_ids) ? verdict.data.evidence_ids : [];
     return {
       ingredient_id: row.ingredient_id, ingredient: row.declared_name, brand: row.brand, variant: row.variant,
       status: row.status, basis: row.basis, reason: row.reason, source_refs: verdict?.data.source_refs ?? row.source_refs,
-      evidence: row.evidence.filter(evidence => evidence.revision === view.revision),
+      evidence: row.evidence.filter(evidence => evidence.revision === view.revision || carriedIds.includes(evidence.evidence_id)),
       next_action: row.pending_request ? 'Seller to upload the requested package photo.'
         : row.status === 'open' || row.status === 'unresolved'
           ? 'Facilitator to review this gap and confirm the ingredient actually used.' : undefined,

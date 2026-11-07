@@ -294,6 +294,52 @@ test('unchanged confirmation preserves requests, verdicts and seller decisions',
   assert.deepEqual(read(), approved);
 });
 
+test('an unrelated recipe edit preserves verified evidence and the active request without spending attempts', async () => {
+  const oil = { declared_name: 'minyak goreng', brand: 'Sentosa', variant: null, form: 'processed' as const, pack_condition: 'sealed' as const };
+  const { service, id, session, read, answer } = await setup({
+    intake: async () => ({ ...draft, ingredients: [...draft.ingredients, oil] }),
+  });
+  const pending = read().ingredients[3].pending_request!;
+  await answer('wrong');
+  await answer('correct');
+  const originalPacket = buildPacket(read()).current_ingredients[1];
+  const originalSource = originalPacket.evidence[1].source_refs[0];
+  for (const purchase_location of ['Toko pertama', 'Toko kedua']) {
+    await service.mutate(id, session, read().revision, entry => service.confirm(entry, {
+      product_name: draft.product_name, scope: 'snack', reviewed: true,
+      ingredients: read().ingredients.map((row, index) => index === 0 ? { ...row, purchase_location } : row),
+    }));
+    const current = read();
+    assert.equal(current.ingredients[1].requests, 2);
+    assert.equal(current.ingredients[1].status, 'verified');
+    assert.deepEqual(current.ingredients[3].pending_request, pending);
+    assert.deepEqual(buildPacket(current).current_ingredients[1], originalPacket);
+  }
+  const current = read();
+  const pack = (revision: number) => service.mutate(id, session, revision, entry => service.pack(entry, {
+    request_id: pending.request_id, condition: 'loose', mode: 'no_pack', images: [], confirmed_current: false,
+  }));
+  await assert.rejects(pack(1), { status: 409 });
+  await pack(current.revision);
+  assert.equal(read().ingredients[3].reason, 'NO_PACK');
+  assert.equal(read().events.filter(event => event.type === 'pack_requested').length, 3);
+  const html = packetHtml(buildPacket(read()), new Map([[originalSource, service.readPhoto(id, session, originalSource)]]));
+  assert.ok(html.includes('data:image/png;base64,' + media('correct').bytes.toString('base64')));
+});
+
+test('an exempt-name alias cannot erase repack history even when the packaging answer changes', async () => {
+  const banana = { ...draft.ingredients[0], pack_condition: 'repacked' as const };
+  const { service, id, session, read } = await setup({ intake: async () => ({ ...draft, ingredients: [banana] }) });
+  const initial = read().ingredients[0];
+  assert.equal(initial.reason, 'CONFLICT_OR_REPACK');
+  await service.mutate(id, session, 1, entry => service.confirm(entry, {
+    product_name: draft.product_name, scope: 'snack', reviewed: true,
+    ingredients: [{ ...initial, declared_name: 'Buah pisang kepok', pack_condition: 'loose' }],
+  }));
+  assert.equal(read().ingredients[0].reason, 'CONFLICT_OR_REPACK');
+  assert.equal(buildPacket(read()).evidence_complete, false);
+});
+
 test('wrong-photo provenance survives removal and re-addition without renewing requests', async () => {
   const { service, id, session, read, answer } = await setup();
   await answer('wrong');
@@ -325,7 +371,7 @@ test('full-name repack identity survives split variant but isolates distinct var
     product_name: draft.product_name, scope: 'snack', reviewed: true, ingredients: [banana, ...rows],
   }));
   const base = { declared_name: 'Bumbu Balado Original', form: 'processed' as const, pack_condition: 'repacked' as const };
-  await edit([base]);
+  await edit([{ ...base, variant: null }]);
   await edit([]);
   await edit([{ ...base, declared_name: 'Bumbu Balado', variant: 'Original', pack_condition: 'sealed' }]);
   assert.equal(read().ingredients[1].pack_condition, 'repacked');

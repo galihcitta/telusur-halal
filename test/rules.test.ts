@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { Evidence, Ingredient, Observation } from '../src/contracts.js';
-import { checkEvidence, exemption, searchCatalogue } from '../src/rules.js';
+import { checkEvidence, exemption, ingredientIdentity, searchCatalogue } from '../src/rules.js';
 
 const base: Ingredient = {
   ingredient_id: 'seasoning',
@@ -65,6 +65,22 @@ test('wrong variants and a full borrowed certificate stay unresolved', () => {
   assert.equal(checkEvidence(base, fromPack({
     certificate_number: 'ID-SIM-0602',
   }), 'case', 1).reason, 'CERTIFICATE_MISMATCH');
+});
+
+test('an exact SKU cannot be replaced by a category match or contradicted by the separate variant field', () => {
+  const chili = { ...base, declared_name: 'Cabai Bubuk Halal', brand: 'Pedas Mantap', variant: null };
+  const otherChili = fromPack({
+    product: 'Cabai Bubuk', manufacturer: 'CV Pedas Mantap', variant: null, certificate_number: 'ID-SIM-0302',
+  });
+  assert.equal(checkEvidence(chili, otherChili, 'case', 1).reason, 'IDENTITY_MISMATCH');
+  assert.equal(checkEvidence({ ...chili, declared_name: 'Cabe Bubuk' }, otherChili, 'case', 1).status, 'verified');
+  assert.equal(checkEvidence({ ...chili, declared_name: 'Cabai Bubuk', brand: 'Cabai Prima' }, fromPack({
+    product: 'Cabai Bubuk Halal', manufacturer: 'PT Cabai Prima', variant: null, certificate_number: 'ID-SIM-0301',
+  }), 'case', 1).status, 'verified');
+
+  const wrongField = { ...base, declared_name: 'Bumbu Balado Original', variant: null };
+  assert.equal(checkEvidence(wrongField, fromPack(), 'case', 1).reason, 'IDENTITY_MISMATCH');
+  assert.deepEqual(ingredientIdentity(wrongField), ingredientIdentity(base));
 });
 
 test('wrong maker, wrong ingredient, logo-only and unreadable numbers are refused', () => {
@@ -146,7 +162,7 @@ test('catalogue excludes the curah offer, preserves a distinct alternative, and 
 test('BPJPH match uses full product and manufacturer and keeps registry number separate from pack evidence', () => {
   const palmia = { ...base, declared_name: 'Margarin Palmia Super Cake', brand: 'Palmia', variant: 'Super Cake' };
   const evidence = {
-    product: 'Palmia Super Cake Margarin', manufacturer: 'PT Salim Ivomas Pratama Tbk',
+    product: 'PALMIA Super Cake MARGARIN', manufacturer: 'PT SALIM IVOMAS PRATAMA TBK.',
     variant: null, certificate_number: null, certificate_state: 'absent' as const,
   };
   const match = checkEvidence(palmia, fromPack(evidence), 'case', 1);
@@ -155,6 +171,11 @@ test('BPJPH match uses full product and manufacturer and keeps registry number s
   assert.ok(match.source_refs.includes('https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=13'));
   assert.equal(checkEvidence(palmia, fromPack({ ...evidence, manufacturer: 'PT Lain' }), 'case', 1).status, 'unresolved');
   assert.equal(checkEvidence(palmia, fromPack({ ...evidence, product: 'Margarin Palmia Prime' }), 'case', 1).status, 'unresolved');
+  assert.equal(checkEvidence(palmia, fromPack({ ...evidence, variant: 'Super Cake' }), 'case', 1).status, 'verified');
+  assert.equal(checkEvidence(palmia, fromPack({ ...evidence, variant: 'Cake' }), 'case', 1).reason, 'IDENTITY_MISMATCH');
+  for (const variant of [null, 'Cake']) {
+    assert.equal(checkEvidence({ ...palmia, variant }, fromPack(evidence), 'case', 1).reason, 'IDENTITY_MISMATCH');
+  }
   for (const product of ['Palmia Super Cake', 'Palmia Super Cake Margarine', 'Palmia Super Cake Margarin Extra']) {
     assert.equal(checkEvidence(palmia, fromPack({
       ...evidence, product, certificate_state: 'printed', certificate_number: 'ID00410000054910420',

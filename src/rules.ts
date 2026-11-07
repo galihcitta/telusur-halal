@@ -20,7 +20,7 @@ function normalize(value: string) {
 }
 
 function manufacturerName(value: string) {
-  return normalize(value).replace(/^(pt|cv|ud)\.\s+/, '$1 ');
+  return normalize(value).replace(/^(pt|cv|ud)\.\s+/, '$1 ').replace(/ tbk\.$/, ' tbk');
 }
 
 function sameVariant(actual: string | null | undefined, expected: string | null) {
@@ -56,18 +56,20 @@ export function ingredientUse(declaredName: string) {
 
 export function ingredientIdentity(row: Pick<Ingredient, 'declared_name' | 'variant' | 'brand'>) {
   const name = normalize(row.declared_name);
+  if (bananaNames.has(name)) return { product: 'pisang kepok', variant: null, brand: undefined };
   const named = registry.filter(record => exactProductName(name, record));
   const fullVariant = named.find(record => record.variant && name === normalize(record.product + ' ' + record.variant));
-  const variant = row.variant === undefined ? fullVariant?.variant && normalize(fullVariant.variant)
-    : row.variant === null ? null : normalize(row.variant);
+  // Keep safety history under the named variant even if the separate field contradicts it.
+  const variant = fullVariant?.variant ? normalize(fullVariant.variant)
+    : row.variant == null ? row.variant : normalize(row.variant);
   const product = ingredientUse(fullVariant?.product ?? named[0]?.product ?? name);
   const possible = registry.filter(record => ingredientUse(record.product) === product && (variant === undefined || sameVariant(variant, record.variant)));
   const suppliedBrand = row.brand && normalize(row.brand);
   const branded = possible.find(record => suppliedBrand &&
     (brandAliases[record.record_id]?.includes(suppliedBrand) || manufacturerName(suppliedBrand) === manufacturerName(record.manufacturer)));
-  const exactMaker = !suppliedBrand && (fullVariant || ingredientUse(name) !== name) && named.length && new Set(named.map(record => record.manufacturer)).size === 1
+  const exactMaker = (fullVariant || ingredientUse(name) !== name) && named.length && new Set(named.map(record => record.manufacturer)).size === 1
     ? named[0].manufacturer : undefined;
-  const brand = branded ? manufacturerName(branded.manufacturer) : exactMaker ? manufacturerName(exactMaker) : suppliedBrand;
+  const brand = exactMaker ? manufacturerName(exactMaker) : branded ? manufacturerName(branded.manufacturer) : suppliedBrand;
   const publicName = publicProductName(row.declared_name, row.variant ?? null);
   const publicRecords = bpjphRecords.filter(record => normalize(record.product_name) === publicName);
   if (publicRecords.length && !branded && !named.length) {
@@ -88,20 +90,26 @@ function exactProductName(value: string, record: RegistryRecord) {
 }
 
 function declarationMatches(ingredient: Ingredient, record: RegistryRecord) {
-  const exact = exactProductName(ingredient.declared_name, record);
-  const sameUse = ingredientUse(ingredient.declared_name) === ingredientUse(record.product);
+  const name = normalize(ingredient.declared_name);
+  const use = ingredientUse(name);
+  const exact = exactProductName(name, record);
+  const generic = name === use || !registry.some(candidate => exactProductName(name, candidate));
   // Generic category agreement alone does not identify a branded SKU when no
   // brand was confirmed. Keep such cases open until the seller names the SKU.
   const brand = ingredient.brand && normalize(ingredient.brand);
   const brandMatches = !brand || brandAliases[record.record_id]?.includes(brand) === true ||
     manufacturerName(brand) === manufacturerName(record.manufacturer);
   return sameVariant(ingredient.variant, record.variant) && brandMatches &&
-    (exact || (sameUse && !!brand));
+    (exact || (generic && !!brand && use === ingredientUse(record.product)));
 }
 
 // This word order appears on the original Palmia box.
 const publicProductAliases: ReadonlyMap<string, string> = new Map([
   ['palmia super cake margarin', 'margarin palmia super cake'],
+]);
+
+const publicTitleVariants: ReadonlyMap<string, string> = new Map([
+  ['margarin palmia super cake', 'super cake'],
 ]);
 
 function publicProductName(product: string, variant: string | null) {
@@ -123,11 +131,13 @@ function checkPublicEvidence(
   const declaredName = publicProductName(ingredient.declared_name, ingredient.variant ?? null);
   const brandMatches = !ingredient.brand || containsName(productName, normalize(ingredient.brand)) ||
     manufacturerName(ingredient.brand) === manufacturerName(manufacturer);
-  const variantsConflict = ingredient.variant != null && observed.variant != null &&
-    !sameVariant(ingredient.variant, observed.variant);
+  const titleVariant = publicTitleVariants.get(productName);
+  const variantsMatch = titleVariant
+    ? sameVariant(ingredient.variant, titleVariant) && (observed.variant === null || sameVariant(observed.variant, titleVariant))
+    : sameVariant(ingredient.variant, observed.variant);
   const candidates = bpjphRecords.filter(record => normalize(record.product_name) === productName &&
     manufacturerName(record.producer_name) === manufacturerName(manufacturer));
-  if (declaredName !== productName || !brandMatches || variantsConflict || !candidates.length) {
+  if (declaredName !== productName || !brandMatches || !variantsMatch || !candidates.length) {
     return { status: 'unresolved', reason: 'IDENTITY_MISMATCH', source_refs: evidence.source_refs,
       basis: 'Nama produk atau produsen tidak cocok dengan deklarasi dan data registri yang tersedia.' };
   }
