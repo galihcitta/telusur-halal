@@ -40,9 +40,22 @@
         </div>
       </div>
       <div class="start-panel">
-        <h1 id="page-title" tabindex="-1">Ceritakan bahanmu</h1>
-        <p class="muted">Sebutkan nama produk, bahan, merek, dan varian. Tambahkan foto label supaya daftar bahannya bisa diperiksa.</p>
-        <form id="start-form">
+        <h1 id="page-title" tabindex="-1">Mulai daftar bahan</h1>
+        <form id="dish-form" aria-label="Foto masakan">
+          <h2>Mulai dari foto masakan</h2>
+          <p class="muted">Unggah foto satu masakan jadi untuk mendapat saran bahan yang terlihat. Anda bisa mengubah dan melengkapinya sebelum konfirmasi.</p>
+          <label class="upload upload-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            <span>Pilih foto masakan
+              <input name="dish" type="file" accept="image/png,image/jpeg,image/webp" required>
+              <small class="file-name" aria-live="polite">Belum ada foto</small>
+            </span>
+          </label>
+          <button class="primary" type="submit">Lihat saran bahan</button>
+        </form>
+        <form id="start-form" aria-label="Suara dan label">
+          <h2>Atau mulai dari suara dan label</h2>
+          <p class="muted">Sebutkan nama produk, bahan, merek, dan varian. Tambahkan foto label produk.</p>
           <section class="voice-note" data-state="idle" aria-label="Catatan suara">
             <button type="button" class="input-row" id="record" aria-labelledby="record-action">
               <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M6 10v1a6 6 0 0 0 12 0v-1m-6 7v4m-3 0h6"/></svg>

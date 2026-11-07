@@ -279,6 +279,25 @@ function showStart() {
       return result;
     }, 'Membaca rekaman dan label…');
   };
+  const dishForm = workspace.querySelector('#dish-form');
+  dishForm.elements.dish.onchange = () => {
+    dishForm.querySelector('.file-name').textContent = dishForm.elements.dish.files[0]?.name || 'Belum ada foto';
+  };
+  dishForm.onsubmit = (event) => {
+    event.preventDefault();
+    if (captureBusy || recorder?.state === 'recording') {
+      message('Hentikan rekaman suara sebelum mengirim foto masakan.', true);
+      return;
+    }
+    const data = new FormData(dishForm);
+    run(async () => {
+      const result = await request('/api/cases', data);
+      session = result.session;
+      intakeFiles = { dish: data.get('dish') };
+      resetPreview();
+      return result;
+    }, 'Membaca foto masakan…');
+  };
   workspace.querySelector('#replay-form').onsubmit = (event) => {
     event.preventDefault();
     if (captureBusy || recorder?.state === 'recording') {
@@ -362,24 +381,37 @@ function showEditor() {
   const source = fromDraft ? view.draft : view;
   const ingredients = source?.ingredients ?? [];
   const notes = source?.notes ?? [];
+  const dishCase = view.intake_kind === 'dish_photo';
+  const dishDraft = fromDraft && dishCase;
+  const dishSource = `<section class="note intake-note">
+      <h3>${source?.product_name ? 'Saran dari foto' : 'Masakan belum bisa dikenali'}</h3>
+      <p>${source?.product_name
+        ? 'Nama masakan dan bahan yang terlihat masih berupa saran. Ubah atau hapus yang tidak sesuai dengan resep Anda.'
+        : 'Coba foto yang lebih jelas atau isi sendiri nama masakan dan bahan yang Anda pakai.'}</p>
+      <p>Tambahkan bahan yang tidak terlihat, seperti minyak goreng, saus, bumbu, atau kaldu, jika dipakai. Foto masakan tidak membuktikan bahan atau status halal dan tidak bisa dipakai sebagai bukti kemasan.</p>
+      <a href="/">Pilih foto lain</a>
+    </section>`;
   workspace.innerHTML = `<div class="review-heading">
     <h1 id="page-title" tabindex="-1">${fromDraft ? 'Cek daftar bahan' : 'Perbarui resep'}</h1>
-    <p class="muted">${fromDraft ? 'Cocokkan dengan resep yang Anda pakai.' : 'Setelah disimpan, bukti dan usulan dari revisi ini perlu diperiksa kembali.'}</p>
+    <p class="muted">${fromDraft ? (dishDraft ? 'Lengkapi daftar ini sebelum bahan diperiksa.' : 'Cocokkan dengan resep yang Anda pakai.') : 'Setelah disimpan, bukti dan usulan dari revisi ini perlu diperiksa kembali.'}</p>
     </div>
     <div class="review-layout">
     <aside class="sheet review-source">
-      <h2>${fromDraft ? 'Suara dan label' : 'Resep saat ini'}</h2>
-      ${fromDraft && intakeFiles ? `<audio class="source-audio" controls preload="metadata" aria-label="Dengarkan catatan suara" src="${escape(intakeFiles.audio)}"></audio>
+      <h2>${fromDraft ? (dishDraft ? 'Foto masakan' : 'Suara dan label') : 'Resep saat ini'}</h2>
+      ${dishDraft ? dishSource : ''}
+      ${dishDraft ? '<canvas class="source-preview" role="img" aria-label="Foto masakan yang diunggah" hidden></canvas>' : ''}
+      ${fromDraft && intakeFiles?.audio ? `<audio class="source-audio" controls preload="metadata" aria-label="Dengarkan catatan suara" src="${escape(intakeFiles.audio)}"></audio>
       <canvas class="source-preview" role="img" aria-label="Foto label yang diunggah" hidden></canvas>` : ''}
       ${source?.transcript ? `<details><summary>${icon('audio')} Transkrip rekaman</summary><p>${escape(source.transcript)}</p></details>` : ''}
       ${notes.length ? `<section class="note intake-note"><h3>Yang perlu Anda cek</h3><ul>${notes.map((note) => `<li>${escape(note)}</li>`).join('')}</ul><p>Pilih <strong>Ubah</strong> di bahan terkait, atau tambahkan bahan yang belum ada.</p></section>` : ''}
       ${!fromDraft ? `<p>${escape(source?.product_name)}</p>` : ''}
     </aside>
     <form id="confirm-form">
-      <details class="recipe-settings"><summary>Detail produk</summary><div class="grid">
+      ${dishCase ? input('product_name', 'Nama masakan', source?.product_name, true) :
+        `<details class="recipe-settings"><summary>Detail produk</summary><div class="grid">
         ${input('product_name', 'Nama produk', source?.product_name, true)}
         ${select('scope', 'Jenis produk', { snack: 'Pemeriksaan bahan', facilitator_review: 'Produk atau proses yang perlu peninjauan' }, source?.scope)}
-      </div></details>
+      </div></details>`}
       <div id="ingredients">${ingredients.map(ingredientEditor).join('')}</div>
       <button class="quiet" id="add" type="button">Tambah bahan</button>
       <p class="muted confirm-copy">Konfirmasi bahwa daftar ini sesuai dengan bahan yang Anda gunakan.</p>
@@ -389,12 +421,12 @@ function showEditor() {
       </div>
     </form>
   </div>`;
-  previewImage(workspace.querySelector('.source-preview'), intakeFiles?.label);
+  previewImage(workspace.querySelector('.source-preview'), dishDraft ? intakeFiles?.dish : intakeFiles?.label);
   updateConfirmLabel();
   workspace.querySelectorAll('.editor').forEach(wireEditorRow);
   const list = workspace.querySelector('#ingredients');
   const settings = workspace.querySelector('.recipe-settings');
-  settings.addEventListener('invalid', () => { settings.open = true; }, true);
+  settings?.addEventListener('invalid', () => { settings.open = true; }, true);
   workspace.querySelector('#add').onclick = () => {
     list.insertAdjacentHTML('beforeend', ingredientEditor({ form: 'unknown', pack_condition: 'unknown' }));
     wireEditorRow(list.lastElementChild);
@@ -431,13 +463,13 @@ function showEditor() {
       const result = await request(path('confirm'), {
         revision: view.revision,
         product_name: form.elements.product_name.value,
-        scope: form.elements.scope.value,
+        scope: dishCase ? 'facilitator_review' : form.elements.scope.value,
         reviewed: true,
         ingredients,
       });
       editing = false;
       if (result.case?.phase !== 'intake_review' && intakeFiles) {
-        URL.revokeObjectURL(intakeFiles.audio);
+        if (intakeFiles.audio) URL.revokeObjectURL(intakeFiles.audio);
         intakeFiles = undefined;
       }
       return result;
@@ -724,7 +756,7 @@ function caseInfo() {
       observer ? '<p class="note">Tampilan baca saja.</p>' : ''}
     ${view.scope === 'facilitator_review' && hasRecipe() ? '<p class="note">Produk atau proses ini perlu ditinjau oleh fasilitator. Bukti setiap bahan tetap diperiksa secara terpisah.</p>' : ''}
     ${view.phase === 'paused' ? '<p class="note">Pemeriksaan terjeda. Coba lagi untuk melanjutkan kasus ini.</p>' : ''}
-    <p class="case-source muted">${replay ? sourceModes.replay : sourceModes[view.source_mode] || 'Sumber kasus'} · Revisi ${view.revision}</p>
+    <p class="case-source muted">${replay ? sourceModes.replay : (view.source_mode === 'actual_media' && view.intake_kind === 'dish_photo' ? 'Unggahan foto masakan' : sourceModes[view.source_mode]) || 'Sumber kasus'} · Revisi ${view.revision}</p>
   </div>`;
 }
 
@@ -812,7 +844,7 @@ function showChecks(stage) {
     </div>`}
     ${!observer ? `<div class="case-actions">
       ${paused ? '<button type="button" class="primary" id="retry">Coba lagi</button>' : ''}
-      ${paused && !hasRecipe() ? '<a href="/">Mulai dengan rekaman atau label lain</a>' : ''}
+      ${paused && !hasRecipe() ? `<a href="/">${view.intake_kind === 'dish_photo' ? 'Pilih foto lain' : 'Mulai dengan rekaman atau label lain'}</a>` : ''}
       ${hasRecipe() && !packet ? '<button type="button" class="quiet" id="edit">Ubah resep</button>' : ''}
     </div>` : ''}`;
 

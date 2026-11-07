@@ -137,7 +137,8 @@ footer { border-top: 1px solid var(--line); padding: 1rem 0 1.5rem; font-size: .
   border-radius: var(--radius);
   background: var(--surface);
 }
-.start-panel > p { max-width: 44ch; }
+.start-panel form > p { max-width: 44ch; }
+.start-panel form + form { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
 .start-panel form > .primary { width: 100%; margin-top: .9rem; }
 .start-meta { color: var(--muted); font-size: .9rem; }
 .start-meta > details { border-bottom: 1px solid var(--line); padding-bottom: .65rem; }

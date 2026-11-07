@@ -1,6 +1,6 @@
 # Telusur Halal
 
-Telusur Halal helps Indonesian micro and small food sellers turn a Bahasa Indonesia voice note, a product label, and ingredient pack photos into a traceable evidence packet for facilitator review.
+Telusur Halal helps Indonesian micro and small food sellers start with a cooked-dish photo or a Bahasa Indonesia voice note with a product label, then build a traceable ingredient evidence packet for facilitator review.
 
 **Review the MVP** · [Run locally](#run-the-mvp) · [D01 demo inputs](demo/README.md) · [Verification results](docs/mvp-verification.md)
 
@@ -10,7 +10,7 @@ The model reads seller inputs, then the Agents SDK runs a case-level tool loop. 
 
 ```mermaid
 flowchart LR
-    Seller["Seller browser"] -->|"Voice note and label"| Case["Case service"]
+    Seller["Seller browser"] -->|"Dish photo or voice note and label"| Case["Case service"]
     Case -->|"Transcribe and extract"| AI["OpenAI API"]
     AI -->|"Recipe draft"| Case
     Case -->|"Review draft and request pack photos"| Seller
@@ -26,7 +26,7 @@ flowchart LR
     Case --> Export["HTML / JSON evidence packet and read-only trace"]
 ```
 
-1. **Confirm the recipe.** Transcribe the voice note and combine it with the label photo to draft an ingredient list. The seller can correct the draft before evidence checks begin. [Model integration](src/model.ts) · [Seller UI](public/app.js)
+1. **Confirm the recipe.** A cooked-dish photo suggests a dish name and visible ingredients. A voice note and label can also draft a recipe. The seller corrects the list, adds hidden ingredients, and confirms it before checks begin. A dish photo never counts as package evidence. [Model integration](src/model.ts) · [Seller UI](public/app.js)
 2. **Check the evidence.** Read the pack and match the declared ingredient, product, manufacturer, and variant against the registry. A readable certificate number on the pack must agree with the match. Conflicts and repack history survive recipe edits. [Evidence rules](src/rules.ts) · [BPJPH adapter](src/bpjph.ts)
 3. **Choose the next action.** The model selects from actions the server allows, such as requesting a clearer photo, searching for a comparable product in the simulated Shopee catalogue, or referring a gap to a facilitator. The seller can approve or decline the offer and consider at most one alternative. [Case service](src/service.ts)
 4. **Export for review.** The packet lists current ingredients, source references, unresolved gaps, and the facilitator checklist. Approved substitutes stay in a separate section pending adoption. The read-only trace shows what the app checked, rejected, and tried next. [Packet builder](src/packet.ts) · [Trace grader](src/grader.ts)
@@ -62,6 +62,8 @@ npm run dev
 ```
 
 Open [the local seller screen](http://127.0.0.1:4173). The app sends uploaded audio and photos to the configured OpenAI API for transcription and image reading. The case store is in memory. Download the HTML or JSON packet and the read-only trace before closing the case or restarting the server.
+
+To try photo intake, choose **Mulai dari foto masakan**, upload a photo of one cooked dish, and select **Lihat saran bahan**. Edit or remove suggestions and add any oil, sauces, seasonings, or stock you used. If the dish cannot be recognized, enter the recipe in the empty editor or choose another photo. After confirming, upload separate photos of the actual ingredient packages when asked. The dish and production process still go to facilitator review.
 
 For the full D01 flow, use the [demo input guide](demo/README.md). Confirm the draft, upload the Sentosa oil pack, then submit Pedas and Original for the seasoning in that order. Approve the simulated Shopee plan and export the packet. Use **Putar ulang jejak tersimpan** on the start screen to open a downloaded trace locally.
 

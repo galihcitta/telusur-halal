@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
-import { eventSchema, IntakeInputError, PackInputError, type AgentAction, type CaseView, type Confirmation, type EventType, type Ingredient, type Media, type Model, type Observation, type SourceMode } from './contracts.js';
+import { eventSchema, IntakeInputError, PackInputError, type AgentAction, type CaseView, type Confirmation, type Draft, type EventType, type Ingredient, type Media, type Model, type Observation, type SourceMode } from './contracts.js';
 import type { WorkflowAction, WorkflowRunner } from './orchestration.js';
 import { checkEvidence, exemption, ingredientIdentity, searchCatalogue } from './rules.js';
 
@@ -79,24 +79,51 @@ export class CaseService {
     return structuredClone(entry.view);
   }
 
-  async create(audio: Media, label: Media) {
+  create(audio: Media, label: Media) {
+    return this.start(() => this.model.intake(audio, label), [mediaRef(audio), mediaRef(label)]);
+  }
+
+  createFromDish(photo: Media) {
+    return this.start(async () => {
+      const suggestions = await this.model.readDish(photo);
+      const dish = suggestions?.dish.trim() ?? '';
+      const ingredients = new Map<string, string>();
+      if (dish && dish.length <= 250) {
+        for (const name of suggestions?.visible_ingredients ?? []) {
+          const clean = name.trim();
+          if (clean && clean.length <= 250) ingredients.set(normalize(clean)!, clean);
+        }
+      }
+      return {
+        product_name: dish.length <= 250 ? dish : '',
+        scope: 'facilitator_review',
+        notes: [],
+        transcript: '',
+        ingredients: Array.from(ingredients.values()).slice(0, 20)
+          .map(declared_name => ({ declared_name, form: 'unknown', pack_condition: 'unknown' })),
+      };
+    }, [mediaRef(photo)], 'dish_photo');
+  }
+
+  private async start(readDraft: () => Promise<Draft>, source_refs: string[], intake_kind?: CaseView['intake_kind']) {
     const view: CaseView = {
-      case_id: randomUUID(), revision: 1, phase: 'intake_review', source_mode: this.source,
+      case_id: randomUUID(), revision: 1, phase: 'intake_review', source_mode: this.source, intake_kind,
       product_name: '', scope: 'facilitator_review', confirmed_ingredient_ids: [],
       ingredients: [], proposals: [], events: [],
     };
     const entry: Entry = { view, session: randomBytes(32).toString('hex'), busy: false, history: new Map(), knownIds: new Set(), photos: new Map() };
     await this.run(entry, async () => {
-      const draft = await this.model.intake(audio, label);
+      const draft = await readDraft();
       view.draft = {
         ...draft,
         ingredients: draft.ingredients.map(row => ({ ...row, ingredient_id: randomUUID() })),
       };
-      view.product_name = draft.product_name;
+      if (intake_kind !== 'dish_photo') view.product_name = draft.product_name;
       view.scope = draft.scope;
       view.phase = 'intake_review';
-      append(view, 'intake_parsed', 'Audio and product label read for seller review.', {
-        input_mode: this.source, source_refs: [mediaRef(audio), mediaRef(label)],
+      append(view, 'intake_parsed', intake_kind === 'dish_photo'
+        ? 'Foto masakan dibaca untuk memberi saran resep.' : 'Audio and product label read for seller review.', {
+        input_mode: this.source, intake_kind, source_refs,
         ingredient_count: draft.ingredients.length,
       });
     });
@@ -154,7 +181,7 @@ export class CaseService {
 
   async confirm(entry: Entry, input: Confirmation) {
     const view = entry.view;
-    if (!view.draft?.ingredients.length || view.phase === 'paused') {
+    if (!view.draft || view.phase === 'paused' || (!view.draft.ingredients.length && view.intake_kind !== 'dish_photo')) {
       throw new RequestError(409, 'Provide readable intake or retry the paused step first.');
     }
     const previous = new Set([...entry.knownIds, ...view.draft.ingredients.map(row => row.ingredient_id)]);
@@ -189,7 +216,8 @@ export class CaseService {
     if (view.confirmed_ingredient_ids.length) view.revision++;
     entry.confirmationKey = confirmationKey;
     const parsedEvent = view.events.find(event => event.type === 'intake_parsed');
-    const refs = parsedEvent?.data.source_refs as string[] ?? [];
+    // The dish image can explain a suggestion in the trace, but is never an ingredient evidence source.
+    const refs = view.intake_kind === 'dish_photo' ? [] : (parsedEvent?.data.source_refs as string[] ?? []);
     view.product_name = input.product_name;
     const product = normalize(input.product_name)!;
     // The intake assessment covers its original product, not new process claims.
@@ -322,6 +350,12 @@ export class CaseService {
     }
     if (input.mode !== 'no_pack' && input.condition === 'loose') {
       throw new RequestError(400, 'Use the no-pack answer for loose goods.');
+    }
+    const dishRef = view.intake_kind === 'dish_photo'
+      ? (view.events.find(event => event.type === 'intake_parsed')?.data.source_refs as string[] | undefined)?.[0]
+      : undefined;
+    if (input.mode === 'photo' && dishRef && input.images.some(image => mediaRef(image) === dishRef)) {
+      throw new RequestError(422, 'Foto masakan tidak bisa dipakai sebagai bukti kemasan. Unggah foto kemasan bahan yang Anda pakai.');
     }
     let recorded = false;
     const work = async () => {
