@@ -1,0 +1,1565 @@
+{
+  "source": "https://bpjph.halal.go.id/cari/sertifikat",
+  "queries": [
+    "gelatin",
+    "minyak goreng",
+    "tepung terigu",
+    "bumbu",
+    "keju",
+    "perisa",
+    "margarin",
+    "coklat"
+  ],
+  "pages_per_query_limit": 25,
+  "target_records": 1500,
+  "stop_reason": "target_reached",
+  "unique_records": 1504,
+  "pages": [
+    {
+      "query": "gelatin",
+      "page": 1,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=1",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=1",
+      "retrieved_at": "2026-11-07T03:50:02.646204+00:00",
+      "raw_file": "raw/01-page-1.html",
+      "sha256": "f334a89513e656340bda282f53d12690f3d55ad5e3eb0a508c74817f0577b0ab",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 2,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=2",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=2",
+      "retrieved_at": "2026-11-07T03:50:03.921761+00:00",
+      "raw_file": "raw/01-page-2.html",
+      "sha256": "d8ca82780391eb2da89d092df1b6234ab94794e89f01623c3cb75330bce62299",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 1,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=1",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=1",
+      "retrieved_at": "2026-11-07T03:50:05.161366+00:00",
+      "raw_file": "raw/02-page-1.html",
+      "sha256": "4c1eaf98c26c57a1e79acf49f809394c1889612bc0ec21d5c4240fc68ef28bf8",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 2,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=2",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=2",
+      "retrieved_at": "2026-11-07T03:50:06.335877+00:00",
+      "raw_file": "raw/02-page-2.html",
+      "sha256": "d63a093d1e64f0612c2f491f16c65ed4d8d8475453ee40b4dc954c291747bf09",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 1,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=1",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=1",
+      "retrieved_at": "2026-11-07T03:50:07.434507+00:00",
+      "raw_file": "raw/03-page-1.html",
+      "sha256": "e4530f5d27fe3a68f0ecd0e83c80f98561bccd8fdaa6eb54760df54616692fb4",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 2,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=2",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=2",
+      "retrieved_at": "2026-11-07T03:50:08.593806+00:00",
+      "raw_file": "raw/03-page-2.html",
+      "sha256": "93e2aa89a3dce0e9074a808be7d26fe3f828be94c872dbfd6217e8735c1f9d7f",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 1,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=1",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=1",
+      "retrieved_at": "2026-11-07T03:50:09.704242+00:00",
+      "raw_file": "raw/04-page-1.html",
+      "sha256": "4919eb8cec5613e1f525d8817e0aad49b7ab4cf61502e93e047bacd42dc3b3c6",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 2,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=2",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=2",
+      "retrieved_at": "2026-11-07T03:50:10.805900+00:00",
+      "raw_file": "raw/04-page-2.html",
+      "sha256": "df14b5c1ed28fe93f74c9500fa31f916dc4c46bcdca0bcb70b05b3e8b14d02b1",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 1,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=1",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=1",
+      "retrieved_at": "2026-11-07T03:50:12.044735+00:00",
+      "raw_file": "raw/05-page-1.html",
+      "sha256": "e0393681be4964c8593fbd264a3e6d1862b0996896500da5b201a590058a174c",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 2,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=2",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=2",
+      "retrieved_at": "2026-11-07T03:50:13.250878+00:00",
+      "raw_file": "raw/05-page-2.html",
+      "sha256": "347cc517bd7a390b310f448add2a56a12533a528321962649e0cdd981769beaa",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 1,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=1",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=1",
+      "retrieved_at": "2026-11-07T03:50:14.523514+00:00",
+      "raw_file": "raw/06-page-1.html",
+      "sha256": "311348dfe7bbf8d95021f8697b78d4ec5347ab7edd4e25bc3ccdf82fb939ed08",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 2,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=2",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=2",
+      "retrieved_at": "2026-11-07T03:50:15.635819+00:00",
+      "raw_file": "raw/06-page-2.html",
+      "sha256": "c5d76d4dd8aa4be0c710ee0fcd26832bcf7154ba36dcfb673ceeab5d9db299be",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 1,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=1",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=1",
+      "retrieved_at": "2026-11-07T03:50:16.757222+00:00",
+      "raw_file": "raw/07-page-1.html",
+      "sha256": "696ac12bbb5b27a849ff5d84038117ddb7312aca6603d2245084ecbbe5c1780a",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 2,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=2",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=2",
+      "retrieved_at": "2026-11-07T03:50:18.050103+00:00",
+      "raw_file": "raw/07-page-2.html",
+      "sha256": "3559b3891f15e2b6ec22ac5f02c8f4aaca2dcbd4c035e24ccef57500e1a1489c",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 1,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=1",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=1",
+      "retrieved_at": "2026-11-07T03:50:19.273278+00:00",
+      "raw_file": "raw/08-page-1.html",
+      "sha256": "d5991cef566c6d80fb3014626af3a681882c0ece47f4847c425506636d08fed5",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 2,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=2",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=2",
+      "retrieved_at": "2026-11-07T03:50:20.384629+00:00",
+      "raw_file": "raw/08-page-2.html",
+      "sha256": "413baca6855c1a7b26db08007dc855155c0156861c033d40b899541070d514db",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 3,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=3",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=3",
+      "retrieved_at": "2026-11-07T03:54:23.385485+00:00",
+      "raw_file": "raw/01-page-3.html",
+      "sha256": "da6d4720d6aaeb211da24f50cc54f2360e6156d2c8439a7e0464a6b8d8d7179f",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 3,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=3",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=3",
+      "retrieved_at": "2026-11-07T03:54:24.843949+00:00",
+      "raw_file": "raw/02-page-3.html",
+      "sha256": "dba4a756cae3bdeac64ba99054e58d977663e9763471910555cff3bb697da20c",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 3,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=3",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=3",
+      "retrieved_at": "2026-11-07T03:54:26.079978+00:00",
+      "raw_file": "raw/03-page-3.html",
+      "sha256": "7f84342e6ac5d33a417c19213e8056cca9093e1dbc289a56a2627f9d4ac52428",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 3,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=3",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=3",
+      "retrieved_at": "2026-11-07T03:54:27.267720+00:00",
+      "raw_file": "raw/04-page-3.html",
+      "sha256": "565e26357e5a853154909178218dbeef643cc023675f304ad98ca8d1d7581a11",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 3,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=3",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=3",
+      "retrieved_at": "2026-11-07T03:54:28.509013+00:00",
+      "raw_file": "raw/05-page-3.html",
+      "sha256": "a5ef4864ff3e6a8774a6e35570692c256710af7ab5c1479870299f754790cd2b",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 3,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=3",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=3",
+      "retrieved_at": "2026-11-07T03:54:29.785790+00:00",
+      "raw_file": "raw/06-page-3.html",
+      "sha256": "59b4503cf552ac291cf9268b91799e548baf32aee31c4921b66bda8f62d23a52",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 3,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=3",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=3",
+      "retrieved_at": "2026-11-07T03:54:31.139498+00:00",
+      "raw_file": "raw/07-page-3.html",
+      "sha256": "69bee60e30360bbedad125f641236de5047d81e4a11b2c93d32a84dd111d1f50",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 3,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=3",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=3",
+      "retrieved_at": "2026-11-07T03:54:32.287580+00:00",
+      "raw_file": "raw/08-page-3.html",
+      "sha256": "b07fc3563a137f5fd9d2aa284af34f298d6b796bd99a75705af21a096b9ccd6e",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 4,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=4",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=4",
+      "retrieved_at": "2026-11-07T03:54:33.645876+00:00",
+      "raw_file": "raw/01-page-4.html",
+      "sha256": "79167082a0ee74864b20446b6f1e08112e79a4f93682c0efa1e4c6ee50b8c930",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 4,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=4",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=4",
+      "retrieved_at": "2026-11-07T03:54:34.862107+00:00",
+      "raw_file": "raw/02-page-4.html",
+      "sha256": "73d6bd7e98ef069f52a0ebfafc1420fb89d9bda33ba1b38b46d36bf5da479ad2",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 4,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=4",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=4",
+      "retrieved_at": "2026-11-07T03:54:36.491909+00:00",
+      "raw_file": "raw/03-page-4.html",
+      "sha256": "669fd81a5bc01cf6e052675c17bb21511ce447106ec9aa93b903d3674e37dff7",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 4,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=4",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=4",
+      "retrieved_at": "2026-11-07T03:54:38.918494+00:00",
+      "raw_file": "raw/04-page-4.html",
+      "sha256": "37e0de4adbc2a1c5a869809a0ea84739ee7878ba37967d63ef9df929c1de50e4",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 4,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=4",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=4",
+      "retrieved_at": "2026-11-07T03:54:40.149454+00:00",
+      "raw_file": "raw/05-page-4.html",
+      "sha256": "fb1c32f33dfc8fb6675561fb82f15ccff0294b8d299aca30d122b2a1ed14fc0e",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 4,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=4",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=4",
+      "retrieved_at": "2026-11-07T03:54:41.670178+00:00",
+      "raw_file": "raw/06-page-4.html",
+      "sha256": "bcb26fda58473a01007340b3a6c57c9c8b9083ed404fc9474915747e35744938",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 4,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=4",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=4",
+      "retrieved_at": "2026-11-07T03:54:42.829622+00:00",
+      "raw_file": "raw/07-page-4.html",
+      "sha256": "b400b2d62788225ed2ae2a543be57ac9c87753bd814f404b0ebd01d1c88b383f",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 4,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=4",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=4",
+      "retrieved_at": "2026-11-07T03:54:44.022153+00:00",
+      "raw_file": "raw/08-page-4.html",
+      "sha256": "ac2508976e20c32ccd8146881d0fdbba52012c0dc365c842b5a64ec934d62f3b",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 5,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=5",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=5",
+      "retrieved_at": "2026-11-07T03:54:45.161154+00:00",
+      "raw_file": "raw/01-page-5.html",
+      "sha256": "02917146f68beb7af47c9bcdbf80258b82ef3ea479a56b5131a4cefe3d71bfbe",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 5,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=5",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=5",
+      "retrieved_at": "2026-11-07T03:54:46.393182+00:00",
+      "raw_file": "raw/02-page-5.html",
+      "sha256": "43c21f61355713e0236af0fc40a8a70e3cbff96cd2f2da11059a8573cd55af6e",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 5,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=5",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=5",
+      "retrieved_at": "2026-11-07T03:54:47.600359+00:00",
+      "raw_file": "raw/03-page-5.html",
+      "sha256": "5e2088b2ace638975f46d3b9e142929399633f044ef3306166c623e165331316",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 5,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=5",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=5",
+      "retrieved_at": "2026-11-07T03:54:48.814563+00:00",
+      "raw_file": "raw/04-page-5.html",
+      "sha256": "9d36f3bb283090ecc1150dc1334000638a2efcf31f6a5db09662ea9c60a245b6",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 5,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=5",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=5",
+      "retrieved_at": "2026-11-07T03:54:49.980772+00:00",
+      "raw_file": "raw/05-page-5.html",
+      "sha256": "22e588048a894d764dc124a3056d8b174100d649d4e03b664acc7c8e12402b49",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 5,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=5",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=5",
+      "retrieved_at": "2026-11-07T03:54:51.112888+00:00",
+      "raw_file": "raw/06-page-5.html",
+      "sha256": "b290cc15b9ffc69d5a26bfb427a5b2a9183544ac0e8ecd65a4a37f9b2809b48a",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 5,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=5",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=5",
+      "retrieved_at": "2026-11-07T03:54:52.235030+00:00",
+      "raw_file": "raw/07-page-5.html",
+      "sha256": "93721776b0a4cf4f291ddfaed69b6e0269bc41b309d518dd5dfe1f0f5df86caf",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 5,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=5",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=5",
+      "retrieved_at": "2026-11-07T03:54:53.458046+00:00",
+      "raw_file": "raw/08-page-5.html",
+      "sha256": "85c32ebf71c04f3fc2741880001812155b7618aaa6a405d2bb1c116411572ef9",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 6,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=6",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=6",
+      "retrieved_at": "2026-11-07T03:54:54.623207+00:00",
+      "raw_file": "raw/01-page-6.html",
+      "sha256": "3276cd2f93f55509909755d0137425cb908bdf60b137c7c631ea23c1fefa12f8",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 6,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=6",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=6",
+      "retrieved_at": "2026-11-07T03:54:55.947541+00:00",
+      "raw_file": "raw/02-page-6.html",
+      "sha256": "95a69375e508578a4e385f5f0842cfa6d4c69dceaa63cac49a090579be16511e",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 6,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=6",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=6",
+      "retrieved_at": "2026-11-07T03:54:57.129356+00:00",
+      "raw_file": "raw/03-page-6.html",
+      "sha256": "d568981683a81db96893bbac9ed91911b3c93147f9ec64115d11c7db8561d54f",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 6,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=6",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=6",
+      "retrieved_at": "2026-11-07T03:54:58.259537+00:00",
+      "raw_file": "raw/04-page-6.html",
+      "sha256": "1a9a6c96dab2dcaf8115d405e3c16e2b7664e47d23df22450f8316f184250a78",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 6,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=6",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=6",
+      "retrieved_at": "2026-11-07T03:54:59.397505+00:00",
+      "raw_file": "raw/05-page-6.html",
+      "sha256": "80cfd31212995c0c505ecb9e874c3953d3051aabf7f51db2009e79b7d3ea4628",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 6,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=6",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=6",
+      "retrieved_at": "2026-11-07T03:55:00.542953+00:00",
+      "raw_file": "raw/06-page-6.html",
+      "sha256": "b26de15f6967280469b75692f56f47d55fba489c15ad68dbc2748d4708c612af",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 6,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=6",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=6",
+      "retrieved_at": "2026-11-07T03:55:01.720759+00:00",
+      "raw_file": "raw/07-page-6.html",
+      "sha256": "9eb1a8e7717df1af4240f16349b9c39ceb1b428b31627d007d3c94e1a8c29187",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 6,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=6",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=6",
+      "retrieved_at": "2026-11-07T03:55:03.135585+00:00",
+      "raw_file": "raw/08-page-6.html",
+      "sha256": "a1cba6e912ba7f800501ba53b1e92f59162dd153ed6841f770beeb08871d72c0",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 7,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=7",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=7",
+      "retrieved_at": "2026-11-07T03:55:04.304565+00:00",
+      "raw_file": "raw/01-page-7.html",
+      "sha256": "f9f26e31aadd18d0685cd06ad9caea4a4601786a1373af0e17fdb4e76c7cd70e",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 7,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=7",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=7",
+      "retrieved_at": "2026-11-07T03:55:05.466572+00:00",
+      "raw_file": "raw/02-page-7.html",
+      "sha256": "bb8e001a4595e6509800e78f081a0a84c2c6f87e10010c288b111e4607e0e230",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 7,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=7",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=7",
+      "retrieved_at": "2026-11-07T03:55:06.587455+00:00",
+      "raw_file": "raw/03-page-7.html",
+      "sha256": "f83cfc0a7f2e52ccc37afb9cbd684264fa4cd4bf1c3bb2358cafc81e3213f6dc",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 7,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=7",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=7",
+      "retrieved_at": "2026-11-07T03:55:07.737732+00:00",
+      "raw_file": "raw/04-page-7.html",
+      "sha256": "3f144c772edbb9a15fb6ebe4de14a428c4b816a1c903afadae90a0f3216f3dbe",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 7,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=7",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=7",
+      "retrieved_at": "2026-11-07T03:55:08.855146+00:00",
+      "raw_file": "raw/05-page-7.html",
+      "sha256": "dd6af475592f166de07604c280351abfc39aad984f74d7574f501084701b6a6b",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 7,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=7",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=7",
+      "retrieved_at": "2026-11-07T03:55:10.013538+00:00",
+      "raw_file": "raw/06-page-7.html",
+      "sha256": "55a300f253b3d7637740a1da5ee68e0744eea0e4cb6a71bc4ce9f0036db4cd70",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 7,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=7",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=7",
+      "retrieved_at": "2026-11-07T03:55:11.724929+00:00",
+      "raw_file": "raw/07-page-7.html",
+      "sha256": "3d583c6bcba783e03d440872cac26babd000c5a5e862671fd6561cb23dd2fd59",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 7,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=7",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=7",
+      "retrieved_at": "2026-11-07T03:55:12.973000+00:00",
+      "raw_file": "raw/08-page-7.html",
+      "sha256": "8fe189c1d2c6f1f43153f27ea7892a7e1a47cde0dd2735d2bb2ece15e019292a",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 8,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=8",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=8",
+      "retrieved_at": "2026-11-07T03:55:14.261782+00:00",
+      "raw_file": "raw/01-page-8.html",
+      "sha256": "0303b5cca14a19777e74a6112edbea2107c0c4db1d3c2b7a95b9c7c53966d76e",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 8,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=8",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=8",
+      "retrieved_at": "2026-11-07T03:55:15.488561+00:00",
+      "raw_file": "raw/02-page-8.html",
+      "sha256": "c9749bfe59ad1793ca4615714117cf26a2c304c149624f5ec0362fe4280b0c6a",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 8,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=8",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=8",
+      "retrieved_at": "2026-11-07T03:55:16.654932+00:00",
+      "raw_file": "raw/03-page-8.html",
+      "sha256": "329e7fdfd86de31a007d0296f9f3575b92655fecd36b3fad0b55f9249d46c149",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 8,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=8",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=8",
+      "retrieved_at": "2026-11-07T03:55:17.949291+00:00",
+      "raw_file": "raw/04-page-8.html",
+      "sha256": "1f3270b7c0f27cb07b5229d5de2e362068a148ee64160bc166770729e02a02af",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 8,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=8",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=8",
+      "retrieved_at": "2026-11-07T03:55:19.169505+00:00",
+      "raw_file": "raw/05-page-8.html",
+      "sha256": "e8df3bdbaa1a6cd1d0553a4d7e8c2e2223594d96608d1613c59b5a637e944407",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 8,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=8",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=8",
+      "retrieved_at": "2026-11-07T03:55:20.313904+00:00",
+      "raw_file": "raw/06-page-8.html",
+      "sha256": "fa203335620f7f0854270375508185d91a343439b587c8e251583663f46a5e73",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 8,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=8",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=8",
+      "retrieved_at": "2026-11-07T03:55:21.451881+00:00",
+      "raw_file": "raw/07-page-8.html",
+      "sha256": "6357d60097dddcb0ef6f85373ef4c813c561dfac41adb60b5b0f29e8e77712d0",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 8,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=8",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=8",
+      "retrieved_at": "2026-11-07T03:55:22.689014+00:00",
+      "raw_file": "raw/08-page-8.html",
+      "sha256": "bd7d1a81855f282e91cd464fe80d28b554f14c577be0c7c8c21d23b8ad1c6837",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 9,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=9",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=9",
+      "retrieved_at": "2026-11-07T03:55:23.977664+00:00",
+      "raw_file": "raw/01-page-9.html",
+      "sha256": "69d50a3e1dd8babb6a72f67a183f8500f37722aaed10db62bba611519d416351",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 9,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=9",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=9",
+      "retrieved_at": "2026-11-07T03:55:25.113857+00:00",
+      "raw_file": "raw/02-page-9.html",
+      "sha256": "746e977c5e2d7a7eae84ec3bb56f707c0c8a4757164812bddcdd973f3db65ccd",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 9,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=9",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=9",
+      "retrieved_at": "2026-11-07T03:55:26.420165+00:00",
+      "raw_file": "raw/03-page-9.html",
+      "sha256": "a06f2e0cc2cde0a9893e8b9e67ef6c67c60a6c3662e8d865710b73836b0e8bec",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 9,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=9",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=9",
+      "retrieved_at": "2026-11-07T03:55:27.598989+00:00",
+      "raw_file": "raw/04-page-9.html",
+      "sha256": "31a44104f60aa0166e7708a12eac956e4ad35ad24e7c07297003341f3ac30b18",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 9,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=9",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=9",
+      "retrieved_at": "2026-11-07T03:55:28.732237+00:00",
+      "raw_file": "raw/05-page-9.html",
+      "sha256": "8d1ba009cf6280a0d4449e5e3bc4f84dfe6f9dfcb91a0cd98e857a0fa0445368",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 9,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=9",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=9",
+      "retrieved_at": "2026-11-07T03:55:30.028670+00:00",
+      "raw_file": "raw/06-page-9.html",
+      "sha256": "1b34d95c2a6e911333a7650a05cf73c6b4ef63c96027344af38292a897c30b0e",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 9,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=9",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=9",
+      "retrieved_at": "2026-11-07T03:55:31.313462+00:00",
+      "raw_file": "raw/07-page-9.html",
+      "sha256": "6360593f0a0dba92ba8454eb5713d145659ca277ccc3e9bc5e8427467f0c2d39",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 9,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=9",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=9",
+      "retrieved_at": "2026-11-07T03:55:32.446258+00:00",
+      "raw_file": "raw/08-page-9.html",
+      "sha256": "871adb7175083073c57141824920141f262967174979c6d64f5482aeac5b4328",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 10,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=10",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=10",
+      "retrieved_at": "2026-11-07T03:55:33.746695+00:00",
+      "raw_file": "raw/01-page-10.html",
+      "sha256": "399fbba327cd96f933fa173f13755ff25f14ea1b1ffd9fc061c5e2455c62a7bc",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 10,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=10",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=10",
+      "retrieved_at": "2026-11-07T03:55:34.891697+00:00",
+      "raw_file": "raw/02-page-10.html",
+      "sha256": "e07d342f49efa79ff5b981af7dedab7c4756184000cab9fa6c36ba0ac554d951",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 10,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=10",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=10",
+      "retrieved_at": "2026-11-07T03:55:36.116460+00:00",
+      "raw_file": "raw/03-page-10.html",
+      "sha256": "5056ad055389f38fb89b4f70d37ba0c9add302f9f19766b19801c9ffa23d229e",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 10,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=10",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=10",
+      "retrieved_at": "2026-11-07T03:55:37.436029+00:00",
+      "raw_file": "raw/04-page-10.html",
+      "sha256": "11d888e2fed36c04ae10423db37122d2605cfa6fef99a49aba6f7a4e0ed53043",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 10,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=10",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=10",
+      "retrieved_at": "2026-11-07T03:55:38.691916+00:00",
+      "raw_file": "raw/05-page-10.html",
+      "sha256": "4499053e40f54537157105e26664b0d501c3cc8714d01afe14924f82280e7ff7",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 10,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=10",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=10",
+      "retrieved_at": "2026-11-07T03:55:39.921917+00:00",
+      "raw_file": "raw/06-page-10.html",
+      "sha256": "551ed6e7cff31992ea543757e893a228358b0ffb41fad4e5c14ca14abc3616c6",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 10,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=10",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=10",
+      "retrieved_at": "2026-11-07T03:55:41.075011+00:00",
+      "raw_file": "raw/07-page-10.html",
+      "sha256": "3cdbd3dac98bb21e2bdbc020f72b12f12f727e00784e6874c65a464abc07138c",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 10,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=10",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=10",
+      "retrieved_at": "2026-11-07T03:55:42.548238+00:00",
+      "raw_file": "raw/08-page-10.html",
+      "sha256": "cb8cae7275cb7b33385890be6915b13367576c18b7c19448aaeca1373ebf16d4",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 11,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=11",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=11",
+      "retrieved_at": "2026-11-07T03:55:43.816440+00:00",
+      "raw_file": "raw/01-page-11.html",
+      "sha256": "4132e59e22d43084952df1152b489d2dc05408afb903763a97e10b6e296701c8",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 11,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=11",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=11",
+      "retrieved_at": "2026-11-07T03:55:44.946133+00:00",
+      "raw_file": "raw/02-page-11.html",
+      "sha256": "c898d7e27696b7bcb6307e5412711d8db7e40d1d8d2c61c439444007a27aed60",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 11,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=11",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=11",
+      "retrieved_at": "2026-11-07T03:55:46.076867+00:00",
+      "raw_file": "raw/03-page-11.html",
+      "sha256": "d055b5c251a0328202b9ca0337e29262daebd1865c2889a6f19239de23b0bdca",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 11,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=11",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=11",
+      "retrieved_at": "2026-11-07T03:55:47.213938+00:00",
+      "raw_file": "raw/04-page-11.html",
+      "sha256": "0d927a97257ffa3a1abf926e957423efe3dbdd4ab760cc62ed43afdbcd45212d",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 11,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=11",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=11",
+      "retrieved_at": "2026-11-07T03:55:48.338996+00:00",
+      "raw_file": "raw/05-page-11.html",
+      "sha256": "bd761ee19fc84dc4b96658562bf2b44b558d526daa4ff7fb5eed37c5c4ab2708",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 11,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=11",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=11",
+      "retrieved_at": "2026-11-07T03:55:49.490841+00:00",
+      "raw_file": "raw/06-page-11.html",
+      "sha256": "a6e294149e30df6a5eb43be81f85262b4d10eddd7de0681a3a5cfb5e84d21aba",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 11,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=11",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=11",
+      "retrieved_at": "2026-11-07T03:55:50.609146+00:00",
+      "raw_file": "raw/07-page-11.html",
+      "sha256": "5ac16d447d4ccc237fb195ced3b0fa5212a5c0375353a12ffbecc6a05a4d652b",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 11,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=11",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=11",
+      "retrieved_at": "2026-11-07T03:55:51.785906+00:00",
+      "raw_file": "raw/08-page-11.html",
+      "sha256": "3b591a202cb955d2f43298d489fee238a2110756b4427d83312bea7898d33f7f",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 12,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=12",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=12",
+      "retrieved_at": "2026-11-07T03:55:52.940439+00:00",
+      "raw_file": "raw/01-page-12.html",
+      "sha256": "7bb2f8a0654949b04f49f44736820cac36e3ed733add89d181b0b16de68e60ec",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 12,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=12",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=12",
+      "retrieved_at": "2026-11-07T03:55:54.180008+00:00",
+      "raw_file": "raw/02-page-12.html",
+      "sha256": "5b444b292df86a60b5c9f75114d3084076784d3065db7287d083568cfea3f749",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 12,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=12",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=12",
+      "retrieved_at": "2026-11-07T03:55:55.511323+00:00",
+      "raw_file": "raw/03-page-12.html",
+      "sha256": "315984a604ae297509b9ff232e723b4ce8814fa91ca17e9df8eeffde6618dde5",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 12,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=12",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=12",
+      "retrieved_at": "2026-11-07T03:55:56.663247+00:00",
+      "raw_file": "raw/04-page-12.html",
+      "sha256": "1e107977cf9c2b47efbce97d751c2eda3410f9985608ac5432870156e88a97fe",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 12,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=12",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=12",
+      "retrieved_at": "2026-11-07T03:55:57.927498+00:00",
+      "raw_file": "raw/05-page-12.html",
+      "sha256": "4fd3b201b35fed5dafba45a173e1e36264368ac6d80a19bcb5ccdd9111c36d5e",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 12,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=12",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=12",
+      "retrieved_at": "2026-11-07T03:55:59.741955+00:00",
+      "raw_file": "raw/06-page-12.html",
+      "sha256": "a89705be976a6a038166f7f0ca0997a9fca0a5c374d4e1eca046ba804943d799",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 12,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=12",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=12",
+      "retrieved_at": "2026-11-07T03:56:00.980569+00:00",
+      "raw_file": "raw/07-page-12.html",
+      "sha256": "f790510e805c8b1ba82e6d548cbdd16b418fb212e96832ba0e4ac5452144c3ee",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 12,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=12",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=12",
+      "retrieved_at": "2026-11-07T03:56:02.116541+00:00",
+      "raw_file": "raw/08-page-12.html",
+      "sha256": "749485ac71c481938f5865bb53504d643becd4f0df3e62cc82aa1ab1bdc55b6f",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 13,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=13",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=13",
+      "retrieved_at": "2026-11-07T03:56:03.265549+00:00",
+      "raw_file": "raw/01-page-13.html",
+      "sha256": "49cc3aa70a5ba98ca6e9c461e7b15e85e8fe5cf611dbd29d767ea8db1a43e5b6",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 13,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=13",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=13",
+      "retrieved_at": "2026-11-07T03:56:04.406695+00:00",
+      "raw_file": "raw/02-page-13.html",
+      "sha256": "160dcc80aa73f01015f171b5bb10fa9434eaef1ee7c19236308f84a32dfc2213",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 13,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=13",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=13",
+      "retrieved_at": "2026-11-07T03:56:05.583555+00:00",
+      "raw_file": "raw/03-page-13.html",
+      "sha256": "e513d367c6b879497bf6d8486a1a05b2bd2907e00c7bcc447ba41568f02df8d3",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 13,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=13",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=13",
+      "retrieved_at": "2026-11-07T03:56:06.781779+00:00",
+      "raw_file": "raw/04-page-13.html",
+      "sha256": "0ac2a8fd985006400b00a16cb349c2e227fc03060e02f8c603b0e81a10315049",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 13,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=13",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=13",
+      "retrieved_at": "2026-11-07T03:56:07.921211+00:00",
+      "raw_file": "raw/05-page-13.html",
+      "sha256": "cb5a285b9d4a2c5c2d40ded06e170721793a6785bce4fc0c3297e0d0d4690dd6",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 13,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=13",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=13",
+      "retrieved_at": "2026-11-07T03:56:09.169843+00:00",
+      "raw_file": "raw/06-page-13.html",
+      "sha256": "216f7145cd4bb0a6d517306620fd03e83f2ab67356c81e89a171d032a0c51168",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 13,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=13",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=13",
+      "retrieved_at": "2026-11-07T03:56:10.348846+00:00",
+      "raw_file": "raw/07-page-13.html",
+      "sha256": "4cceda1619682f01d8d2a6264f14a6fd31e9f3b33777d0571a6b76b0580494a8",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 13,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=13",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=13",
+      "retrieved_at": "2026-11-07T03:56:11.730957+00:00",
+      "raw_file": "raw/08-page-13.html",
+      "sha256": "4b4cac5dc4760ae4e0f58d6975ee4ed2250991c9d1f9fc9ed992039ec58dfd81",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 14,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=14",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=14",
+      "retrieved_at": "2026-11-07T03:56:12.915466+00:00",
+      "raw_file": "raw/01-page-14.html",
+      "sha256": "a6cfcaa3d5b6196b573e6e064f444eee487912c7ad54a028e2218fc878ba6d69",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 14,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=14",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=14",
+      "retrieved_at": "2026-11-07T03:56:14.312886+00:00",
+      "raw_file": "raw/02-page-14.html",
+      "sha256": "aa2b232dded4f98087d1bec36d0a21c0749e70d4005caa97c0af24a9a06dc82a",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 14,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=14",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=14",
+      "retrieved_at": "2026-11-07T03:56:15.495986+00:00",
+      "raw_file": "raw/03-page-14.html",
+      "sha256": "ca4d6257dd4646fc31a4c3fcab26304a78c7cace762e60ae718dc97f9f659c94",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 14,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=14",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=14",
+      "retrieved_at": "2026-11-07T03:56:16.632017+00:00",
+      "raw_file": "raw/04-page-14.html",
+      "sha256": "6901f4bf9fcc16e4f3e09e56eb345817c85a8c7afe368996deeb99d50196954b",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 14,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=14",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=14",
+      "retrieved_at": "2026-11-07T03:56:17.848524+00:00",
+      "raw_file": "raw/05-page-14.html",
+      "sha256": "86ca8e518752171cf7abfdc0bb4c204013347dac8a104c3458f280c21432bb71",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 14,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=14",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=14",
+      "retrieved_at": "2026-11-07T03:56:18.987175+00:00",
+      "raw_file": "raw/06-page-14.html",
+      "sha256": "60f72bdc8fc44fb2f8fffa391c975367c924fc797e558a946804d75b5a507197",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 14,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=14",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=14",
+      "retrieved_at": "2026-11-07T03:56:20.162125+00:00",
+      "raw_file": "raw/07-page-14.html",
+      "sha256": "4cc00e0e8e3555112fc9c4f9bf2b097a465728462b0cfa5d21a3f3be1c2d44df",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 14,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=14",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=14",
+      "retrieved_at": "2026-11-07T03:56:21.333926+00:00",
+      "raw_file": "raw/08-page-14.html",
+      "sha256": "efcd27d9df130ce2913010dc9e77e76e6f73aedb029424aaae5c2dcde2f2a389",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 15,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=15",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=15",
+      "retrieved_at": "2026-11-07T03:56:22.532421+00:00",
+      "raw_file": "raw/01-page-15.html",
+      "sha256": "27fe4c20b7db400b66d7ffcd777949100d5e63c462d16627b72295ed50447492",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 15,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=15",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=15",
+      "retrieved_at": "2026-11-07T03:56:23.751496+00:00",
+      "raw_file": "raw/02-page-15.html",
+      "sha256": "f1de612059c3aa90d8686d29e927752168a4366f00d63cf4924edb00c8489721",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 15,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=15",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=15",
+      "retrieved_at": "2026-11-07T03:56:25.054977+00:00",
+      "raw_file": "raw/03-page-15.html",
+      "sha256": "7689febc1c074f6b55a99b0f80f7c8cea9807147ef9ff7c1d4eda4a5ad0a5353",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 15,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=15",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=15",
+      "retrieved_at": "2026-11-07T03:56:26.235301+00:00",
+      "raw_file": "raw/04-page-15.html",
+      "sha256": "967395131071c12152c7717a1cbe084a0e8edfe1f01c3215f898dd5af30a2bea",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 15,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=15",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=15",
+      "retrieved_at": "2026-11-07T03:56:27.402277+00:00",
+      "raw_file": "raw/05-page-15.html",
+      "sha256": "930bfbb0fd868b0dac50832142a529ab5ff7aa2b05213912f536b759258d71e8",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 15,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=15",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=15",
+      "retrieved_at": "2026-11-07T03:56:28.627919+00:00",
+      "raw_file": "raw/06-page-15.html",
+      "sha256": "00f7de6d267f0f8691e29276abb485c121bf5dca00784c13860f62446b9715da",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 15,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=15",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=15",
+      "retrieved_at": "2026-11-07T03:56:29.804983+00:00",
+      "raw_file": "raw/07-page-15.html",
+      "sha256": "e266ff91e3957fa0a87f3fc1ef14ff6a9c923d4ed5dea45d4b159865efade305",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 15,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=15",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=15",
+      "retrieved_at": "2026-11-07T03:56:31.073491+00:00",
+      "raw_file": "raw/08-page-15.html",
+      "sha256": "67c0ef8e2c42b9ddc22079c8b20a7c9fd7c0244c6b9b020281cd58fbc9e2cedb",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 16,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=16",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=16",
+      "retrieved_at": "2026-11-07T03:56:32.256115+00:00",
+      "raw_file": "raw/01-page-16.html",
+      "sha256": "28f62043321d8c5ebf37ec70b1bfb4ca17c91fcc193c749379885e5705c49812",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 16,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=16",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=16",
+      "retrieved_at": "2026-11-07T03:56:33.386325+00:00",
+      "raw_file": "raw/02-page-16.html",
+      "sha256": "574da2737afc95f7694f70f13c19eb79de5412b7aaea242fd06e0084afda3ee6",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 16,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=16",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=16",
+      "retrieved_at": "2026-11-07T03:56:34.770918+00:00",
+      "raw_file": "raw/03-page-16.html",
+      "sha256": "8ab7c03ced4477a8d35f3d433bb3c3bf90fd550d3a70e41a69be7a7a46a5be71",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 16,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=16",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=16",
+      "retrieved_at": "2026-11-07T03:56:36.004522+00:00",
+      "raw_file": "raw/04-page-16.html",
+      "sha256": "1a269bc11cc9d032532557ae0255fc3047b21105ff63f245a25f9631b1117d60",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 16,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=16",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=16",
+      "retrieved_at": "2026-11-07T03:56:37.438941+00:00",
+      "raw_file": "raw/05-page-16.html",
+      "sha256": "cae4ab6e2dfde14611e86d9aa11b55cbff37f53407888660f15329b8645fa6a0",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 16,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=16",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=16",
+      "retrieved_at": "2026-11-07T03:56:38.769150+00:00",
+      "raw_file": "raw/06-page-16.html",
+      "sha256": "eaf313f0091b8f4bea26b30d4d395444d68e1ba00e8b662f99abcde75ab9019f",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 16,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=16",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=16",
+      "retrieved_at": "2026-11-07T03:56:39.919987+00:00",
+      "raw_file": "raw/07-page-16.html",
+      "sha256": "2f5d3fdc0a86a3b6154e0306e3c7e511b7d3cce742598c1abdcfd4611bc0299b",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 16,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=16",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=16",
+      "retrieved_at": "2026-11-07T03:56:41.203599+00:00",
+      "raw_file": "raw/08-page-16.html",
+      "sha256": "9c86b053f45b298ca51f231cd32a89dd98725ce1412170b0114e84a0cc41c845",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 17,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=17",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=17",
+      "retrieved_at": "2026-11-07T03:56:42.378275+00:00",
+      "raw_file": "raw/01-page-17.html",
+      "sha256": "692eddbd7b453147db8e1541c14761095dfe4fbb912b5d3d2e0e38496f788b7f",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 17,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=17",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=17",
+      "retrieved_at": "2026-11-07T03:56:43.507685+00:00",
+      "raw_file": "raw/02-page-17.html",
+      "sha256": "90834b2257f22db53485eab190d9b11de80e2b4dd58c6d55f46e7f17422d9510",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 17,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=17",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=17",
+      "retrieved_at": "2026-11-07T03:56:44.665316+00:00",
+      "raw_file": "raw/03-page-17.html",
+      "sha256": "38a6f056979366fb42927241dfe7fd663b1513442a5affe59b04d756260d78e8",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 17,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=17",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=17",
+      "retrieved_at": "2026-11-07T03:56:45.812247+00:00",
+      "raw_file": "raw/04-page-17.html",
+      "sha256": "e002b9d230882b8b66a183991e7e764f050c8bad0af1e477875b510b3ada6bae",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 17,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=17",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=17",
+      "retrieved_at": "2026-11-07T03:56:46.965455+00:00",
+      "raw_file": "raw/05-page-17.html",
+      "sha256": "ba8cc9dcad46726caa96072924562a9e5e210a334ba0f83d97353a89fa63d8fd",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 17,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=17",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=17",
+      "retrieved_at": "2026-11-07T03:56:48.123246+00:00",
+      "raw_file": "raw/06-page-17.html",
+      "sha256": "07dd86b0f22e790fe08bfee010a6189827c5da4d1d6cbe0c093561efdd6e8ec8",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 17,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=17",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=17",
+      "retrieved_at": "2026-11-07T03:56:49.293350+00:00",
+      "raw_file": "raw/07-page-17.html",
+      "sha256": "49ec3ed1292da1526763b7e344edc0ba3ef21522d7db0b09e34dcf68ce3500c2",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 17,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=17",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=17",
+      "retrieved_at": "2026-11-07T03:56:50.433889+00:00",
+      "raw_file": "raw/08-page-17.html",
+      "sha256": "0d99169088946efcd90fd4c58e37d11c5d05f7a0f611283b749256e2f50835f0",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 18,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=18",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=18",
+      "retrieved_at": "2026-11-07T03:56:51.631090+00:00",
+      "raw_file": "raw/01-page-18.html",
+      "sha256": "dbab063217885b156ec49151bb2af8a9c7dd833e7c5a50a2cff2840a03149567",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 18,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=18",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=18",
+      "retrieved_at": "2026-11-07T03:56:52.862044+00:00",
+      "raw_file": "raw/02-page-18.html",
+      "sha256": "ddeb74e67ffeaf13757c76290e5e13f350e9da63ef712893e029980cc68c6664",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 18,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=18",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=18",
+      "retrieved_at": "2026-11-07T03:56:54.051020+00:00",
+      "raw_file": "raw/03-page-18.html",
+      "sha256": "3f1b1e19e73c30579e6cf58bed4293ecaca47a18b38643086438dc4ed506698d",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 18,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=18",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=18",
+      "retrieved_at": "2026-11-07T03:56:55.197342+00:00",
+      "raw_file": "raw/04-page-18.html",
+      "sha256": "85acfeead460431f224bf1fe0d6994c375c4abc3fd76fc20602a8199fba0c6e3",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 18,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=18",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=18",
+      "retrieved_at": "2026-11-07T03:56:56.683334+00:00",
+      "raw_file": "raw/05-page-18.html",
+      "sha256": "e7cd853ec55e1be1bcf0ada7fda859df6c06105938f30cf0b011e5e1dd2aeedf",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 18,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=18",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=18",
+      "retrieved_at": "2026-11-07T03:56:57.849495+00:00",
+      "raw_file": "raw/06-page-18.html",
+      "sha256": "97605ceac00b8720b8cfaff8afda5d48ac21552c672b7fcd9a9cd077bf0f1de0",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 18,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=18",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=18",
+      "retrieved_at": "2026-11-07T03:56:58.994939+00:00",
+      "raw_file": "raw/07-page-18.html",
+      "sha256": "2bb1ff803257ca9fbb6d8a92f823cfe86efcb65a7e305344aa2b6754d1232abf",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 18,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=18",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=18",
+      "retrieved_at": "2026-11-07T03:57:00.408021+00:00",
+      "raw_file": "raw/08-page-18.html",
+      "sha256": "98d68cff726de3f0c495344ea7a54de3817cb7d1841f046df43223e2bdeb3cb6",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 19,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=19",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=19",
+      "retrieved_at": "2026-11-07T03:57:01.670728+00:00",
+      "raw_file": "raw/01-page-19.html",
+      "sha256": "2451402181cfb1eea9b88c06cb8ab34238ac4a56b1665284f08a432a10575e76",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 19,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=19",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=19",
+      "retrieved_at": "2026-11-07T03:57:02.843877+00:00",
+      "raw_file": "raw/02-page-19.html",
+      "sha256": "b8bdf31e47515b202f0096c627b4318729463a69adf283e8b65c5590f6ee9f81",
+      "extracted_rows": 10
+    },
+    {
+      "query": "tepung terigu",
+      "page": 19,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=19",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=tepung+terigu&page=19",
+      "retrieved_at": "2026-11-07T03:57:03.988653+00:00",
+      "raw_file": "raw/03-page-19.html",
+      "sha256": "09783ea9a5b80539b33e0bd3fc3829ed3aed285839a8522bbce28242aeffb599",
+      "extracted_rows": 10
+    },
+    {
+      "query": "bumbu",
+      "page": 19,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=19",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=bumbu&page=19",
+      "retrieved_at": "2026-11-07T03:57:05.161103+00:00",
+      "raw_file": "raw/04-page-19.html",
+      "sha256": "a8fe51fe08db6f740a289f443949fc277d141b0d8044203edbe50efa2a0182ee",
+      "extracted_rows": 10
+    },
+    {
+      "query": "keju",
+      "page": 19,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=19",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=keju&page=19",
+      "retrieved_at": "2026-11-07T03:57:06.375418+00:00",
+      "raw_file": "raw/05-page-19.html",
+      "sha256": "155c6df9acb02a465032c606449b2e6b606fea46ae96856906f480faf9bd1f73",
+      "extracted_rows": 10
+    },
+    {
+      "query": "perisa",
+      "page": 19,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=19",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=perisa&page=19",
+      "retrieved_at": "2026-11-07T03:57:08.224308+00:00",
+      "raw_file": "raw/06-page-19.html",
+      "sha256": "edbf0eae7c8621a2430a668045e1a36e8a9b67e297b01bdb9c543159beb7d703",
+      "extracted_rows": 10
+    },
+    {
+      "query": "margarin",
+      "page": 19,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=19",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=19",
+      "retrieved_at": "2026-11-07T03:57:09.512766+00:00",
+      "raw_file": "raw/07-page-19.html",
+      "sha256": "5ac69db40d99966d0f6b50eda4bf4d2c192948affbcf9dcadd5db0732892fdb5",
+      "extracted_rows": 10
+    },
+    {
+      "query": "coklat",
+      "page": 19,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=19",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=coklat&page=19",
+      "retrieved_at": "2026-11-07T03:57:10.906865+00:00",
+      "raw_file": "raw/08-page-19.html",
+      "sha256": "a50bff539ca6e9a032b97075cdb442796a6cb1a13cb1ab8cdd348cf78c357083",
+      "extracted_rows": 10
+    },
+    {
+      "query": "gelatin",
+      "page": 20,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=20",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=gelatin&page=20",
+      "retrieved_at": "2026-11-07T03:57:12.107380+00:00",
+      "raw_file": "raw/01-page-20.html",
+      "sha256": "08fcf97d9833647b06997dc23b667243b20104eacfef3468cc9f1f01dd317c74",
+      "extracted_rows": 10
+    },
+    {
+      "query": "minyak goreng",
+      "page": 20,
+      "source_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=20",
+      "final_url": "https://bpjph.halal.go.id/cari/sertifikat?produk=minyak+goreng&page=20",
+      "retrieved_at": "2026-11-07T03:57:13.262241+00:00",
+      "raw_file": "raw/02-page-20.html",
+      "sha256": "10a1103dd0a4061abf3e7bd1e2de1eb741296451b07db3559b9ca52fd5209a8d",
+      "extracted_rows": 10
+    }
+  ],
+  "limitations": [
+    "Public search snapshot; not an independent halal ruling.",
+    "No completeness or current certificate-status guarantee.",
+    "Dates preserved verbatim; source dates may differ from retrieval date.",
+    "No bulk reuse license or official API confirmed."
+  ]
+}
