@@ -1,5 +1,11 @@
 # Shared Telusur dataset
 
+For a separate real-data demo sample, see [BPJPH public-search sample](bpjph-demo/README.md):
+1,504 product records associated with 568 certificate numbers, collected from
+154 public search pages on 7 November 2026.
+These are source observations, not halal/haram gold labels, and must remain
+separate from the simulated benchmark below.
+
 Dataset prepared before the event (simulated data, no code).
 
 Use **[pack-photos/](pack-photos/README.md)** for the fresh implementation. Supplier messaging is out of scope. This copy preserves the prepared data layout; no prototype implementation or test code is included.
