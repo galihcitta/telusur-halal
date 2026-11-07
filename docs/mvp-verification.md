@@ -1,3 +1,9 @@
+## Responsive Telusur Halal redesign
+
+The D01 browser flow passed at 1440 × 1000 and 390 × 844 against the real local routes, seller authorization, evidence rules, and packet builder with the model replaced by D01 fixtures. The flow covered upload and ingredient confirmation, both package inputs, Pedas rejection, the corrected Original pack, Shopee approval, and HTML, JSON, and trace downloads. The D01 fixture grader passed against the downloaded packet and trace. The current chili remained unresolved and the approved replacement remained pending adoption. Mobile replay exposed read-only evidence and history. The browser checks found no console errors or horizontal overflow.
+
+The browser supplied synthetic audio and simulated images, including a file supplied to the native camera input through Chromium automation. This run did not exercise a physical phone camera or the live model API.
+
 ## Scope edit merge-blocker verification — 2026-11-07
 
 The original intake scope no longer authorizes a materially renamed product. Confirmation keeps snack scope only while the current and original scopes are supported and the product name matches the assessed draft after NFC, case and whitespace normalization. Material name changes route to facilitator review, including at first confirmation; restoring the original name or submitting the old snack selection cannot restore support without a new assessment. This is conservative referral, not a process-word denylist. Ordinary ingredient edits retain the existing history and request/proposal bounds.
