@@ -22,6 +22,7 @@ const exactOriginal: Observation = {
 type Sample = {
   id: string;
   path: string;
+  mime?: 'image/jpeg';
   declaration: Pick<Ingredient, 'declared_name' | 'variant' | 'brand'>;
   expect: 'verified' | 'unresolved';
   perception: (observation: Observation) => boolean;
@@ -102,6 +103,21 @@ const samples: Sample[] = [
   },
 ];
 
+// The original marketplace photo is kept outside the repository.
+const palmiaPhoto = process.argv[2];
+if (palmiaPhoto) {
+  samples.push({
+    id: 'Palmia-original-marketplace-photo',
+    path: palmiaPhoto,
+    mime: 'image/jpeg',
+    declaration: { declared_name: 'Margarin Palmia Super Cake', brand: 'Palmia', variant: 'Super Cake' },
+    expect: 'verified',
+    perception: read => /\bmargarin\b/i.test(read.product ?? '') &&
+      !/\bmargarin\b/i.test(read.variant ?? '') &&
+      read.certificate_state === 'absent' && read.certificate_number === null,
+  });
+}
+
 const model = createModel();
 const results = await Promise.all(samples.map(async (sample) => {
   const started = performance.now();
@@ -111,7 +127,7 @@ const results = await Promise.all(samples.map(async (sample) => {
     const request_id = randomUUID();
     const observed = await model.readPack([{
       name: sample.path,
-      mime: 'image/png',
+      mime: sample.mime ?? 'image/png',
       bytes: await readFile(sample.path),
     }]);
     const photo: Evidence = {

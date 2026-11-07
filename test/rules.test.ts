@@ -155,6 +155,11 @@ test('BPJPH match uses full product and manufacturer and keeps registry number s
   assert.ok(match.source_refs.includes('https://bpjph.halal.go.id/cari/sertifikat?produk=margarin&page=13'));
   assert.equal(checkEvidence(palmia, fromPack({ ...evidence, manufacturer: 'PT Lain' }), 'case', 1).status, 'unresolved');
   assert.equal(checkEvidence(palmia, fromPack({ ...evidence, product: 'Margarin Palmia Prime' }), 'case', 1).status, 'unresolved');
+  for (const product of ['Palmia Super Cake', 'Palmia Super Cake Margarine', 'Palmia Super Cake Margarin Extra']) {
+    assert.equal(checkEvidence(palmia, fromPack({
+      ...evidence, product, certificate_state: 'printed', certificate_number: 'ID00410000054910420',
+    }), 'case', 1).reason, 'IDENTITY_MISMATCH', product);
+  }
   assert.equal(checkEvidence(palmia, fromPack({
     ...evidence, certificate_number: 'ID36210084939791126', certificate_state: 'printed',
   }), 'case', 1).reason, 'CERTIFICATE_MISMATCH');

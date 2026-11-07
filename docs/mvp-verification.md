@@ -1,3 +1,51 @@
+## Package photo extraction and model comparison — 2026-11-07
+
+The package reader now reads the full identity panel, including a separately printed product type, and excludes instructions on stickers and surrounding listing graphics as sources of identity. It asks for a legible manufacturer attribution and a number explicitly marked as a halal certificate. The output schema, registry matching and existing source, seller, conflict and repack rules are unchanged.
+
+### Real marketplace photos
+
+The original and four alternatives are the same JPEGs recovered from the MVP browser QA chat. They depict physical boxes or marketplace listing graphics; they are neither seller-submitted evidence nor held-out samples. Both models received the same bytes, high image detail, prompt, schema and seller declaration. Exact verdicts came from the unchanged rules against the saved BPJPH snapshot.
+
+The table counts literal `Margarin` in the extracted product field and exact verified verdicts separately. Each entry is out of three reads. No positive verdict attributed a number to the photo; the number came from the saved BPJPH result.
+
+| Input | Visible evidence and remaining limits | Baseline Mini: token / exact | Updated Mini: token / exact | Terra: token / exact |
+| --- | --- | --- | --- | --- |
+| [Original](https://down-id.img.susercontent.com/file/id-11134207-7r98r-lsv7qmp7t3a10f) | Clear Indonesian type and maker line. Updated Mini's one refusal had a trailing period in the maker string. | 1 / 0 | 3 / 2 | 3 / 0 |
+| [Alt 1](https://down-id.img.susercontent.com/file/id-11134207-7ra0s-mb7sm1sttxax49) | Small two-sided carton with both language forms visible and maker text too small to rely on. One updated Mini read still used an Indofood name unsupported by the maker line. | 0 / 0 | 1 / 0 | 3 / 0 |
+| [Alt 2](https://down-id.img.susercontent.com/file/sg-11134201-23010-99e2bzracsmvba) | Clear Indonesian type, smaller maker line. Two updated Mini reads appended a trailing period; one also read the English spelling. | 0 / 0 | 2 / 1 | 3 / 0 |
+| [Alt 3](https://down-id.img.susercontent.com/file/id-11134201-23030-kruw3rdbgpov20) | Both language forms visible, maker too small to rely on. Both updated models left maker null. | 0 / 0 | 3 / 0 | 3 / 0 |
+| [Alt 4](https://down-id.img.susercontent.com/file/fc643e7cfecdff0b4626e0d06b0e8e37) | Box says `Margarine` in English; Indonesian `Margarin` is absent. Updated Mini read the English type but misread the maker and once reported an unsupported number. Terra read the English type and left maker null. | 0 / 0 | 0 / 0 | 0 / 0 |
+| Original + Alt 2 | Both show the Indonesian type. Updated Mini's two refusals had a trailing period in the maker string. | 0 / 0 | 3 / 1 | 3 / 0 |
+
+Terra marked the certificate unreadable on all 18 Palmia reads and therefore did not verify any. It preserved the Indonesian type more often on the alternate photos, but more exact matches came from Mini. The baseline original omission reproduced in two of three runs; the new prompt did not drop that word in the three matched comparisons or the preceding three Mini checks. These small samples do not establish stable accuracy. No punctuation, translation, missing maker or certificate exception was added.
+
+### Live model reads on simulated packs
+
+Both models ran the same ten image cases three times. The score requires both correct extraction and the expected rule outcome. The last case adds a separate synthetic seller-typed observation after the live photo read.
+
+| Case | Mini: passed / 3 and rule outcome | Terra: passed / 3 and rule outcome |
+| --- | --- | --- |
+| D01 Sentosa oil | 3; all verified with printed number | 0; two unreadable, one exact by identity with number omitted |
+| D01 Original seasoning | 3; all verified | 3; all verified |
+| Wrong Pedas for Original | 3; identity mismatch | 2; two identity mismatches, one unreadable certificate |
+| Extra Pedas with borrowed number | 3; full variant and number read, identity mismatch | 0; full variant read, number omitted; identity mismatch |
+| Wrong product with borrowed number | 3; wrong product and number read, identity mismatch | 0; wrong product read, number omitted; identity mismatch |
+| Obscured certificate | 2; two unreadable, one partial number refused as certificate mismatch | 3; all unreadable |
+| D16 logo only | 3; no maker or number, unreadable | 3; no maker or number, unreadable |
+| Repack sticker | 3; repack recognized, refused | 3; repack recognized, refused |
+| A04 instruction sticker covering maker | 3; no maker or number, unreadable | 3; no maker or number, unreadable |
+| Wrong photo then conflicting typed Original | 3; conflict retained, refused | 3; conflict retained, refused |
+
+Mini passed **29/30**, Terra **20/30**. Both had zero unsafe accepts and zero API failures across the 30 matrix reads and 21 marketplace/sticker reads per model. Matrix positives saw zero Mini false refusals and two Terra false refusals. Matrix median latency was 1.37 s for Mini (1.15–1.93 s) and 3.72 s for Terra (2.69–6.94 s). The separate parallel marketplace/sticker batch had medians of 3.47 s and 9.97 s respectively, including request overhead; these are observed wall times, not a controlled latency benchmark.
+
+Astra's original A04 result copied the instruction's manufacturer and still refused the photo. The same contamination recurred in **2/15** targeted baseline Mini reads; the updated prompt had **0/15**, and both comparison models had no maker or number contamination in six more reads each. The prompt is a perception improvement; the deterministic rule remains the authority. Coverage does not establish general injection resistance or accuracy on human-recorded intake and phone photos. The private held-out set was not accessed.
+
+### Browser and fixture verification
+
+The updated Mini configuration passed live D01 from synthetic audio and label through wrong-pack correction, seller approval and HTML/JSON export. The export grader passed, with the oil and seasoning verified and the substitute separate, pending adoption. Terra read the D01 intake label and reached the two initial pack requests, but the browser run stopped on the valid Sentosa upload: Terra returned unreadable evidence and the app correctly requested a clearer photo. Mini remains the default for vision; action selection and transcription defaults also remain unchanged.
+
+Typecheck and all 45 tests passed. Fixture tests independently enforce that a missing type, a translated type, and an extra product token fail the exact BPJPH check even with the right maker and certificate number. Run the simulated live matrix with `npm run test:images`; add `-- /path/to/original-marketplace-photo.jpg` to include the original Palmia positive and its literal product-type assertion. Set `OPENAI_VISION_MODEL` to repeat the same cases with another model.
+
 ## Scope edit merge-blocker verification — 2026-11-07
 
 The original intake scope no longer authorizes a materially renamed product. Confirmation keeps snack scope only while the current and original scopes are supported and the product name matches the assessed draft after NFC, case and whitespace normalization. Material name changes route to facilitator review, including at first confirmation; restoring the original name or submitting the old snack selection cannot restore support without a new assessment. This is conservative referral, not a process-word denylist. Ordinary ingredient edits retain the existing history and request/proposal bounds.
